@@ -2,6 +2,74 @@
 
 ## 2026-01-19
 
+### Ship Rendering as 2-Hex Pieces (wsim-787) - COMPLETED
+Implemented comprehensive ship rendering component for displaying ships on the hex grid:
+
+**Ship Component:**
+- Renders ships as 2-hex pieces (bow + stern circles) with connecting line between them
+- Displays facing arrow on bow hex pointing in ship's facing direction
+- Color-coded by side: Blue for P1, Red for P2, Gray for struck ships
+- Ship name label displayed between bow and stern hexes
+- Click selection with visual highlight (white stroke when selected)
+- Fouled indicator: Orange "F" badge displayed on bow hex when ship is fouled
+- Struck indicator: Red X overlay on bow hex when ship has struck
+- Proper SVG positioning using hex layout for bow_hex and stern_hex coordinates
+
+**Facing Arrow System:**
+- Calculates arrow direction for all 8 compass facings (N, NE, E, SE, S, SW, W, NW)
+- Arrow rendered as white triangle with black stroke for visibility
+- Points in direction ship is facing for clear orientation
+
+**HexGrid Integration:**
+- Added ships prop to accept array of Ship objects
+- Added selectedShipId prop for managing selection state
+- Added onShipClick callback for ship click handling
+- Ships layer rendered on top of hex grid layer
+- Ships receive hex layout info for proper pixel coordinate conversion
+
+**GamePage Updates:**
+- Fetches game state from API using game ID parameter
+- Displays game metadata: scenario ID, turn number, phase, wind direction
+- Converts ships Record<string, Ship> to Ship[] array for rendering
+- Ship selection state management with selectedShipId
+- Shows selected ship details in header (name, side, hull, rigging, crew, marines)
+- Displays fouled/struck status indicators in header
+- Loading and error states for better user experience
+
+**Visual Design:**
+- Ships rendered with 0.9 opacity for slight transparency
+- Selection highlighted with thicker white stroke (3px vs 2px)
+- Fouled badge positioned at top-right of bow hex
+- Struck ships shown in gray with red X overlay
+- Ship names in bold white text with drop shadow for readability
+- Click handlers prevent event propagation to avoid hex clicks
+
+**Technical Implementation:**
+- Created frontend/src/components/Ship.tsx (~180 lines)
+- Updated HexGrid component to support ship rendering
+- Updated GamePage to fetch and display game state
+- Uses existing API client for game state fetching
+- Proper TypeScript typing throughout
+- SVG-based rendering for scalability and performance
+
+**Testing:**
+- All 348 backend tests passing
+- Frontend builds successfully with no TypeScript errors
+- Visual testing shows ships correctly positioned at bow/stern coordinates
+- Facing arrows point in correct directions for all 8 facings
+- Selection, fouled, and struck indicators display properly
+
+**Quality:**
+- Ruff formatting and linting: all checks passed
+- Ty type checking: all checks passed
+- TypeScript compilation: no errors
+- Ready for integration with other UI components
+
+**Next Steps:**
+Ready to implement ship log panel UI (wsim-8ly) to display detailed ship information when selected.
+
+## 2026-01-19
+
 ### Movement Resolution API Endpoint (wsim-teb) - COMPLETED
 Implemented complete movement resolution endpoint for the Movement phase:
 

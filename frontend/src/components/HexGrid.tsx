@@ -1,16 +1,21 @@
 import { useMemo } from 'react';
 import type { HexCoordinate, HexLayout } from '../types/hex';
+import type { Ship as ShipData } from '../types/game';
 import {
   hexToPixel,
   getHexCorners,
   cornersToPoints,
 } from '../types/hex';
+import { Ship } from './Ship';
 
 interface HexGridProps {
   width: number;
   height: number;
   hexSize?: number;
+  ships?: ShipData[];
+  selectedShipId?: string | null;
   onHexClick?: (hex: HexCoordinate) => void;
+  onShipClick?: (shipId: string) => void;
 }
 
 interface Hex {
@@ -19,14 +24,22 @@ interface Hex {
   center: { x: number; y: number };
 }
 
-export function HexGrid({ width, height, hexSize = 30, onHexClick }: HexGridProps) {
-  const hexes = useMemo<Hex[]>(() => {
-    const layout: HexLayout = {
-      hexSize,
-      origin: { x: hexSize * 1.5, y: hexSize * Math.sqrt(3) },
-      orientation: 'flat',
-    };
+export function HexGrid({
+  width,
+  height,
+  hexSize = 30,
+  ships = [],
+  selectedShipId = null,
+  onHexClick,
+  onShipClick,
+}: HexGridProps) {
+  const layout = useMemo<HexLayout>(() => ({
+    hexSize,
+    origin: { x: hexSize * 1.5, y: hexSize * Math.sqrt(3) },
+    orientation: 'flat' as const,
+  }), [hexSize]);
 
+  const hexes = useMemo<Hex[]>(() => {
     const result: Hex[] = [];
 
     for (let row = 0; row < height; row++) {
@@ -45,7 +58,7 @@ export function HexGrid({ width, height, hexSize = 30, onHexClick }: HexGridProp
     }
 
     return result;
-  }, [width, height, hexSize]);
+  }, [width, height, hexSize, layout]);
 
   // Calculate SVG dimensions based on hex layout
   const svgWidth = useMemo(
@@ -64,6 +77,12 @@ export function HexGrid({ width, height, hexSize = 30, onHexClick }: HexGridProp
     }
   };
 
+  const handleShipClick = (shipId: string) => {
+    if (onShipClick) {
+      onShipClick(shipId);
+    }
+  };
+
   return (
     <svg
       width="100%"
@@ -76,6 +95,7 @@ export function HexGrid({ width, height, hexSize = 30, onHexClick }: HexGridProp
         height: 'auto',
       }}
     >
+      {/* Hex grid layer */}
       {hexes.map((hex) => (
         <g key={`${hex.coord.col}-${hex.coord.row}`}>
           <polygon
@@ -109,6 +129,17 @@ export function HexGrid({ width, height, hexSize = 30, onHexClick }: HexGridProp
             {hex.coord.col},{hex.coord.row}
           </text>
         </g>
+      ))}
+
+      {/* Ships layer */}
+      {ships.map((ship) => (
+        <Ship
+          key={ship.id}
+          ship={ship}
+          layout={layout}
+          isSelected={ship.id === selectedShipId}
+          onClick={handleShipClick}
+        />
       ))}
     </svg>
   );
