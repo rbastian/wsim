@@ -120,3 +120,70 @@ Implemented comprehensive movement notation parser that converts high-level move
 - ✅ All pytest tests passing (84/84 total suite)
 
 The movement parser is now complete and provides the foundation for the movement execution engine.
+
+## 2026-01-19 - Simultaneous Movement Execution Engine (wsim-okz)
+
+Implemented comprehensive movement execution engine that processes parsed movement actions step-by-step for all ships simultaneously:
+
+### Components Created:
+- **Hex Geometry Functions**:
+  - turn_left(): Rotate facing 45 degrees counter-clockwise through all 8 compass directions
+  - turn_right(): Rotate facing 45 degrees clockwise through all 8 compass directions
+  - get_adjacent_hex(): Calculate adjacent hex in any direction using odd-q vertical layout
+  - calculate_stern_from_bow(): Determine stern hex position from bow and facing
+
+- **Ship Movement Functions**:
+  - execute_ship_turn(): Execute turn action (left/right) updating facing and stern position
+  - execute_ship_forward_movement(): Move ship forward N hexes with bounds checking
+  - execute_simultaneous_movement(): Main execution function processing all ships in parallel
+
+- **Movement State Models**:
+  - ShipMovementState: Tracks per-ship execution progress (action index, hexes moved, bow advancement)
+  - MovementExecutionResult: Result containing bow advancement flags and action count
+
+- **MovementExecutionError**: Custom exception for execution failures
+
+### Key Features:
+- **Odd-q Vertical Hex Layout**: Proper hex geometry with offset coordinate system
+  - Handles even/odd column differences in neighbor calculations
+  - Supports all 8 compass directions (N, NE, E, SE, S, SW, W, NW)
+
+- **Step-by-Step Simultaneous Execution**:
+  - All ships execute their next action in parallel before advancing to next step
+  - Maintains fairness and simultaneity required by game rules
+
+- **Battle Sail Speed Enforcement**:
+  - Validates total forward hexes don't exceed ship's movement allowance
+  - Raises clear error if exceeded
+
+- **Bounds Checking**:
+  - Validates movements stay within map boundaries
+  - Checks bounds at each step before creating invalid HexCoord
+
+- **Bow Advancement Tracking**:
+  - Tracks whether each ship's bow hex changed position
+  - Critical for drift rule implementation
+
+- **Position Consistency**:
+  - Automatically recalculates stern position after turns
+  - Ensures bow and stern always maintain proper relationship
+
+### Test Coverage:
+- Created 31 comprehensive tests covering:
+  - Turn functions (left/right, full rotations, all 8 facings)
+  - Adjacent hex calculation (even/odd columns, all 8 directions)
+  - Stern calculation from bow (all 8 facings, both column parities)
+  - Ship turn execution (single turns, sequences, validation)
+  - Ship forward movement (single/multiple hexes, zero distance, bounds checking)
+  - Simultaneous movement (single ship, multiple ships, complex sequences)
+  - Movement allowance enforcement
+  - Bow advancement tracking
+  - Ship attribute preservation
+- All tests passing (31/31)
+
+### Quality Checks:
+- ✅ Ruff formatting and linting (all checks passed)
+- ✅ Ty type checking (all checks passed)
+- ✅ All pytest tests passing (115/115 total suite)
+
+The movement execution engine is now complete and provides the foundation for collision detection, fouling, and drift systems.
