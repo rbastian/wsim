@@ -20,6 +20,7 @@ from wsim_core.engine.movement_parser import (
     parse_movement,
     validate_movement_within_allowance,
 )
+from wsim_core.engine.reload import create_reload_event, reload_all_ships
 from wsim_core.engine.rng import create_rng
 from wsim_core.models.common import AimPoint, Broadside, GamePhase, LoadState
 from wsim_core.models.events import EventLogEntry
@@ -690,3 +691,134 @@ async def fire_broadside(
     store.update_game(game)
 
     return FireBroadsideResponse(state=game, events=[event])
+
+
+class ResolveReloadResponse(BaseModel):
+    """Response after resolving reload phase."""
+
+    state: Game = Field(description="Updated game state with reloaded broadsides")
+    events: list[EventLogEntry] = Field(description="Reload event log entries")
+
+
+@router.post("/{game_id}/turns/{turn}/resolve/reload", response_model=ResolveReloadResponse)
+async def resolve_reload(game_id: str, turn: int) -> ResolveReloadResponse:
+    """Reload all fired broadsides.
+
+    This endpoint implements the reload phase:
+    1. Reloads all empty broadsides on ships that can reload (not struck)
+    2. Creates event log entries for reload operations
+    3. Transitions game phase to RELOAD
+    4. Returns updated game state and reload events
+
+    Args:
+        game_id: The game identifier
+        turn: The turn number
+
+    Returns:
+        Updated game state with reloaded broadsides and reload events
+
+    Raises:
+        HTTPException: If game not found, turn mismatch, or invalid phase
+    """
+    store = get_game_store()
+    game = store.get_game(game_id)
+
+    if game is None:
+        raise HTTPException(status_code=404, detail=f"Game '{game_id}' not found")
+
+    # Validate turn number
+    if turn != game.turn_number:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Turn mismatch: expected {game.turn_number}, got {turn}",
+        )
+
+    # Validate phase - reload can be called from COMBAT phase
+    if game.phase != GamePhase.COMBAT:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Cannot reload in phase {game.phase.value}",
+        )
+
+    # Reload all ships
+    ships_list = list(game.ships.values())
+    reload_results = reload_all_ships(ships_list, turn)
+
+    # Create reload events
+    reload_events: list[EventLogEntry] = []
+    for result in reload_results:
+        ship = game.get_ship(result.ship_id)
+        event = create_reload_event(result, turn, ship.name)
+        reload_events.append(event)
+
+    # Update game state
+    game.phase = GamePhase.RELOAD
+    game.event_log.extend(reload_events)
+
+    # Update game in store
+    store.update_game(game)
+
+    return ResolveReloadResponse(state=game, events=reload_events)
+
+
+class AdvanceTurnResponse(BaseModel):
+    """Response after advancing to the next turn."""
+
+    state: Game = Field(description="Updated game state in planning phase for new turn")
+
+
+@router.post("/{game_id}/turns/{turn}/advance", response_model=AdvanceTurnResponse)
+async def advance_turn(game_id: str, turn: int) -> AdvanceTurnResponse:
+    """Advance to the next turn.
+
+    This endpoint implements turn advancement:
+    1. Validates that the current turn is complete (in RELOAD phase)
+    2. Increments the turn number
+    3. Clears orders for both players
+    4. Transitions back to PLANNING phase
+    5. Returns updated game state ready for next turn
+
+    Args:
+        game_id: The game identifier
+        turn: The current turn number to advance from
+
+    Returns:
+        Updated game state in planning phase for new turn
+
+    Raises:
+        HTTPException: If game not found, turn mismatch, or invalid phase
+    """
+    store = get_game_store()
+    game = store.get_game(game_id)
+
+    if game is None:
+        raise HTTPException(status_code=404, detail=f"Game '{game_id}' not found")
+
+    # Validate turn number
+    if turn != game.turn_number:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Turn mismatch: expected {game.turn_number}, got {turn}",
+        )
+
+    # Validate phase - can only advance from RELOAD phase
+    if game.phase != GamePhase.RELOAD:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Cannot advance turn from phase {game.phase.value}, must be in RELOAD phase",
+        )
+
+    # Increment turn number
+    game.turn_number += 1
+
+    # Clear orders for next turn
+    game.p1_orders = None
+    game.p2_orders = None
+
+    # Return to planning phase
+    game.phase = GamePhase.PLANNING
+
+    # Update game in store
+    store.update_game(game)
+
+    return AdvanceTurnResponse(state=game)
