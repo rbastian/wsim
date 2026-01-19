@@ -1,0 +1,36 @@
+
+## 2026-01-19 - Core Pydantic Models Implementation (wsim-vbx)
+
+Implemented the foundational Pydantic v2 models for the WSIM game engine:
+
+### Models Created:
+- **Common Enums**: Side, Facing (8 directions), WindDirection, LoadState, GamePhase, Broadside, AimPoint
+- **HexCoord**: Hex coordinate model with hash support for use as dict keys
+- **Ship**: Complete ship state including:
+  - Identity (id, name, side)
+  - Position (bow_hex, stern_hex, facing)
+  - Movement stats (battle_sail_speed)
+  - Combat stats (guns_L/R, carronades_L/R)
+  - Tracks (hull, rigging, crew, marines)
+  - Load state (load_L/R)
+  - Status flags (fouled, struck)
+  - Drift tracking (turns_without_bow_advance)
+- **Orders**: ShipOrders and TurnOrders for movement planning phase
+- **Events**: DiceRoll and EventLogEntry for comprehensive audit trail
+- **Game**: Complete game state with ships dict, wind, phase, event log, and helper methods
+
+### Test Coverage:
+- Created 39 comprehensive tests covering all models
+- Tests include validation, edge cases, and model interactions
+- All tests passing
+
+### Quality Checks:
+- ✅ Ruff formatting and linting (all checks passed)
+- ✅ Ty type checking (all checks passed)
+- ✅ All pytest tests passing (39/39)
+
+### Configuration:
+- Added per-file linting exception for Ship model (_L/_R suffix is domain convention)
+- Configured ty overrides for test files to handle dynamic dict unpacking
+
+This provides the solid foundation for all other game engine components.
