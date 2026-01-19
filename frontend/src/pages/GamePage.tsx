@@ -3,6 +3,7 @@
 import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { HexGrid } from "../components/HexGrid";
+import { ShipLogPanel } from "../components/ShipLogPanel";
 import { api } from "../api/client";
 import type { HexCoordinate } from "../types/hex";
 import type { Game, Ship } from "../types/game";
@@ -12,7 +13,6 @@ export function GamePage() {
   const [game, setGame] = useState<Game | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedHex, setSelectedHex] = useState<HexCoordinate | null>(null);
   const [selectedShipId, setSelectedShipId] = useState<string | null>(null);
 
   // Fetch game state on mount
@@ -40,14 +40,12 @@ export function GamePage() {
     fetchGame();
   }, [gameId]);
 
-  const handleHexClick = (hex: HexCoordinate) => {
-    setSelectedHex(hex);
-    console.log('Hex clicked:', hex);
+  const handleHexClick = (_hex: HexCoordinate) => {
+    // Hex click handling can be implemented later if needed
   };
 
   const handleShipClick = (shipId: string) => {
     setSelectedShipId(shipId);
-    console.log('Ship clicked:', shipId);
   };
 
   if (loading) {
@@ -72,39 +70,77 @@ export function GamePage() {
   const selectedShip = selectedShipId ? game.ships[selectedShipId] : null;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', padding: '1rem' }}>
-      <div style={{ marginBottom: '1rem' }}>
-        <h1 style={{ margin: 0, marginBottom: '0.5rem' }}>
-          Game: {game.scenario_id} (Turn {game.turn_number})
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', backgroundColor: '#0a0a0a' }}>
+      {/* Header */}
+      <div style={{
+        padding: '1rem',
+        borderBottom: '2px solid #333',
+        backgroundColor: '#1a1a1a'
+      }}>
+        <h1 style={{ margin: 0, marginBottom: '0.5rem', color: '#fff' }}>
+          {game.scenario_id.replace(/_/g, ' ').toUpperCase()}
         </h1>
-        <p style={{ margin: 0, color: '#888' }}>
-          Phase: {game.phase} | Wind: {game.wind_direction}
+        <p style={{ margin: 0, color: '#888', fontSize: '14px' }}>
+          Turn {game.turn_number} | Phase: <span style={{ color: '#4a90e2', fontWeight: 'bold' }}>{game.phase.toUpperCase()}</span> | Wind: {game.wind_direction}
         </p>
-        {selectedHex && (
-          <p style={{ margin: 0, color: '#888' }}>
-            Selected hex: [{selectedHex.col}, {selectedHex.row}]
-          </p>
-        )}
-        {selectedShip && (
-          <p style={{ margin: 0, color: '#4a90e2' }}>
-            Selected ship: {selectedShip.name} ({selectedShip.side}) |
-            Hull: {selectedShip.hull} | Rigging: {selectedShip.rigging} |
-            Crew: {selectedShip.crew} | Marines: {selectedShip.marines}
-            {selectedShip.fouled && " | FOULED"}
-            {selectedShip.struck && " | STRUCK"}
-          </p>
-        )}
       </div>
-      <div style={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
-        <HexGrid
-          width={game.map_width}
-          height={game.map_height}
-          hexSize={25}
-          ships={ships}
-          selectedShipId={selectedShipId}
-          onHexClick={handleHexClick}
-          onShipClick={handleShipClick}
-        />
+
+      {/* Main content area */}
+      <div style={{
+        flex: 1,
+        display: 'flex',
+        overflow: 'hidden',
+        padding: '1rem',
+        gap: '1rem'
+      }}>
+        {/* Left panel - Ship Log */}
+        <div style={{
+          width: '320px',
+          flexShrink: 0,
+          display: 'flex',
+          flexDirection: 'column',
+          minHeight: 0
+        }}>
+          <ShipLogPanel ship={selectedShip} />
+        </div>
+
+        {/* Center - Hex Grid Board */}
+        <div style={{
+          flex: 1,
+          minHeight: 0,
+          overflow: 'auto',
+          backgroundColor: '#1a1a1a',
+          borderRadius: '8px',
+          padding: '1rem'
+        }}>
+          <HexGrid
+            width={game.map_width}
+            height={game.map_height}
+            hexSize={25}
+            ships={ships}
+            selectedShipId={selectedShipId}
+            onHexClick={handleHexClick}
+            onShipClick={handleShipClick}
+          />
+        </div>
+
+        {/* Right panel - Reserved for orders/combat panels */}
+        <div style={{
+          width: '320px',
+          flexShrink: 0,
+          backgroundColor: '#1e1e1e',
+          border: '2px solid #333',
+          borderRadius: '8px',
+          padding: '16px',
+          color: '#e0e0e0'
+        }}>
+          <h3 style={{ margin: '0 0 12px 0', fontSize: '14px', fontWeight: 'bold', color: '#aaa' }}>
+            ACTIONS
+          </h3>
+          <p style={{ fontSize: '13px', color: '#888', fontStyle: 'italic' }}>
+            Orders and combat panels will appear here based on game phase
+          </p>
+        </div>
       </div>
     </div>
   );

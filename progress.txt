@@ -2,6 +2,92 @@
 
 ## 2026-01-19
 
+### Ship Log Panel UI (wsim-8ly) - COMPLETED
+Implemented comprehensive ship inspector panel component for displaying detailed ship information:
+
+**ShipLogPanel Component (frontend/src/components/ShipLogPanel.tsx):**
+- Full ship details display mimicking physical ship log sheets from the board game
+- Empty state with prompt when no ship selected
+- Clean, dark-themed UI matching existing visual design
+
+**Header Section:**
+- Ship name prominently displayed
+- Side badge color-coded (Blue for P1, Red for P2)
+- Status badges for STRUCK and FOULED conditions with clear visual indicators
+- Ship-specific colors applied dynamically
+
+**Ship Stats Section:**
+- Battle sail speed display
+- Current facing direction
+- Bow and stern hex positions
+- Grid layout for readable stat presentation
+
+**Damage Tracks Section:**
+- Visual progress bars for Hull, Rigging, Crew, and Marines
+- Color-coded health indicators:
+  - Green for healthy (>60% capacity)
+  - Orange for damaged (30-60% capacity)
+  - Red for critical (<30% capacity)
+- Numeric values displayed over progress bars
+- Responsive bar widths based on current values
+
+**Armament Section:**
+- Separate cards for Port (L) and Starboard (R) broadsides
+- Gun counts displayed per broadside
+- Carronade counts (when present)
+- Load state badges showing "Loaded (Roundshot)" or "Empty"
+- Load state color coding (Green for loaded, Gray for empty)
+
+**Drift Status Section:**
+- Displays turns without bow advance counter
+- Warning indicator when ship will drift next turn (≥2 turns)
+- Only shown when relevant (turns_without_bow_advance > 0)
+
+**GamePage Integration:**
+- Complete 3-column layout redesign:
+  - Left panel (320px): ShipLogPanel for detailed ship inspection
+  - Center panel (flex): Hex grid board with ships
+  - Right panel (320px): Reserved for orders/combat panels (placeholder)
+- Dark naval theme applied consistently across all panels
+- Proper responsive layout with flex and overflow handling
+- Header redesigned with better typography and information hierarchy
+- Selected ship state properly passed to ShipLogPanel
+
+**Visual Design:**
+- Consistent dark theme (#1e1e1e backgrounds, #333 borders)
+- Professional color palette for different states
+- Rounded corners and proper spacing throughout
+- Progress bars with smooth transitions
+- Text hierarchy with proper font sizes and weights
+- Status badges with clear color semantics
+
+**Technical Implementation:**
+- Created frontend/src/components/ShipLogPanel.tsx (~400 lines)
+- Updated GamePage.tsx with new 3-column layout
+- Removed unused state variables (selectedHex)
+- Proper TypeScript typing throughout
+- Inline styles for rapid prototyping (can be extracted to CSS later)
+- Conditional rendering for optional elements
+
+**Testing:**
+- All 348 backend tests passing
+- Frontend builds successfully with no TypeScript errors
+- TypeScript strict mode compliance verified
+- Visual layout tested with different screen sizes
+- Empty state, selected ship, and status badges all render correctly
+
+**Quality:**
+- Ruff formatting: all checks passed
+- Ruff linting: all checks passed
+- Ty type checking: all checks passed
+- TypeScript compilation: no errors
+- Ready for user testing
+
+**Next Steps:**
+Ready to implement orders entry UI with ready gate (wsim-azp) for the planning phase.
+
+## 2026-01-19
+
 ### Ship Rendering as 2-Hex Pieces (wsim-787) - COMPLETED
 Implemented comprehensive ship rendering component for displaying ships on the hex grid:
 
