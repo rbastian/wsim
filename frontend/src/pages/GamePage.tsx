@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { HexGrid } from "../components/HexGrid";
 import { ShipLogPanel } from "../components/ShipLogPanel";
+import { OrdersPanel } from "../components/OrdersPanel";
 import { api } from "../api/client";
 import type { HexCoordinate } from "../types/hex";
 import type { Game, Ship } from "../types/game";
@@ -46,6 +47,10 @@ export function GamePage() {
 
   const handleShipClick = (shipId: string) => {
     setSelectedShipId(shipId);
+  };
+
+  const handleGameUpdate = (updatedGame: Game) => {
+    setGame(updatedGame);
   };
 
   if (loading) {
@@ -124,22 +129,15 @@ export function GamePage() {
           />
         </div>
 
-        {/* Right panel - Reserved for orders/combat panels */}
+        {/* Right panel - Orders/Combat panels */}
         <div style={{
           width: '320px',
           flexShrink: 0,
-          backgroundColor: '#1e1e1e',
-          border: '2px solid #333',
-          borderRadius: '8px',
-          padding: '16px',
-          color: '#e0e0e0'
+          display: 'flex',
+          flexDirection: 'column',
+          minHeight: 0
         }}>
-          <h3 style={{ margin: '0 0 12px 0', fontSize: '14px', fontWeight: 'bold', color: '#aaa' }}>
-            ACTIONS
-          </h3>
-          <p style={{ fontSize: '13px', color: '#888', fontStyle: 'italic' }}>
-            Orders and combat panels will appear here based on game phase
-          </p>
+          <OrdersPanel game={game} onGameUpdate={handleGameUpdate} />
         </div>
       </div>
     </div>

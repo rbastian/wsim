@@ -1,4 +1,87 @@
 
+## 2026-01-19
+
+### Orders Entry UI with Ready Gate (wsim-azp) - COMPLETED
+Implemented comprehensive orders panel for the planning phase enabling secret movement plotting and ready gate mechanics:
+
+**OrdersPanel Component (frontend/src/components/OrdersPanel.tsx):**
+- Complete orders entry workflow for planning phase
+- List of player's ships with movement input fields per ship
+- Real-time movement syntax validation with detailed error messages
+- Disabled state after ready to prevent order changes
+- Two-player hotseat support with player selector buttons
+- Visual ready status indicators for both players
+- Ready gate enforcement - both players must be ready to proceed
+
+**Movement Syntax Validation:**
+- Client-side validation matching backend parser rules
+- Valid syntax: '0' (no movement), 'L'/'R' (turns), digits 1-9 (forward hexes)
+- Examples validated: 'L1R1', '0', 'LLR2', '3'
+- Real-time error messages displayed per ship
+- Character-by-character validation with position indicators
+- Prevents submission of invalid orders
+
+**Order Submission Workflow:**
+1. Player selects their side (P1 or P2)
+2. Enters movement orders for all their ships
+3. Validates all orders are syntactically correct
+4. Submits orders to API (POST /games/{id}/turns/{turn}/orders)
+5. Marks ready when satisfied with orders (POST /games/{id}/turns/{turn}/ready)
+6. Waits for opponent to mark ready
+7. Both players ready → movement phase can proceed
+
+**Visual Features:**
+- Player selector buttons with color coding (Blue P1, Red P2)
+- Ready checkmarks displayed on player buttons
+- Ship cards showing name, speed, and movement input
+- Input fields disabled after marking ready
+- Validation errors shown in red below each input
+- Help text panel explaining movement syntax
+- "Waiting for opponent" and "Both players ready" status messages
+- Action buttons with proper enabled/disabled states
+
+**State Management:**
+- Tracks orders per ship ID in local state
+- Validation errors tracked separately per ship
+- Submitting and marking ready states for loading indicators
+- Synchronizes with game state via onGameUpdate callback
+- Initializes orders from game state if already submitted
+- Filters struck ships from order entry
+
+**API Integration:**
+- Uses existing api.submitOrders() endpoint
+- Uses existing api.markReady() endpoint
+- Proper error handling with user-friendly messages
+- Updates game state after successful operations
+- Validates phase is PLANNING before showing panel
+
+**GamePage Integration:**
+- Imported OrdersPanel component into GamePage
+- Added handleGameUpdate callback to update game state
+- Replaced placeholder right panel with OrdersPanel
+- Proper layout with flex and overflow handling
+- Panel shows/hides based on game phase
+
+**Quality:**
+- All 348 backend tests passing
+- Frontend builds successfully with no TypeScript errors
+- TypeScript strict mode compliance verified
+- Ruff formatting: all checks passed
+- Ruff linting: all checks passed
+- Ty type checking: all checks passed
+- Ready for user testing
+
+**User Experience:**
+- Intuitive two-player hotseat workflow
+- Clear visual feedback for all states
+- Helpful error messages guide users to correct syntax
+- Ready gate prevents premature phase transitions
+- Status indicators keep players informed
+- Consistent dark naval theme styling
+
+**Next Steps:**
+Ready to implement combat UI for broadside firing (wsim-4m0) or event log display panel (wsim-d0w).
+
 ## 2026-01-19 - RNG Abstraction Implementation (wsim-0d0)
 
 Implemented foundational Random Number Generator (RNG) abstraction to enable deterministic gameplay for testing and replay:
