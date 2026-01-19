@@ -31,3 +31,37 @@ Initialized the Python backend project with a complete development environment:
 
 **Next Steps:**
 Ready to implement core Pydantic models (wsim-vbx) for game state representation.
+
+### Collision Detection and Resolution (wsim-n42) - COMPLETED
+Implemented comprehensive collision detection and resolution system for simultaneous ship movement:
+
+**Core Features:**
+- Hex occupancy tracking: `detect_hex_occupancy()` builds map of which ships occupy which hexes
+- Collision detection: `detect_collisions()` compares before/after positions to find collisions
+- Smart resolution logic with proper priority rules:
+  - Stationary ships have priority over moving ships
+  - Random die roll (d6) when multiple ships move into same hex
+  - Displaced ships moved back to previous positions
+- Voluntary movement truncation for all ships involved in collisions
+- Full event logging for audit trail and debugging
+
+**Implementation:**
+- Created `wsim_core/engine/collision.py` module (~290 lines)
+- Integrates with existing RNG system for deterministic testing
+- Uses Pydantic models for type safety (CollisionResolution, CollisionResult)
+- Emits EventLogEntry objects for each collision with detailed metadata
+
+**Testing:**
+- Comprehensive test suite with 13 collision-specific tests
+- Tests cover: hex occupancy, detection, resolution priorities, determinism
+- All 152 tests pass (including existing tests)
+- Test scenarios: bow collisions, stern collisions, multi-ship collisions
+- Validates deterministic behavior with seeded RNG
+
+**Quality Checks:**
+- ruff formatting and linting: clean
+- ty type checking (strict mode): clean
+- Ready for integration into movement execution engine
+
+**Next Steps:**
+Ready to implement fouling system (wsim-8gn) which builds on collision detection.
