@@ -284,3 +284,44 @@ Implemented a comprehensive fouling system that integrates with the collision de
 
 **Next Steps:**
 Ready to implement next priority task from Beads backlog. Fouling system is complete and tested.
+
+## 2026-01-19 - FastAPI App Structure and In-Memory Game Store (wsim-d8i)
+
+**Objective:** Implement the FastAPI application structure with an in-memory game store and game management endpoints to enable game creation and retrieval via REST API.
+
+**What was implemented:**
+- In-memory game store (`wsim_api/store.py`) with CRUD operations
+  - Create, retrieve, update, delete games
+  - List all games
+  - UUID-based game ID generation
+  - Thread-safe singleton pattern
+- Game management router (`wsim_api/routers/games.py`) with endpoints:
+  - `GET /games/scenarios` - List available scenarios with metadata
+  - `POST /games` - Create new game from scenario ID
+  - `GET /games/{game_id}` - Retrieve game state
+  - `DELETE /games/{game_id}` - Delete game
+- Integration with main FastAPI app
+  - Router mounted with proper prefix/tags
+  - CORS already configured for localhost:3000 and localhost:5173
+  - OpenAPI docs available at /docs
+
+**Implementation Details:**
+- Store uses dict keyed by game_id for O(1) lookups
+- Scenarios loaded from `backend/scenarios/` directory
+- Proper HTTP status codes (201 for creation, 204 for deletion, 404 for not found)
+- Comprehensive error handling with meaningful messages
+- Pydantic models for request/response validation
+
+**Testing:**
+- Added 9 new API tests to `tests/test_api.py`
+- Tests cover happy paths and error cases
+- Fixture for resetting game store between tests
+- All 337 tests pass
+
+**Quality Checks:**
+- ruff format: clean
+- ruff lint: clean
+- ty type checking: clean
+
+**Next Steps:**
+The FastAPI foundation is now complete. Ready to implement order submission and ready gate endpoints (wsim-a7g).
