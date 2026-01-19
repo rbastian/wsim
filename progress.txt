@@ -2,6 +2,50 @@
 
 ## 2026-01-19
 
+### Broadside Reload System (wsim-dbu) - COMPLETED
+Implemented comprehensive reload system for managing broadside load states during combat:
+
+**Core Features:**
+- `mark_broadside_fired()`: Marks broadside as EMPTY immediately after firing
+- `reload_broadside()`: Reloads a single empty broadside to ROUNDSHOT (returns true if reloaded)
+- `reload_ship()`: Reloads all empty broadsides on a ship, returns ReloadResult
+- `reload_all_ships()`: Batch reload for entire fleet, automatically skips struck ships
+- `is_broadside_loaded()`: Quick check if broadside is ready to fire
+- `can_reload_ship()`: Validates if ship can participate in reload phase
+- `create_reload_event()`: Generates detailed event log entries for reload operations
+
+**Implementation Details:**
+- Created `wsim_core/engine/reload.py` (~195 lines)
+- `ReloadResult` Pydantic model tracks reload operations with full state information
+- Integrates seamlessly with existing `LoadState` enum (EMPTY/ROUNDSHOT)
+- Struck ships cannot reload (properly enforced)
+- Event logging provides complete audit trail for debugging
+- All functions fully typed and validated with Pydantic
+
+**Testing:**
+- Comprehensive test suite with 28 reload-specific tests covering:
+  - Mark broadside fired (left, right, already empty broadsides)
+  - Reload single broadside (empty vs already loaded)
+  - Reload entire ship (both empty, one empty, both loaded)
+  - Reload fleet (multiple ships, properly skips struck ships)
+  - Load state checking (loaded vs empty detection)
+  - Ship reload eligibility validation
+  - Event creation for all scenarios (both reloaded, one reloaded, none reloaded)
+  - Complete fire-reload cycles
+  - Multiple turn combat simulation
+- All 311 tests passing (28 new reload tests + 283 existing)
+
+**Quality:**
+- Code formatted with ruff
+- All linting checks pass
+- Type checking passes with ty (strict mode)
+- Ready for integration into API endpoints
+
+**Next Steps:**
+Ready to implement event logging infrastructure (wsim-a0y) and FastAPI endpoints (wsim-d8i).
+
+## 2026-01-19
+
 ### Data-Driven Hit Tables and Resolution (wsim-ool) - COMPLETED
 Implemented comprehensive combat hit resolution system using data-driven hit tables:
 
