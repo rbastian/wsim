@@ -1,6 +1,5 @@
 """Tests for target selection and closest-target rule enforcement."""
 
-
 from wsim_core.engine.movement_executor import calculate_stern_from_bow
 from wsim_core.engine.targeting import (
     get_all_valid_targets,

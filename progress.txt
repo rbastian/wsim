@@ -238,3 +238,37 @@ Implemented comprehensive drift system for ships that fail to advance their bow 
 
 **Next Steps:**
 Ready to implement broadside arc determination (wsim-9bf) for combat system.
+
+## 2026-01-19 - Damage Application System (wsim-xaz)
+
+Implemented the complete damage application system for the combat engine:
+
+**Core Features:**
+- Hull damage application with automatic struck detection when hull reaches 0
+- Rigging damage application (no struck condition)
+- Crew casualty distribution: marines first, then crew
+- Automatic struck when all crew+marines lost
+- Gun damage distribution: target-specific broadside or evenly distributed
+- Comprehensive damage tracking with before/after state
+- Event log generation for all damage applications
+
+**Key Components:**
+- `DamageApplication` model: Pydantic model tracking all damage changes
+- `apply_hit_result_to_ship()`: Main function applying HitResult to Ship
+- `_apply_gun_damage()`: Distributes gun losses across broadsides
+- `_check_struck_condition()`: Determines when ships strike
+- `create_damage_event()`: Creates detailed event log entries
+
+**Test Coverage:**
+21 new tests covering:
+- Basic and edge case damage scenarios
+- Negative value prevention
+- Struck condition detection
+- Gun damage distribution algorithms
+- Sequential damage application
+- Event creation with full metadata
+
+All 283 tests passing. Code quality verified with ruff and ty.
+
+**Impact:**
+This completes the core combat damage loop. Ships can now take damage from broadsides and strike when critically damaged. Next priorities: reload system and event logging infrastructure.

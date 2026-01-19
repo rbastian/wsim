@@ -22,6 +22,11 @@ from .combat import (
     get_crew_quality_modifier,
     resolve_broadside_fire,
 )
+from .damage import (
+    DamageApplication,
+    apply_hit_result_to_ship,
+    create_damage_event,
+)
 from .fouling import (
     FoulingResult,
     apply_fouling,
@@ -76,6 +81,10 @@ __all__ = [
     "can_fire_broadside",
     "get_crew_quality_modifier",
     "resolve_broadside_fire",
+    # Damage
+    "DamageApplication",
+    "apply_hit_result_to_ship",
+    "create_damage_event",
     # Movement parser
     "MovementAction",
     "MovementActionType",
