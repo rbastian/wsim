@@ -47,6 +47,7 @@ ignore = []
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**/*.py" = ["S101"]  # Allow assert in tests
+"wsim_core/models/ship.py" = ["N815"]  # Allow _L and _R suffix (domain model convention)
 
 [tool.ruff.format]
 quote-style = "double"
@@ -78,6 +79,10 @@ python-version = "3.12"
 [tool.ty.rules]
 possibly-unresolved-reference = "error"
 division-by-zero = "error"
+
+[[tool.ty.overrides]]
+include = ["tests/**/*.py"]
+rules.invalid-argument-type = "ignore"
 
 [tool.ty.terminal]
 error-on-warning = false
