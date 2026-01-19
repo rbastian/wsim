@@ -489,3 +489,87 @@ Implemented the API endpoints for the Planning phase to enable secret movement p
 
 This implementation completes the planning phase API foundation, enabling the frontend to implement secret order entry and ready gate UI workflows.
 
+---
+
+## 2026-01-19 17:16 - Implemented Reload and Turn Advance API Endpoints (wsim-739)
+
+### Summary:
+Completed the final two endpoints needed for the MVP turn loop: reload and turn advance. These endpoints complete the turn cycle allowing games to progress through Planning → Movement → Combat → Reload → Advance (back to Planning).
+
+### What Was Built:
+
+#### 1. POST /games/{id}/turns/{turn}/resolve/reload
+**Purpose:** Reload all fired broadsides during the reload phase
+
+**Implementation:**
+- Validates game exists, turn number matches, and phase is COMBAT
+- Uses existing `reload_all_ships()` from wsim_core.engine.reload
+- Reloads all empty broadsides on non-struck ships with roundshot
+- Creates detailed event log entries for each ship's reload operations
+- Transitions game phase to RELOAD
+- Returns updated game state and list of reload events
+
+**Key Logic:**
+- Skips struck ships (they cannot reload)
+- Only reloads empty broadsides (already loaded broadsides unchanged)
+- MVP only uses roundshot ammunition type
+- Event log captures which broadsides were reloaded per ship
+
+#### 2. POST /games/{id}/turns/{turn}/advance
+**Purpose:** Advance to the next turn after reload completes
+
+**Implementation:**
+- Validates game exists, turn number matches, and phase is RELOAD
+- Increments turn_number by 1
+- Clears both p1_orders and p2_orders (ready for next turn)
+- Transitions game phase back to PLANNING
+- Returns updated game state ready for next turn's order entry
+
+**Phase Validation:**
+- Can only advance from RELOAD phase (ensures turn is complete)
+- After advance, game is in PLANNING phase for new turn
+- Orders are cleared to prevent reuse from previous turn
+
+### Testing:
+- All 348 existing tests continue to pass
+- Ruff formatting and linting: all checks passed
+- Ty type checking: all checks passed
+- No new test files added (existing tests cover underlying engine functions)
+
+### Technical Details:
+
+**Reload Endpoint:**
+```python
+- Request: POST /games/{game_id}/turns/{turn}/resolve/reload
+- Response: { state: Game, events: EventLogEntry[] }
+- Phase transition: COMBAT → RELOAD
+- Engine function: reload_all_ships(ships, turn_number)
+- Event creation: create_reload_event(result, turn, ship_name)
+```
+
+**Advance Turn Endpoint:**
+```python
+- Request: POST /games/{game_id}/turns/{turn}/advance
+- Response: { state: Game }
+- Phase transition: RELOAD → PLANNING
+- State changes: turn_number++, p1_orders=null, p2_orders=null
+```
+
+### Integration:
+- Uses existing reload engine (wsim_core.engine.reload)
+- Uses existing Game and EventLogEntry models
+- Works with in-memory GameStore
+- Full FastAPI request/response validation with Pydantic
+- Proper HTTP error codes for validation failures
+
+### What This Enables:
+This completes the MVP turn loop API. A complete turn cycle is now:
+1. Planning Phase: Submit orders (POST /turns/{turn}/orders) + Mark ready (POST /turns/{turn}/ready)
+2. Movement Phase: Resolve movement (POST /turns/{turn}/resolve/movement)
+3. Combat Phase: Fire broadsides (POST /turns/{turn}/combat/fire) - can fire multiple times
+4. Reload Phase: Reload broadsides (POST /turns/{turn}/resolve/reload)
+5. Advance: Move to next turn (POST /turns/{turn}/advance)
+6. Loop back to Planning Phase with turn_number incremented
+
+The frontend can now implement the full game loop including multi-turn gameplay with proper state management and event logging.
+
