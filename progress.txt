@@ -573,3 +573,51 @@ This completes the MVP turn loop API. A complete turn cycle is now:
 
 The frontend can now implement the full game loop including multi-turn gameplay with proper state management and event logging.
 
+## 2026-01-19 - Scenario Selection Screen (wsim-88j)
+
+Implemented the scenario selection screen to allow users to create new games:
+
+### Frontend Implementation:
+**HomePage Component:**
+- Fetches available scenarios from API on mount
+- Displays scenario list with name, description, and "Start Game" button
+- Shows loading state while fetching scenarios
+- Error handling with user-friendly error messages
+- Disabled state during game creation to prevent double-clicks
+- Navigates to game page after successful game creation
+
+**Features:**
+- Clean, simple UI with inline styles
+- Responsive layout (centered with max-width)
+- Loading indicator while fetching scenarios
+- Error display with visual styling (red background)
+- Individual loading state per scenario button
+
+### API Client Updates:
+Fixed several API client issues to match backend implementation:
+- Updated scenarios endpoint from `/scenarios` to `/games/scenarios`
+- Changed response type from `Scenario[]` to `ScenarioInfo[]` (matches backend's ScenarioInfo model)
+- Added `ScenarioInfo` type definition (id, name, description only)
+- Fixed `SubmitOrdersRequest` field from `player` to `side` (matches backend)
+- Fixed `MarkReadyRequest` field from `player` to `side`
+- Added `AdvanceTurnResponse` type
+- Updated `SubmitOrdersResponse` to include `orders_submitted` boolean
+- Updated `MarkReadyResponse` to include `ready` and `both_ready` booleans
+- Fixed `getGame()` return type from `{ state: Game }` to `Game`
+- Fixed `advanceTurn()` return type to use `AdvanceTurnResponse`
+
+### Quality:
+- All 348 backend tests passing
+- Ruff formatting and linting: all checks passed
+- Ty type checking: all checks passed
+- Frontend builds successfully with no TypeScript errors
+
+### What This Enables:
+Users can now:
+1. View all available scenarios on the home page
+2. Read scenario descriptions to choose the right one
+3. Click "Start Game" to create a new game instance
+4. Be automatically navigated to the game page
+
+This completes the first user-facing screen of the MVP. Next priorities are implementing the game board hex grid (wsim-uva) and ship rendering (wsim-787).
+

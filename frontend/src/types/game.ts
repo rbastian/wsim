@@ -142,6 +142,12 @@ export interface Scenario {
   ships: ScenarioShip[];
 }
 
+export interface ScenarioInfo {
+  id: string;
+  name: string;
+  description: string;
+}
+
 // API request/response types
 export interface CreateGameRequest {
   scenario_id: string;
@@ -153,20 +159,26 @@ export interface CreateGameResponse {
 }
 
 export interface SubmitOrdersRequest {
-  player: Side;
+  side: Side;
   orders: ShipOrders[];
 }
 
 export interface SubmitOrdersResponse {
   state: Game;
-  events: EventLogEntry[];
+  orders_submitted: boolean;
 }
 
 export interface MarkReadyRequest {
-  player: Side;
+  side: Side;
 }
 
 export interface MarkReadyResponse {
+  state: Game;
+  ready: boolean;
+  both_ready: boolean;
+}
+
+export interface AdvanceTurnResponse {
   state: Game;
 }
 

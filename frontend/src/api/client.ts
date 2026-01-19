@@ -1,6 +1,7 @@
 // API client for WSIM FastAPI backend
 
 import type {
+  AdvanceTurnResponse,
   CreateGameRequest,
   CreateGameResponse,
   FireBroadsideRequest,
@@ -9,7 +10,7 @@ import type {
   MarkReadyRequest,
   MarkReadyResponse,
   ResolvePhaseResponse,
-  Scenario,
+  ScenarioInfo,
   SubmitOrdersRequest,
   SubmitOrdersResponse,
 } from "../types/game";
@@ -68,9 +69,7 @@ export const api = {
   health: () => fetchJson<{ status: string }>("/health"),
 
   // Scenarios
-  listScenarios: () => fetchJson<Scenario[]>("/scenarios"),
-  getScenario: (scenarioId: string) =>
-    fetchJson<Scenario>(`/scenarios/${scenarioId}`),
+  listScenarios: () => fetchJson<ScenarioInfo[]>("/games/scenarios"),
 
   // Game management
   createGame: (request: CreateGameRequest) =>
@@ -79,7 +78,7 @@ export const api = {
       body: JSON.stringify(request),
     }),
 
-  getGame: (gameId: string) => fetchJson<{ state: Game }>(`/games/${gameId}`),
+  getGame: (gameId: string) => fetchJson<Game>(`/games/${gameId}`),
 
   // Orders and ready gate
   submitOrders: (gameId: string, turn: number, request: SubmitOrdersRequest) =>
@@ -114,7 +113,7 @@ export const api = {
     ),
 
   advanceTurn: (gameId: string, turn: number) =>
-    fetchJson<{ state: Game }>(`/games/${gameId}/turns/${turn}/advance`, {
+    fetchJson<AdvanceTurnResponse>(`/games/${gameId}/turns/${turn}/advance`, {
       method: "POST",
     }),
 
