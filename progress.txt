@@ -621,3 +621,56 @@ Users can now:
 
 This completes the first user-facing screen of the MVP. Next priorities are implementing the game board hex grid (wsim-uva) and ship rendering (wsim-787).
 
+## 2026-01-19 - Hex Grid Board Rendering (wsim-uva)
+
+Implemented SVG-based hex grid rendering component for the game board:
+
+### Frontend Implementation:
+
+**Hex Coordinate System (src/types/hex.ts):**
+- `HexCoordinate` interface: col/row coordinate representation
+- `HexLayout` interface: hex size, origin, and orientation config
+- `hexToPixel()`: Converts hex coordinates to pixel positions using offset coordinates (odd-r layout)
+- `getHexCorners()`: Calculates six corner points for flat-top hexagon SVG polygons
+- `cornersToPoints()`: Formats corner array as SVG points string
+
+**HexGrid Component (src/components/HexGrid.tsx):**
+- SVG-based rendering for scalability and performance
+- Responsive sizing using viewBox (adapts to container)
+- Configurable grid dimensions (width x height) and hex size
+- Interactive features:
+  - Click handling per hex
+  - Hover effects with semi-transparent highlight
+  - Coordinate labels displayed on each hex
+- Dark blue naval theme styling
+- Memoized hex calculations for performance
+- Cursor changes to pointer when clickable
+
+**GamePage Integration:**
+- Imported HexGrid component into GamePage
+- Added state management for selected hex
+- Default dimensions set to Frigate Duel scenario (25x20)
+- Selected hex coordinates displayed in header
+- Flexbox layout with proper scrolling
+
+### Technical Details:
+- Uses flat-top hexagon orientation
+- Offset coordinate system (odd-r layout) for simpler math
+- SVG viewBox ensures grid scales responsively
+- All hexes display [col,row] coordinates for debugging
+- Hover effects only active when onHexClick handler provided
+
+### Quality:
+- TypeScript compilation passes with no errors
+- ESLint passes with no issues
+- Proper type-only imports for verbatimModuleSyntax compliance
+- Frontend builds successfully
+
+### What This Enables:
+The game board foundation is now in place. Users can:
+1. See a properly rendered hex grid matching scenario dimensions
+2. Click on hexes and see coordinates (foundation for ship placement/selection)
+3. View the grid responsively in any browser window size
+
+Next priorities: ship rendering as 2-hex pieces (wsim-787) and ship log panel UI (wsim-8ly).
+
