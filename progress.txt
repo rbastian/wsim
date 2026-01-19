@@ -397,3 +397,44 @@ Initialized the React frontend with Vite and TypeScript for the WSIM web UI:
 
 **Next Steps:**
 Ready to implement FastAPI endpoints (wsim-d8i) or start building frontend UI components (wsim-uva, wsim-787, wsim-8ly, wsim-88j). The frontend foundation is complete and ready for feature development.
+
+## 2026-01-19 - Orders Submission and Ready Gate API (wsim-a7g)
+
+Implemented the API endpoints for the Planning phase to enable secret movement plotting and ready gate mechanics:
+
+### Endpoints Implemented:
+- **POST /games/{id}/turns/{turn}/orders**: Submit movement orders for a player's ships
+  - Accepts side (P1/P2) and list of ShipOrders (ship_id + movement_string)
+  - Validates turn number matches current game turn
+  - Ensures phase is PLANNING
+  - Validates all orders are for ships belonging to the player
+  - Requires orders for ALL player ships (no partial submissions)
+  - Stores TurnOrders in game state (p1_orders or p2_orders)
+  - Returns updated game state and success confirmation
+
+- **POST /games/{id}/turns/{turn}/ready**: Mark a player as ready to proceed
+  - Validates that player has already submitted orders
+  - Validates turn number and phase
+  - Returns ready status and whether BOTH players are ready
+  - Enables ready gate: orders revealed when both_ready is true
+
+### Validation Logic:
+- Turn number must match game.turn_number
+- Can only submit/ready in PLANNING phase
+- Ship IDs must belong to the player's side
+- All player's ships must have orders before marking ready
+- Cannot mark ready without submitted orders
+
+### Quality Checks:
+- ✅ All 337 tests passing
+- ✅ Ruff formatting and linting (all checks passed)
+- ✅ Ty type checking (all checks passed)
+
+### Integration:
+- Uses existing Game and TurnOrders models
+- Works with in-memory GameStore
+- Full FastAPI request/response validation with Pydantic
+- CORS enabled for frontend development
+
+This implementation completes the planning phase API foundation, enabling the frontend to implement secret order entry and ready gate UI workflows.
+
