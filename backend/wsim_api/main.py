@@ -3,6 +3,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from .routers import games
+
 app = FastAPI(
     title="Wooden Ships & Iron Men API",
     description="API for the WSIM digital implementation",
@@ -17,6 +19,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Include routers
+app.include_router(games.router)
 
 
 @app.get("/")
