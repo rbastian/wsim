@@ -1,6 +1,5 @@
 """Tests for EventLog class."""
 
-
 from wsim_core.events import EventLog
 from wsim_core.models.common import GamePhase
 from wsim_core.models.events import DiceRoll, EventLogEntry

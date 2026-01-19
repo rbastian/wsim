@@ -1,6 +1,5 @@
 """Tests for broadside reload system."""
 
-
 from wsim_core.engine.reload import (
     ReloadResult,
     can_reload_ship,
