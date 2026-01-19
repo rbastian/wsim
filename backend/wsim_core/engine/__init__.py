@@ -15,6 +15,13 @@ from .collision import (
     get_ship_hexes,
     resolve_collision,
 )
+from .combat import (
+    HitResult,
+    HitTables,
+    can_fire_broadside,
+    get_crew_quality_modifier,
+    resolve_broadside_fire,
+)
 from .fouling import (
     FoulingResult,
     apply_fouling,
@@ -63,6 +70,12 @@ __all__ = [
     "get_ships_in_arc",
     "get_targeting_info",
     "is_valid_target",
+    # Combat
+    "HitResult",
+    "HitTables",
+    "can_fire_broadside",
+    "get_crew_quality_modifier",
+    "resolve_broadside_fire",
     # Movement parser
     "MovementAction",
     "MovementActionType",
