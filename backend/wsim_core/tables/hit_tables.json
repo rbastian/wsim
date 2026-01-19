@@ -1,0 +1,70 @@
+{
+  "_comment": "WS&IM hit tables for beginner rules (roundshot only)",
+  "_description": "Tables are indexed by range bracket and gun type. Results are per gun firing.",
+  "_version": "mvp_v1",
+
+  "range_brackets": {
+    "short": { "min": 0, "max": 2, "modifier": 1 },
+    "medium": { "min": 3, "max": 5, "modifier": 0 },
+    "long": { "min": 6, "max": 10, "modifier": -1 }
+  },
+
+  "gun_types": {
+    "regular": {
+      "description": "Standard long guns",
+      "max_range": 10
+    },
+    "carronade": {
+      "description": "Short-range carronades",
+      "max_range": 3
+    }
+  },
+
+  "hit_table": {
+    "_comment": "D6 roll results. Key is die value (1-6), value is number of hits",
+    "hull": {
+      "short": { "1": 0, "2": 0, "3": 1, "4": 1, "5": 1, "6": 2 },
+      "medium": { "1": 0, "2": 0, "3": 0, "4": 1, "5": 1, "6": 1 },
+      "long": { "1": 0, "2": 0, "3": 0, "4": 0, "5": 1, "6": 1 }
+    },
+    "rigging": {
+      "short": { "1": 0, "2": 1, "3": 1, "4": 1, "5": 2, "6": 2 },
+      "medium": { "1": 0, "2": 0, "3": 1, "4": 1, "5": 1, "6": 2 },
+      "long": { "1": 0, "2": 0, "3": 0, "4": 1, "5": 1, "6": 1 }
+    }
+  },
+
+  "crew_casualties": {
+    "_comment": "Crew casualties per hull hit (separate D6 roll)",
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 1,
+    "5": 1,
+    "6": 2
+  },
+
+  "gun_damage": {
+    "_comment": "Guns damaged per hull hit at short range only (D6 roll)",
+    "short_range": {
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 0,
+      "5": 1,
+      "6": 1
+    }
+  },
+
+  "modifiers": {
+    "crew_quality": {
+      "description": "Modifier based on crew casualties",
+      "full_crew": 0,
+      "half_crew": -1,
+      "minimal_crew": -2
+    },
+    "range": {
+      "description": "Range modifier already included in hit_table by range bracket"
+    }
+  }
+}

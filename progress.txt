@@ -2,6 +2,58 @@
 
 ## 2026-01-19
 
+### Data-Driven Hit Tables and Resolution (wsim-ool) - COMPLETED
+Implemented comprehensive combat hit resolution system using data-driven hit tables:
+
+**Core Features:**
+- `HitTables` class: Loads hit tables from JSON, provides lookup methods for hits, casualties, and gun damage
+- `resolve_broadside_fire()`: Complete combat resolution including range calculation, modifier application, and secondary effects
+- `get_crew_quality_modifier()`: Calculates firing penalties based on crew casualties (0/-1/-2)
+- `can_fire_broadside()`: Validates firing prerequisites (loaded, not struck, has guns)
+- `HitResult` model: Comprehensive result object with hits, casualties, gun damage, and audit trail
+
+**Hit Tables System:**
+- JSON-based hit tables in `wsim_core/tables/hit_tables.json`
+- Range brackets: short (0-2), medium (3-5), long (6-10) hexes
+- Separate tables for hull and rigging aim points
+- D6-based hit resolution with range-specific outcomes
+- Crew casualties table (separate D6 roll per hull hit)
+- Gun damage table (only at short range)
+- Easily adjustable for game balance without code changes
+
+**Combat Resolution Logic:**
+- Range calculation using hex distance
+- Per-gun dice rolling with crew quality modifiers
+- Hit lookup from data tables based on range bracket and aim point
+- Secondary effects (crew casualties and gun damage) for hull hits
+- Modifier clamping to valid die range (1-6)
+- Complete audit trail with all dice rolls and modifiers
+
+**Testing:**
+- Comprehensive test suite with 25 tests covering:
+  - Hit table loading and lookups (all range brackets and aim points)
+  - Crew quality modifier calculation (full/75%/50%/<50% crew)
+  - Broadside firing validation (loaded, struck, no guns)
+  - Combat resolution at all ranges (short/medium/long)
+  - Aim point differences (hull vs rigging)
+  - Crew quality impact on results
+  - Deterministic behavior with seeded RNG
+  - Left and right broadside firing
+  - No hits means no secondary effects
+- All 262 project tests passing
+
+**Quality:**
+- Code formatted with ruff
+- All linting checks pass
+- Type checking passes with ty (strict mode)
+- Proper integration with existing RNG, targeting, and arc systems
+- Ready for damage application implementation
+
+**Next Steps:**
+Ready to implement damage application to ship tracks (wsim-xaz).
+
+## 2026-01-19
+
 ### Closest-Target Rule Enforcement (wsim-g4g) - COMPLETED
 Implemented comprehensive target selection logic enforcing the closest-target rule for combat:
 
