@@ -42,12 +42,27 @@ from .movement_parser import (
     validate_movement_within_allowance,
 )
 from .rng import RNG, SeededRNG, UnseededRNG, create_rng
+from .targeting import (
+    TargetInfo,
+    get_all_valid_targets,
+    get_closest_enemy_in_arc,
+    get_ships_in_arc,
+    get_targeting_info,
+    is_valid_target,
+)
 
 __all__ = [
     # Arc calculation
     "get_broadside_arc_hexes",
     "hex_distance",
     "is_hex_in_broadside_arc",
+    # Targeting
+    "TargetInfo",
+    "get_all_valid_targets",
+    "get_closest_enemy_in_arc",
+    "get_ships_in_arc",
+    "get_targeting_info",
+    "is_valid_target",
     # Movement parser
     "MovementAction",
     "MovementActionType",
