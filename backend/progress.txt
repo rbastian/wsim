@@ -34,3 +34,46 @@ Implemented the foundational Pydantic v2 models for the WSIM game engine:
 - Configured ty overrides for test files to handle dynamic dict unpacking
 
 This provides the solid foundation for all other game engine components.
+
+## 2026-01-19 - Scenario Loader Implementation (wsim-wgw)
+
+Implemented comprehensive scenario loading system to initialize games from JSON scenario files:
+
+### Components Created:
+- **Scenario Models** (scenario.py):
+  - MapConfig, WindConfig, VictoryConfig
+  - ShipStartPosition, ShipGuns, ShipCarronades, ShipInitialLoad
+  - ScenarioShip: Complete ship definition for scenarios
+  - Scenario: Top-level model with validation methods for ship ID uniqueness and map bounds
+
+- **Scenario Loader** (scenario_loader.py):
+  - load_scenario_from_file(): Load and validate from JSON files
+  - load_scenario_from_dict(): Load and validate from dictionaries
+  - initialize_game_from_scenario(): Convert Scenario to Game state
+  - _calculate_stern_hex(): Calculate stern position based on bow and facing for all 8 directions
+  - ScenarioLoadError: Custom exception for loading failures
+
+### MVP Scenarios Created:
+1. **Frigate Duel** (mvp_frigate_duel_v1.json): 1v1 frigate fight for learning basics
+2. **Crossing Paths** (mvp_crossing_paths_v1.json): 2v2 sloops testing collision/fouling
+3. **Two-Ship Line Battle** (mvp_two_ship_line_battle_v1.json): 2v2 mixed ships testing closest-target rule
+
+### Test Coverage:
+- Created 14 comprehensive tests covering:
+  - Valid scenario loading from dict and file
+  - Optional field handling
+  - Validation error cases (missing fields, invalid enums)
+  - Duplicate ship ID detection
+  - Out of bounds ship detection
+  - File I/O error handling (nonexistent files, invalid JSON)
+  - Game initialization from scenarios
+  - Stern hex calculation for all 8 facing directions
+  - Loading all 3 real MVP scenario files
+- All tests passing (14/14)
+
+### Quality Checks:
+- ✅ Ruff formatting and linting (all checks passed)
+- ✅ Ty type checking (all checks passed)
+- ✅ All pytest tests passing (14/14)
+
+The scenario system is now complete and ready for use by the API layer to create games.

@@ -1,0 +1,39 @@
+{
+  "id": "mvp_frigate_duel_v1",
+  "name": "Frigate Duel",
+  "description": "A simple 1v1 frigate fight. Great for learning movement and broadsides.",
+  "map": { "width": 25, "height": 20 },
+  "wind": { "direction": "W" },
+  "turn_limit": 20,
+  "victory": { "type": "first_struck" },
+  "ships": [
+    {
+      "id": "p1_frigate_1",
+      "side": "P1",
+      "name": "HMS Swift",
+      "battle_sail_speed": 4,
+      "start": { "bow": [5, 10], "facing": "E" },
+      "guns": { "L": 10, "R": 10 },
+      "carronades": { "L": 0, "R": 0 },
+      "hull": 12,
+      "rigging": 10,
+      "crew": 10,
+      "marines": 2,
+      "initial_load": { "L": "R", "R": "R" }
+    },
+    {
+      "id": "p2_frigate_1",
+      "side": "P2",
+      "name": "FS Vengeur",
+      "battle_sail_speed": 4,
+      "start": { "bow": [19, 10], "facing": "W" },
+      "guns": { "L": 10, "R": 10 },
+      "carronades": { "L": 0, "R": 0 },
+      "hull": 12,
+      "rigging": 10,
+      "crew": 10,
+      "marines": 2,
+      "initial_load": { "L": "R", "R": "R" }
+    }
+  ]
+}
