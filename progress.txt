@@ -2,6 +2,41 @@
 
 ## 2026-01-19
 
+### Broadside Arc Determination (wsim-9bf) - COMPLETED
+Implemented broadside arc calculation system for combat targeting:
+
+**Core Features:**
+- `get_broadside_arc_hexes()`: Calculates all hexes within a ship's broadside firing arc
+- `hex_distance()`: Computes distance between two hexes using cube coordinate conversion
+- `is_hex_in_broadside_arc()`: Quick check if a specific hex is in arc (with range validation)
+- Broadsides fire perpendicular to ship facing (L=port/west, R=starboard/east)
+- Arc extends in a cone pattern up to configurable max_range (default 10 hexes)
+
+**Implementation Details:**
+- Perpendicular direction mapping for all 8 facings (N, NE, E, SE, S, SW, W, NW)
+- Each broadside uses 3 primary directions to create ~90 degree firing arc
+- Cone tracing algorithm widens arc at distance for realistic coverage
+- Proper handling of hex geometry with odd-q vertical layout
+- Bounds checking prevents negative coordinates during arc generation
+
+**Testing:**
+- Comprehensive test suite with 21 tests covering:
+  - Hex distance calculations (same hex, adjacent, diagonal, symmetry)
+  - Arc generation (excludes ship position, respects range, left vs right different)
+  - Directional correctness (N facing fires L=west, R=east; E facing fires L=north, R=south)
+  - All 8 facings produce valid arcs for both broadsides
+  - In-arc and out-of-arc detection
+  - Range enforcement
+- All 211 project tests passing
+
+**Quality:**
+- Code formatted with ruff
+- All linting checks pass
+- Type checking passes with ty
+- Ready for integration with closest-target rule and combat system
+
+## 2026-01-19
+
 ### Backend Setup (wsim-n6i) - COMPLETED
 Initialized the Python backend project with a complete development environment:
 
