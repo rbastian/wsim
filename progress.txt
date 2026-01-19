@@ -65,3 +65,46 @@ Implemented comprehensive collision detection and resolution system for simultan
 
 **Next Steps:**
 Ready to implement fouling system (wsim-8gn) which builds on collision detection.
+
+### Drift Logic (wsim-znh) - COMPLETED
+Implemented comprehensive drift system for ships that fail to advance their bow hex:
+
+**Core Features:**
+- Drift tracking: Ships track consecutive turns without bow advancement via `turns_without_bow_advance` counter
+- Drift trigger: Ships drift 1 hex downwind after 2 turns without bow advance
+- Downwind calculation: `get_downwind_direction()` determines drift direction (opposite of wind)
+- Bounds validation: Prevents drift that would move ships off the map edge
+- Position updates: Both bow and stern hexes move consistently in drift direction
+- Counter management: Drift counter resets after drift application or successful bow advancement
+
+**Implementation:**
+- Created `wsim_core/engine/drift.py` module (~230 lines)
+- Key functions:
+  - `get_downwind_direction()`: Calculates drift direction from wind direction
+  - `update_drift_tracking()`: Updates ship drift counters based on movement results
+  - `apply_drift()`: Applies drift to eligible ships with bounds checking
+  - `check_and_apply_drift()`: Convenience function combining tracking and drift
+- Manual hex coordinate calculation to validate bounds before HexCoord creation
+- Uses GamePhase enum for proper event type safety
+- Emits EventLogEntry objects for both "drift" and "drift_blocked" events
+
+**Testing:**
+- Comprehensive test suite with 23 drift-specific tests
+- Tests cover:
+  - Downwind direction calculation for all 8 compass points
+  - Drift tracking increments and resets
+  - Drift application at 2-turn threshold
+  - Bounds checking (all map edges: north, south, east, west)
+  - Multiple ships drifting simultaneously
+  - Event metadata validation and completeness
+  - Integration scenarios with sequential turns
+  - Preservation of other ship attributes during drift
+- All 190 tests pass (23 new drift tests + 167 existing)
+
+**Quality Checks:**
+- ruff formatting and linting: clean
+- ty type checking (strict mode): clean
+- Ready for integration into movement execution engine
+
+**Next Steps:**
+Ready to implement broadside arc determination (wsim-9bf) for combat system.
