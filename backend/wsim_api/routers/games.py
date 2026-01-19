@@ -6,6 +6,13 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
 from wsim_core.engine.collision import detect_and_resolve_collisions
+from wsim_core.engine.combat import (
+    HitTables,
+    apply_damage,
+    can_fire_broadside,
+    get_legal_targets,
+    resolve_broadside_fire,
+)
 from wsim_core.engine.drift import check_and_apply_drift
 from wsim_core.engine.movement_executor import execute_simultaneous_movement
 from wsim_core.engine.movement_parser import (
@@ -14,7 +21,7 @@ from wsim_core.engine.movement_parser import (
     validate_movement_within_allowance,
 )
 from wsim_core.engine.rng import create_rng
-from wsim_core.models.common import GamePhase
+from wsim_core.models.common import AimPoint, Broadside, GamePhase, LoadState
 from wsim_core.models.events import EventLogEntry
 from wsim_core.models.game import Game
 from wsim_core.models.orders import ShipOrders, TurnOrders
@@ -485,3 +492,201 @@ async def resolve_movement(game_id: str, turn: int) -> ResolveMovementResponse:
     store.update_game(game)
 
     return ResolveMovementResponse(state=game, events=all_events)
+
+
+class FireBroadsideRequest(BaseModel):
+    """Request to fire a ship's broadside."""
+
+    ship_id: str = Field(description="ID of the ship firing")
+    broadside: str = Field(description="Which broadside (L or R)", pattern="^(L|R)$")
+    target_ship_id: str = Field(description="ID of the target ship")
+    aim: str = Field(description="Aim point (hull or rigging)", pattern="^(hull|rigging)$")
+
+
+class FireBroadsideResponse(BaseModel):
+    """Response after firing a broadside."""
+
+    state: Game = Field(description="Updated game state with damage applied")
+    events: list[EventLogEntry] = Field(description="Combat event log entries")
+
+
+@router.post("/{game_id}/turns/{turn}/combat/fire", response_model=FireBroadsideResponse)
+async def fire_broadside(
+    game_id: str, turn: int, request: FireBroadsideRequest
+) -> FireBroadsideResponse:
+    """Fire a ship's broadside at a target.
+
+    This endpoint implements player-driven combat with the closest-target rule:
+    1. Validates that the firing ship can fire (not struck, broadside loaded)
+    2. Validates that the target is legal (closest enemy in arc)
+    3. Resolves the broadside firing using hit tables
+    4. Applies damage to the target ship
+    5. Marks the broadside as empty (fired)
+    6. Returns updated state and combat events
+
+    Args:
+        game_id: The game identifier
+        turn: The turn number
+        request: Firing request with ship, broadside, target, and aim
+
+    Returns:
+        Updated game state with damage applied and combat events
+
+    Raises:
+        HTTPException: If validation fails or firing is not legal
+    """
+    store = get_game_store()
+    game = store.get_game(game_id)
+
+    if game is None:
+        raise HTTPException(status_code=404, detail=f"Game '{game_id}' not found")
+
+    # Validate turn number
+    if turn != game.turn_number:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Turn mismatch: expected {game.turn_number}, got {turn}",
+        )
+
+    # Validate phase
+    if game.phase != GamePhase.COMBAT:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Cannot fire in phase {game.phase.value}",
+        )
+
+    # Get firing ship
+    try:
+        firing_ship = game.get_ship(request.ship_id)
+    except KeyError as e:
+        raise HTTPException(status_code=404, detail=f"Ship '{request.ship_id}' not found") from e
+
+    # Parse broadside and aim
+    broadside = Broadside.L if request.broadside == "L" else Broadside.R
+    aim = AimPoint.HULL if request.aim == "hull" else AimPoint.RIGGING
+
+    # Validate that the broadside can fire
+    if not can_fire_broadside(firing_ship, broadside):
+        reasons = []
+        if firing_ship.struck:
+            reasons.append("ship has struck")
+        load_state = firing_ship.load_L if broadside == Broadside.L else firing_ship.load_R
+        if load_state == LoadState.EMPTY:
+            reasons.append("broadside is not loaded")
+        num_guns = firing_ship.guns_L if broadside == Broadside.L else firing_ship.guns_R
+        if num_guns <= 0:
+            reasons.append("no guns on this broadside")
+
+        raise HTTPException(
+            status_code=400,
+            detail=f"Cannot fire broadside: {', '.join(reasons)}",
+        )
+
+    # Get legal targets using closest-target rule
+    legal_targets = get_legal_targets(firing_ship, game.ships, broadside)
+
+    if not legal_targets:
+        raise HTTPException(
+            status_code=400,
+            detail="No legal targets in broadside arc",
+        )
+
+    # Validate that the requested target is legal
+    target_ship_ids = {ship.id for ship in legal_targets}
+    if request.target_ship_id not in target_ship_ids:
+        legal_names = [ship.name for ship in legal_targets]
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                f"Target '{request.target_ship_id}' is not a legal target. "
+                f"Closest-target rule requires firing at one of: {', '.join(legal_names)}"
+            ),
+        )
+
+    # Get target ship
+    try:
+        target_ship = game.get_ship(request.target_ship_id)
+    except KeyError as e:
+        raise HTTPException(
+            status_code=404, detail=f"Target ship '{request.target_ship_id}' not found"
+        ) from e
+
+    # Get initial crew for firing ship (for crew quality modifier)
+    # We need to load the scenario to get initial stats
+    scenario_file = SCENARIOS_DIR / f"{game.scenario_id}.json"
+    try:
+        scenario = load_scenario_from_file(scenario_file)
+        initial_crew = next(
+            (s.crew for s in scenario.ships if s.id == firing_ship.id),
+            firing_ship.crew,
+        )
+    except (ScenarioLoadError, StopIteration):
+        # If we can't load scenario, use current crew as fallback
+        initial_crew = firing_ship.crew
+
+    # Create RNG and hit tables
+    rng = create_rng()
+    hit_tables = HitTables()
+
+    # Resolve the broadside firing
+    hit_result = resolve_broadside_fire(
+        firing_ship=firing_ship,
+        target_ship=target_ship,
+        broadside=broadside,
+        aim=aim,
+        rng=rng,
+        hit_tables=hit_tables,
+        initial_crew=initial_crew,
+    )
+
+    # Apply damage to target ship
+    apply_damage(target_ship, hit_result, aim, broadside)
+
+    # Mark broadside as fired (empty)
+    if broadside == Broadside.L:
+        firing_ship.load_L = LoadState.EMPTY
+    else:
+        firing_ship.load_R = LoadState.EMPTY
+
+    # Create combat event
+    event = EventLogEntry(
+        turn_number=turn,
+        phase=GamePhase.COMBAT,
+        event_type="broadside_fire",
+        summary=(
+            f"{firing_ship.name} fired {request.broadside} broadside at {target_ship.name} "
+            f"(aiming at {aim.value}): {hit_result.hits} hits, "
+            f"{hit_result.crew_casualties} crew casualties"
+        ),
+        metadata={
+            "firing_ship_id": firing_ship.id,
+            "firing_ship_name": firing_ship.name,
+            "target_ship_id": target_ship.id,
+            "target_ship_name": target_ship.name,
+            "broadside": request.broadside,
+            "aim": aim.value,
+            "range": hit_result.range,
+            "range_bracket": hit_result.range_bracket,
+            "hits": hit_result.hits,
+            "crew_casualties": hit_result.crew_casualties,
+            "gun_damage": hit_result.gun_damage,
+            "die_rolls": hit_result.die_rolls,
+            "modifiers": hit_result.modifiers_applied,
+            "target_state_after": {
+                "hull": target_ship.hull,
+                "rigging": target_ship.rigging,
+                "crew": target_ship.crew,
+                "guns_L": target_ship.guns_L,
+                "guns_R": target_ship.guns_R,
+                "struck": target_ship.struck,
+            },
+        },
+    )
+
+    # Update game state
+    game.event_log.append(event)
+
+    # Update game in store
+    store.update_game(game)
+
+    return FireBroadsideResponse(state=game, events=[event])

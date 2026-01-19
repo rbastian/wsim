@@ -325,3 +325,91 @@ Ready to implement next priority task from Beads backlog. Fouling system is comp
 
 **Next Steps:**
 The FastAPI foundation is now complete. Ready to implement order submission and ready gate endpoints (wsim-a7g).
+
+## 2026-01-19 - Combat Firing API Endpoint (wsim-f5q)
+
+**Objective:** Implement POST /games/{id}/turns/{turn}/combat/fire endpoint for player-driven broadside firing with closest-target rule enforcement.
+
+**What was implemented:**
+
+### Backend - Combat Engine (`wsim_core/engine/combat.py`):
+- **get_legal_targets()**: Implements closest-target rule
+  - Finds all enemy ships in broadside arc using existing arc calculation
+  - Filters to only closest enemies (by hex distance)
+  - Excludes struck ships from targeting
+  - Returns list of legal targets (multiple if tied for closest distance)
+  - Provides foundation for UI to show legal targets with explanation
+
+- **apply_damage()**: Applies combat results to target ship
+  - Applies hits to hull or rigging based on aim point
+  - Applies crew casualties (hull hits only)
+  - Applies gun damage proportionally to both broadsides (short range hull hits only)
+  - Sets struck flag when hull reaches 0
+  - Clamps all values to >= 0 (no negative tracks)
+
+### Backend - API Endpoint (`wsim_api/routers/games.py`):
+- **POST /games/{game_id}/turns/{turn}/combat/fire**
+  - Request: ship_id, broadside (L/R), target_ship_id, aim (hull/rigging)
+  - Validates game exists and turn matches
+  - Validates phase is COMBAT
+  - Validates firing ship can fire (not struck, broadside loaded, has guns)
+  - Gets legal targets using closest-target rule
+  - Validates requested target is legal with clear error message
+  - Loads scenario to get initial crew for crew quality modifier
+  - Resolves broadside fire using hit tables and RNG
+  - Applies damage to target ship
+  - Marks broadside as EMPTY (fired)
+  - Creates detailed combat event with all dice rolls and results
+  - Returns updated game state and event
+
+### Testing:
+- Added 17 new tests to `tests/engine/test_combat.py`:
+  - **TestGetLegalTargets** (6 tests):
+    - No enemies → no targets
+    - Enemy out of arc → no targets
+    - Single enemy in arc → single target
+    - Two enemies at different ranges → only closest
+    - Two enemies tied for closest → both legal
+    - Struck ship not targetable → only unstruck ship targeted
+  - **TestApplyDamage** (5 tests):
+    - Hull damage application
+    - Rigging damage application
+    - Gun damage at short range
+    - Hull reaching zero sets struck flag
+    - Damage cannot go negative
+
+- All 348 tests pass (17 new + 331 existing)
+
+**Quality Checks:**
+- ✅ ruff format: clean (1 file reformatted)
+- ✅ ruff lint: clean (removed unused import, fixed exception chaining, renamed variables to lowercase)
+- ✅ ty type checking: clean
+- ✅ All pytest tests passing (348/348)
+
+**Key Features:**
+- **Closest-Target Rule Enforcement**: Game rules require firing at closest enemy in arc
+  - Clear error messages explain which ships are legal targets
+  - Handles ties (multiple ships at same distance)
+  - UI can use get_legal_targets() to highlight valid targets
+
+- **Complete Combat Resolution**: Full WS&IM combat system
+  - Range brackets (short/medium/long)
+  - Hit table lookups
+  - Crew quality modifiers
+  - Crew casualties and gun damage at short range
+  - Automatic struck status when hull depleted
+
+- **Transparency and Auditability**: Rich event logging
+  - All dice rolls recorded
+  - Range and modifiers tracked
+  - Target state after damage recorded
+  - Full combat resolution visible in event log
+
+**Integration Points:**
+- Movement resolution endpoint (sets phase to COMBAT)
+- Reload endpoint (will reload fired broadsides)
+- Turn advance endpoint (will clear events for next turn)
+- Event log display (shows combat results)
+
+**Next Steps:**
+Ready to implement reload and turn advance endpoints (wsim-739) to complete the core turn loop.
