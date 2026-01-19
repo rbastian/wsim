@@ -1,5 +1,10 @@
 """Core game engine logic."""
 
+from .arc import (
+    get_broadside_arc_hexes,
+    hex_distance,
+    is_hex_in_broadside_arc,
+)
 from .collision import (
     CollisionDetectionError,
     CollisionResolution,
@@ -39,6 +44,10 @@ from .movement_parser import (
 from .rng import RNG, SeededRNG, UnseededRNG, create_rng
 
 __all__ = [
+    # Arc calculation
+    "get_broadside_arc_hexes",
+    "hex_distance",
+    "is_hex_in_broadside_arc",
     # Movement parser
     "MovementAction",
     "MovementActionType",
