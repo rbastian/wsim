@@ -5,7 +5,17 @@ from pathlib import Path
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
+from wsim_core.engine.collision import detect_and_resolve_collisions
+from wsim_core.engine.drift import check_and_apply_drift
+from wsim_core.engine.movement_executor import execute_simultaneous_movement
+from wsim_core.engine.movement_parser import (
+    MovementParseError,
+    parse_movement,
+    validate_movement_within_allowance,
+)
+from wsim_core.engine.rng import create_rng
 from wsim_core.models.common import GamePhase
+from wsim_core.models.events import EventLogEntry
 from wsim_core.models.game import Game
 from wsim_core.models.orders import ShipOrders, TurnOrders
 from wsim_core.serialization.scenario_loader import (
@@ -321,3 +331,157 @@ async def mark_ready(game_id: str, turn: int, request: MarkReadyRequest) -> Mark
     store.update_game(game)
 
     return MarkReadyResponse(state=game, ready=True, both_ready=both_ready)
+
+
+class ResolveMovementResponse(BaseModel):
+    """Response after resolving movement."""
+
+    state: Game = Field(description="Updated game state with new ship positions")
+    events: list[EventLogEntry] = Field(description="Event log entries for movement phase")
+
+
+@router.post("/{game_id}/turns/{turn}/resolve/movement", response_model=ResolveMovementResponse)
+async def resolve_movement(game_id: str, turn: int) -> ResolveMovementResponse:
+    """Resolve simultaneous movement for all ships.
+
+    This endpoint executes the movement phase including:
+    1. Parse movement orders for all ships
+    2. Execute simultaneous movement step-by-step
+    3. Detect and resolve collisions
+    4. Apply fouling to colliding ships
+    5. Update drift tracking and apply drift
+    6. Transition to COMBAT phase
+
+    Args:
+        game_id: The game identifier
+        turn: The turn number
+
+    Returns:
+        Updated game state with new ship positions and movement events
+
+    Raises:
+        HTTPException: If game not found, turn mismatch, invalid phase, or movement fails
+    """
+    store = get_game_store()
+    game = store.get_game(game_id)
+
+    if game is None:
+        raise HTTPException(status_code=404, detail=f"Game '{game_id}' not found")
+
+    # Validate turn number
+    if turn != game.turn_number:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Turn mismatch: expected {game.turn_number}, got {turn}",
+        )
+
+    # Validate phase
+    if game.phase != GamePhase.PLANNING:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Cannot resolve movement in phase {game.phase.value}",
+        )
+
+    # Validate that both players have submitted orders
+    if game.p1_orders is None or not game.p1_orders.submitted:
+        raise HTTPException(status_code=400, detail="Player P1 has not submitted orders")
+
+    if game.p2_orders is None or not game.p2_orders.submitted:
+        raise HTTPException(status_code=400, detail="Player P2 has not submitted orders")
+
+    # Collect all movement events
+    all_events: list[EventLogEntry] = []
+
+    # Create RNG for this resolution (unseeded for normal play)
+    rng = create_rng()
+
+    # Parse movement orders for all ships
+    parsed_movements = {}
+    try:
+        # Combine both players' orders
+        all_orders = (game.p1_orders.orders if game.p1_orders else []) + (
+            game.p2_orders.orders if game.p2_orders else []
+        )
+
+        for order in all_orders:
+            ship = game.get_ship(order.ship_id)
+            parsed = parse_movement(order.movement_string)
+            validate_movement_within_allowance(parsed, ship.battle_sail_speed)
+            parsed_movements[order.ship_id] = parsed
+
+    except (KeyError, MovementParseError) as e:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid movement orders: {e}",
+        ) from e
+
+    # Execute simultaneous movement
+    ships_before = game.ships.copy()
+    try:
+        updated_ships, movement_result = execute_simultaneous_movement(
+            ships=game.ships,
+            movements=parsed_movements,
+            map_width=game.map_width,
+            map_height=game.map_height,
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Movement execution failed: {e}",
+        ) from e
+
+    # Create movement events
+    for ship_id, bow_advanced in movement_result.ships_moved.items():
+        ship = updated_ships[ship_id]
+        all_events.append(
+            EventLogEntry(
+                turn_number=turn,
+                phase=GamePhase.MOVEMENT,
+                event_type="movement",
+                summary=(
+                    f"Ship {ship.name} executed movement: "
+                    f"{parsed_movements[ship_id].original_notation}"
+                ),
+                metadata={
+                    "ship_id": ship_id,
+                    "ship_name": ship.name,
+                    "movement_string": parsed_movements[ship_id].original_notation,
+                    "bow_advanced": bow_advanced,
+                    "final_position": {
+                        "bow": {"col": ship.bow_hex.col, "row": ship.bow_hex.row},
+                        "stern": {"col": ship.stern_hex.col, "row": ship.stern_hex.row},
+                        "facing": ship.facing.value,
+                    },
+                },
+            )
+        )
+
+    # Detect and resolve collisions
+    resolved_ships, collision_result = detect_and_resolve_collisions(
+        ships_before=ships_before,
+        ships_after=updated_ships,
+        rng=rng,
+        turn_number=turn,
+    )
+    all_events.extend(collision_result.events)
+
+    # Update drift tracking and apply drift
+    drifted_ships, drift_result = check_and_apply_drift(
+        ships=resolved_ships,
+        movement_result=movement_result.ships_moved,
+        wind_direction=game.wind_direction,
+        map_width=game.map_width,
+        map_height=game.map_height,
+        turn_number=turn,
+    )
+    all_events.extend(drift_result.events)
+
+    # Update game state
+    game.ships = drifted_ships
+    game.phase = GamePhase.COMBAT
+    game.event_log.extend(all_events)
+
+    # Update game in store
+    store.update_game(game)
+
+    return ResolveMovementResponse(state=game, events=all_events)

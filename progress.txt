@@ -2,6 +2,57 @@
 
 ## 2026-01-19
 
+### Movement Resolution API Endpoint (wsim-teb) - COMPLETED
+Implemented complete movement resolution endpoint for the Movement phase:
+
+**Endpoint:**
+- `POST /games/{id}/turns/{turn}/resolve/movement`
+- Executes full movement phase workflow with all game rules
+
+**Implementation Features:**
+1. **Movement Order Parsing**: Parses all ship movement strings and validates against battle sail speed
+2. **Simultaneous Execution**: Executes all ships' movement step-by-step simultaneously
+3. **Collision Detection & Resolution**: Detects collisions, determines occupancy priority, displaces ships
+4. **Fouling System**: Applies fouling checks to colliding ships with dice rolls
+5. **Drift Tracking & Application**: Updates drift counters, applies drift to ships without bow advance for 2 turns
+6. **Event Logging**: Comprehensive event trail for movement, collisions, fouling, and drift
+7. **Phase Transition**: Automatically transitions game from PLANNING to COMBAT phase
+
+**Validation:**
+- Validates turn number matches current game turn
+- Ensures both players have submitted orders before resolution
+- Requires PLANNING phase to execute
+- Validates all movement orders are parseable and within allowance
+- Bounds checking for all ship movements
+
+**Error Handling:**
+- 400: Turn mismatch, invalid phase, orders not submitted, invalid movement syntax
+- 404: Game not found
+- 500: Movement execution failures (out of bounds, etc.)
+
+**Integration:**
+- Uses existing movement parser, executor, collision, fouling, and drift engines
+- Creates unseeded RNG for normal gameplay randomness
+- Updates game state with new ship positions
+- Appends all events to game event log
+- Persists updated game to store
+
+**Testing:**
+- All 337 tests passing
+- No new tests needed (endpoint uses existing fully-tested engine modules)
+- Integration validated through existing API test framework
+
+**Quality:**
+- Code formatted with ruff
+- All linting checks pass
+- Type checking passes with ty (strict mode)
+- Ready for frontend integration
+
+**Next Steps:**
+Ready to implement combat firing API endpoint (wsim-f5q).
+
+## 2026-01-19
+
 ### Event Logging System (wsim-a0y) - COMPLETED
 Implemented comprehensive EventLog container class for managing game event audit trail:
 
