@@ -363,3 +363,37 @@ All 283 tests passing. Code quality verified with ruff and ty.
 
 **Impact:**
 This completes the core combat damage loop. Ships can now take damage from broadsides and strike when critically damaged. Next priorities: reload system and event logging infrastructure.
+
+## 2026-01-19 - Frontend Project Setup (wsim-l9m)
+
+Initialized the React frontend with Vite and TypeScript for the WSIM web UI:
+
+**Core Setup:**
+- Created frontend project using Vite with React + TypeScript template
+- Established project structure: src/api, src/components, src/pages, src/state, src/types
+- Installed React Router for client-side routing
+- Configured build pipeline and verified successful compilation
+
+**API Integration:**
+- Created TypeScript type definitions mirroring backend Pydantic models
+  - Game, Ship, Scenario, and all supporting types
+  - Request/response types for all planned API endpoints
+- Implemented API client (src/api/client.ts) with typed fetch wrapper
+  - Configured for localhost:8000 FastAPI backend
+  - Environment variable support for API base URL
+  - Error handling with custom ApiError class
+  - All planned endpoints stubbed: scenarios, games, orders, combat, etc.
+
+**Routing Foundation:**
+- Basic React Router setup with two routes:
+  - HomePage (/) - placeholder for scenario selection
+  - GamePage (/game/:gameId) - placeholder for game board and controls
+- Clean App.tsx with routing structure
+
+**Quality:**
+- TypeScript compilation succeeds with no errors
+- Build process verified (npm run build)
+- No backend changes, so ruff/ty checks not needed
+
+**Next Steps:**
+Ready to implement FastAPI endpoints (wsim-d8i) or start building frontend UI components (wsim-uva, wsim-787, wsim-8ly, wsim-88j). The frontend foundation is complete and ready for feature development.
