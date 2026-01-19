@@ -20,6 +20,7 @@ from .movement_parser import (
     parse_movement,
     validate_movement_within_allowance,
 )
+from .rng import RNG, SeededRNG, UnseededRNG, create_rng
 
 __all__ = [
     # Movement parser
@@ -40,4 +41,9 @@ __all__ = [
     "get_adjacent_hex",
     "turn_left",
     "turn_right",
+    # RNG
+    "RNG",
+    "SeededRNG",
+    "UnseededRNG",
+    "create_rng",
 ]
