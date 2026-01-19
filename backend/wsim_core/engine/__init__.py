@@ -1,5 +1,15 @@
 """Core game engine logic."""
 
+from .collision import (
+    CollisionDetectionError,
+    CollisionResolution,
+    CollisionResult,
+    detect_and_resolve_collisions,
+    detect_collisions,
+    detect_hex_occupancy,
+    get_ship_hexes,
+    resolve_collision,
+)
 from .movement_executor import (
     MovementExecutionError,
     MovementExecutionResult,
@@ -41,6 +51,15 @@ __all__ = [
     "get_adjacent_hex",
     "turn_left",
     "turn_right",
+    # Collision detection
+    "CollisionDetectionError",
+    "CollisionResolution",
+    "CollisionResult",
+    "detect_and_resolve_collisions",
+    "detect_collisions",
+    "detect_hex_occupancy",
+    "get_ship_hexes",
+    "resolve_collision",
     # RNG
     "RNG",
     "SeededRNG",
