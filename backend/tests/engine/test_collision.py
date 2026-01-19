@@ -258,10 +258,11 @@ def test_detect_and_resolve_collisions_stationary_priority(
     # P1 should remain in place
     assert resolved_ships["p1_ship_1"].bow_hex == HexCoord(col=10, row=10)
 
-    # Should have event log entry
-    assert len(result.events) == 1
+    # Should have event log entries: collision + fouling check
+    assert len(result.events) == 2
     assert result.events[0].event_type == "collision"
     assert "stationary_priority" in result.events[0].metadata["resolution_method"]
+    assert result.events[1].event_type == "fouling_check"
 
 
 def test_detect_and_resolve_collisions_both_moving(
@@ -305,9 +306,11 @@ def test_detect_and_resolve_collisions_both_moving(
     else:
         assert resolved_ships["p2_ship_1"].bow_hex == HexCoord(col=14, row=10)
 
-    # Event should indicate random selection
-    assert len(result.events) == 1
+    # Events should include collision resolution and fouling check
+    assert len(result.events) == 2
+    assert result.events[0].event_type == "collision"
     assert "random_selection" in result.events[0].metadata["resolution_method"]
+    assert result.events[1].event_type == "fouling_check"
 
 
 def test_collision_resolution_truncates_movement():

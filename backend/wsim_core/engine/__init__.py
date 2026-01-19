@@ -10,6 +10,12 @@ from .collision import (
     get_ship_hexes,
     resolve_collision,
 )
+from .fouling import (
+    FoulingResult,
+    apply_fouling,
+    check_and_apply_fouling,
+    check_fouling,
+)
 from .movement_executor import (
     MovementExecutionError,
     MovementExecutionResult,
@@ -60,6 +66,11 @@ __all__ = [
     "detect_hex_occupancy",
     "get_ship_hexes",
     "resolve_collision",
+    # Fouling
+    "FoulingResult",
+    "apply_fouling",
+    "check_and_apply_fouling",
+    "check_fouling",
     # RNG
     "RNG",
     "SeededRNG",

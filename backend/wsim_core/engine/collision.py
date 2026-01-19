@@ -11,6 +11,7 @@ from ..models.common import GamePhase
 from ..models.events import EventLogEntry
 from ..models.hex import HexCoord
 from ..models.ship import Ship
+from .fouling import check_and_apply_fouling
 from .rng import RNG
 
 
@@ -251,6 +252,12 @@ def detect_and_resolve_collisions(
 ) -> tuple[dict[str, Ship], CollisionResult]:
     """Detect and resolve all collisions from a movement step.
 
+    This includes:
+    1. Detecting collisions
+    2. Resolving which ship occupies the collision hex
+    3. Checking for fouling between colliding ships
+    4. Applying fouled status if fouling occurs
+
     Args:
         ships_before: Ship positions before movement step
         ships_after: Ship positions after movement step
@@ -289,6 +296,14 @@ def detect_and_resolve_collisions(
         resolved_ships = apply_collision_resolution(
             ships=resolved_ships, ships_before=ships_before, resolution=resolution
         )
+
+        # Check for fouling between colliding ships
+        resolved_ships, fouling_result = check_and_apply_fouling(
+            ship_ids=ship_ids, ships=resolved_ships, rng=rng, turn_number=turn_number
+        )
+
+        # Add fouling events to event log
+        events.extend(fouling_result.events)
 
     result = CollisionResult(collisions=collision_resolutions, events=events)
 
