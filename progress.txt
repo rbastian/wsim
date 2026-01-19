@@ -2,6 +2,53 @@
 
 ## 2026-01-19
 
+### Event Logging System (wsim-a0y) - COMPLETED
+Implemented comprehensive EventLog container class for managing game event audit trail:
+
+**Core Features:**
+- `EventLog` class: Pydantic-based container for chronological event storage
+- `add_event()` / `add_events()`: Append events individually or in batches
+- `get_all_events()`: Retrieve complete event history (returns defensive copy)
+- `get_events_for_turn()`: Filter events by turn number
+- `get_events_for_phase()`: Filter events by turn and game phase
+- `get_events_by_type()`: Filter events by event type (collision, firing, damage, etc.)
+- `get_recent_events()`: Retrieve N most recent events
+- `get_turn_summary()`: Get event count by phase for a specific turn
+- `has_events_for_turn()`: Check if events exist for a turn
+- `clear()`: Reset log (useful for testing)
+- `event_count()`: Get total number of events
+
+**Implementation Details:**
+- Created `wsim_core/events/event_log.py` (~140 lines)
+- Builds on existing `EventLogEntry` Pydantic model
+- All methods fully typed with proper return types
+- Chronological ordering maintained automatically
+- Supports filtering by multiple dimensions (turn, phase, type)
+- Designed for debugging, replay functionality, and audit trail
+- Integration-ready for Game state and API layer
+
+**Testing:**
+- Comprehensive test suite with 19 tests covering:
+  - Basic CRUD operations (add, retrieve, clear, count)
+  - Filtering by turn, phase, and event type
+  - Recent events retrieval with proper slicing
+  - Events with dice rolls, state diffs, and custom metadata
+  - Chronological ordering preservation
+  - Empty log edge cases and boundary conditions
+  - Batch operations and defensive copying
+- All 330 tests passing (19 new event log tests + 311 existing)
+
+**Quality:**
+- Code formatted with ruff
+- All linting checks pass
+- Type checking passes with ty (strict mode)
+- Ready for integration into Game state model and API endpoints
+
+**Next Steps:**
+Ready to implement FastAPI app structure and in-memory game store (wsim-d8i).
+
+## 2026-01-19
+
 ### Broadside Reload System (wsim-dbu) - COMPLETED
 Implemented comprehensive reload system for managing broadside load states during combat:
 
