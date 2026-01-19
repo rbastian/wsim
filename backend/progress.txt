@@ -77,3 +77,46 @@ Implemented comprehensive scenario loading system to initialize games from JSON 
 - ✅ All pytest tests passing (14/14)
 
 The scenario system is now complete and ready for use by the API layer to create games.
+
+## 2026-01-19 - Movement Parser Implementation (wsim-7c6)
+
+Implemented comprehensive movement notation parser that converts high-level movement strings into atomic actions:
+
+### Components Created:
+- **MovementActionType Enum**: Defines atomic action types (TURN_LEFT, TURN_RIGHT, MOVE_FORWARD, NO_MOVEMENT)
+- **MovementAction Model**: Represents a single atomic movement action with optional distance for forward moves
+- **ParsedMovement Model**: Result of parsing containing original notation, action sequence, and total forward hexes
+- **parse_movement()**: Main parser function that:
+  - Accepts notation like 'L1R1', '0', 'LLR2', 'R', '3'
+  - Normalizes input (strips whitespace, converts to uppercase)
+  - Validates syntax character by character
+  - Expands digits into forward movement actions
+  - Calculates total forward movement distance
+  - Provides detailed error messages with character positions
+- **validate_movement_within_allowance()**: Validates parsed movement doesn't exceed ship's movement allowance
+- **MovementParseError**: Custom exception for parsing failures
+
+### Movement Notation Rules:
+- '0': No movement (can only appear alone)
+- 'L': Turn left (60 degrees)
+- 'R': Turn right (60 degrees)
+- '1'-'9': Move forward that many hexes
+- Combinations: 'L1R1' = turn left, move 1, turn right, move 1
+- Case-insensitive with whitespace trimming
+
+### Test Coverage:
+- Created 29 comprehensive tests covering:
+  - All basic notation types (turns, forward movement, no movement)
+  - Complex sequences and combinations
+  - Input normalization (lowercase, whitespace)
+  - Movement allowance validation
+  - Error cases (empty strings, invalid characters, '0' in sequences)
+  - Pydantic model validation (negative distances, negative totals)
+- All tests passing (29/29)
+
+### Quality Checks:
+- ✅ Ruff formatting and linting (all checks passed)
+- ✅ Ty type checking (all checks passed)
+- ✅ All pytest tests passing (84/84 total suite)
+
+The movement parser is now complete and provides the foundation for the movement execution engine.
