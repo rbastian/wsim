@@ -2,6 +2,49 @@
 
 ## 2026-01-19
 
+### Closest-Target Rule Enforcement (wsim-g4g) - COMPLETED
+Implemented comprehensive target selection logic enforcing the closest-target rule for combat:
+
+**Core Features:**
+- `get_ships_in_arc()`: Finds all ships (any part - bow or stern) within a broadside's firing arc
+- `get_closest_enemy_in_arc()`: Returns the closest enemy ship in arc per closest-target rule
+- `get_all_valid_targets()`: Returns all valid targets (handles equidistant cases)
+- `is_valid_target()`: Validates if a specific ship can be legally targeted
+- `get_targeting_info()`: Provides detailed targeting information for debugging/UI
+- `TargetInfo` class: Encapsulates target ship, distance, and hex position
+
+**Rule Implementation:**
+- Only enemy ships (different side) are valid targets
+- Struck ships cannot be targeted
+- Only the CLOSEST enemy in arc can be targeted (strict WS&IM rule)
+- Friendly ships in arc are ignored (no friendly fire)
+- Handles equidistant enemies (all at minimum distance are valid)
+- Ships outside firing arc cannot be targeted
+- Distance calculated using proper hex geometry
+
+**Testing:**
+- Comprehensive test suite with 26 tests covering:
+  - Ships in arc detection (bow, stern, friendly, range limits)
+  - Closest enemy selection (single, multiple, filtering struck ships)
+  - Valid target list generation (equidistant handling)
+  - Target validation (all rules enforced)
+  - Targeting info generation for UI/debugging
+  - Complex scenarios (screening, multi-ship targeting)
+- All 237 project tests passing
+- Edge cases: equidistant targets, struck ships, friendly screening, out-of-arc
+
+**Quality:**
+- Code formatted with ruff
+- All linting checks pass
+- Type checking passes with ty (strict mode)
+- Proper integration with existing arc calculation system
+- Ready for combat system implementation
+
+**Next Steps:**
+Ready to implement data-driven hit tables and resolution (wsim-ool).
+
+## 2026-01-19
+
 ### Broadside Arc Determination (wsim-9bf) - COMPLETED
 Implemented broadside arc calculation system for combat targeting:
 
