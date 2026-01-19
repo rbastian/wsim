@@ -222,3 +222,65 @@ Implemented comprehensive movement execution engine that processes parsed moveme
 - ✅ All pytest tests passing (115/115 total suite)
 
 The movement execution engine is now complete and provides the foundation for collision detection, fouling, and drift systems.
+
+---
+
+## Implementation: Fouling System (wsim-8gn)
+**Date:** 2026-01-19
+**Issue:** wsim-8gn
+**Status:** Completed
+
+Implemented a comprehensive fouling system that integrates with the collision detection system. When ships collide, the system now automatically rolls for fouling and applies fouled status to ships based on the outcome.
+
+**Key Features:**
+- Fouling check uses 1d6 roll: 1-3 results in fouling, 4-6 avoids fouling
+- Automatic fouling checks after every collision resolution
+- Fouled status tracked in ship model (field already existed)
+- Full event logging for all fouling checks with roll results and outcomes
+- Seamless integration with existing collision detection system
+
+**Implementation:**
+- Created `wsim_core/engine/fouling.py` module (~130 lines)
+  - `check_fouling()`: Rolls for fouling and creates event log entries
+  - `apply_fouling()`: Applies fouled status to ships
+  - `check_and_apply_fouling()`: Convenience function combining both
+- Updated `wsim_core/engine/collision.py`:
+  - Modified `detect_and_resolve_collisions()` to call fouling checks after each collision
+  - Added fouling event import and integration
+- Updated `wsim_core/engine/__init__.py` to export fouling functions
+- Updated existing collision tests to expect additional fouling events
+
+**Testing:**
+- Created comprehensive test suite: `tests/engine/test_fouling.py` with 15 tests
+- Test coverage includes:
+  - Fouling checks with various roll outcomes
+  - Single ship (no fouling), two ships, multiple ships
+  - Apply fouling to already-fouled ships
+  - Partial ship ID handling
+  - Event logging validation
+  - Deterministic behavior with seeded RNG
+  - State preservation (other ship properties unchanged)
+- Updated 2 existing collision tests to account for fouling events
+- All 167 tests pass
+
+**Quality Checks:**
+- ruff formatting: clean (2 files reformatted)
+- ruff linting: clean (1 import order fix applied)
+- ty type checking (strict mode): clean
+- Full integration with existing systems working correctly
+
+**Design Decisions:**
+- Simplified MVP fouling rules (50/50 chance with 1d6)
+- Fouling always checked after collisions (no option to skip)
+- Both ships involved in collision get fouled status if roll succeeds
+- Fouling state persists on ships for future movement restrictions
+- Event logging provides full transparency for debugging/replay
+
+**Integration Points:**
+- Collision detection system (automatic integration)
+- RNG system (uses injected RNG for determinism)
+- Event logging system (creates fouling_check events)
+- Ship model (uses existing fouled field)
+
+**Next Steps:**
+Ready to implement next priority task from Beads backlog. Fouling system is complete and tested.
