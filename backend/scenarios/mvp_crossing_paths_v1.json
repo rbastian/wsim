@@ -1,0 +1,67 @@
+{
+  "id": "mvp_crossing_paths_v1",
+  "name": "Crossing Paths",
+  "description": "Ships start close and on converging courses. Expect collisions and fouling.",
+  "map": { "width": 18, "height": 14 },
+  "wind": { "direction": "S" },
+  "turn_limit": 12,
+  "victory": { "type": "score_after_turns", "metric": "remaining_hull" },
+  "ships": [
+    {
+      "id": "p1_sloop_1",
+      "side": "P1",
+      "name": "P1 Sloop A",
+      "battle_sail_speed": 3,
+      "start": { "bow": [6, 6], "facing": "E" },
+      "guns": { "L": 6, "R": 6 },
+      "carronades": { "L": 0, "R": 0 },
+      "hull": 8,
+      "rigging": 8,
+      "crew": 8,
+      "marines": 1,
+      "initial_load": { "L": "R", "R": "R" }
+    },
+    {
+      "id": "p1_sloop_2",
+      "side": "P1",
+      "name": "P1 Sloop B",
+      "battle_sail_speed": 3,
+      "start": { "bow": [6, 8], "facing": "E" },
+      "guns": { "L": 6, "R": 6 },
+      "carronades": { "L": 0, "R": 0 },
+      "hull": 8,
+      "rigging": 8,
+      "crew": 8,
+      "marines": 1,
+      "initial_load": { "L": "R", "R": "R" }
+    },
+    {
+      "id": "p2_sloop_1",
+      "side": "P2",
+      "name": "P2 Sloop A",
+      "battle_sail_speed": 3,
+      "start": { "bow": [11, 7], "facing": "W" },
+      "guns": { "L": 6, "R": 6 },
+      "carronades": { "L": 0, "R": 0 },
+      "hull": 8,
+      "rigging": 8,
+      "crew": 8,
+      "marines": 1,
+      "initial_load": { "L": "R", "R": "R" }
+    },
+    {
+      "id": "p2_sloop_2",
+      "side": "P2",
+      "name": "P2 Sloop B",
+      "battle_sail_speed": 3,
+      "start": { "bow": [11, 9], "facing": "W" },
+      "guns": { "L": 6, "R": 6 },
+      "carronades": { "L": 0, "R": 0 },
+      "hull": 8,
+      "rigging": 8,
+      "crew": 8,
+      "marines": 1,
+      "initial_load": { "L": "R", "R": "R" }
+    }
+  ]
+}

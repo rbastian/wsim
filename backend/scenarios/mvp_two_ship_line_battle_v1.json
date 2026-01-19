@@ -1,0 +1,67 @@
+{
+  "id": "mvp_two_ship_line_battle_v1",
+  "name": "Two-Ship Line Battle",
+  "description": "Two ships per side. Positioning matters because the closest-target rule can block shots.",
+  "map": { "width": 28, "height": 18 },
+  "wind": { "direction": "W" },
+  "turn_limit": 18,
+  "victory": { "type": "first_side_struck_two_ships" },
+  "ships": [
+    {
+      "id": "p1_frigate_1",
+      "side": "P1",
+      "name": "HMS Arrow",
+      "battle_sail_speed": 4,
+      "start": { "bow": [6, 7], "facing": "E" },
+      "guns": { "L": 10, "R": 10 },
+      "carronades": { "L": 0, "R": 0 },
+      "hull": 12,
+      "rigging": 10,
+      "crew": 10,
+      "marines": 2,
+      "initial_load": { "L": "R", "R": "R" }
+    },
+    {
+      "id": "p1_brig_1",
+      "side": "P1",
+      "name": "HMS Kite",
+      "battle_sail_speed": 3,
+      "start": { "bow": [6, 11], "facing": "E" },
+      "guns": { "L": 7, "R": 7 },
+      "carronades": { "L": 0, "R": 0 },
+      "hull": 10,
+      "rigging": 9,
+      "crew": 9,
+      "marines": 1,
+      "initial_load": { "L": "R", "R": "R" }
+    },
+    {
+      "id": "p2_frigate_1",
+      "side": "P2",
+      "name": "FS Tempete",
+      "battle_sail_speed": 4,
+      "start": { "bow": [21, 7], "facing": "W" },
+      "guns": { "L": 10, "R": 10 },
+      "carronades": { "L": 0, "R": 0 },
+      "hull": 12,
+      "rigging": 10,
+      "crew": 10,
+      "marines": 2,
+      "initial_load": { "L": "R", "R": "R" }
+    },
+    {
+      "id": "p2_brig_1",
+      "side": "P2",
+      "name": "FS Mouche",
+      "battle_sail_speed": 3,
+      "start": { "bow": [21, 11], "facing": "W" },
+      "guns": { "L": 7, "R": 7 },
+      "carronades": { "L": 0, "R": 0 },
+      "hull": 10,
+      "rigging": 9,
+      "crew": 9,
+      "marines": 1,
+      "initial_load": { "L": "R", "R": "R" }
+    }
+  ]
+}
