@@ -1,6 +1,5 @@
 """Tests for broadside arc calculation."""
 
-
 from wsim_core.engine.arc import (
     get_broadside_arc_hexes,
     hex_distance,
