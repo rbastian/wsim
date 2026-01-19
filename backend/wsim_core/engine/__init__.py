@@ -53,6 +53,16 @@ from .movement_parser import (
     parse_movement,
     validate_movement_within_allowance,
 )
+from .reload import (
+    ReloadResult,
+    can_reload_ship,
+    create_reload_event,
+    is_broadside_loaded,
+    mark_broadside_fired,
+    reload_all_ships,
+    reload_broadside,
+    reload_ship,
+)
 from .rng import RNG, SeededRNG, UnseededRNG, create_rng
 from .targeting import (
     TargetInfo,
@@ -122,4 +132,13 @@ __all__ = [
     "SeededRNG",
     "UnseededRNG",
     "create_rng",
+    # Reload
+    "ReloadResult",
+    "can_reload_ship",
+    "create_reload_event",
+    "is_broadside_loaded",
+    "mark_broadside_fired",
+    "reload_all_ships",
+    "reload_broadside",
+    "reload_ship",
 ]
