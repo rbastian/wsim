@@ -253,3 +253,101 @@ def can_fire_broadside(ship: Ship, broadside: Broadside) -> bool:
     # Must have at least one gun on that side
     num_guns = ship.guns_L if broadside == Broadside.L else ship.guns_R
     return num_guns > 0
+
+
+def get_legal_targets(
+    firing_ship: Ship, all_ships: dict[str, Ship], broadside: Broadside, max_range: int = 10
+) -> list[Ship]:
+    """Get legal targets for a broadside firing using the closest-target rule.
+
+    The closest-target rule states that a ship must fire at the closest enemy ship
+    in its broadside arc. This prevents firing at distant targets when closer enemies
+    are present.
+
+    Args:
+        firing_ship: Ship doing the firing
+        all_ships: Dictionary of all ships in the game (by ID)
+        broadside: Which broadside (L or R) to check
+        max_range: Maximum range in hexes (default 10)
+
+    Returns:
+        List of legal target ships (empty if no valid targets, or single ship if
+        closest-target rule applies, or multiple ships if tied for closest)
+    """
+    from .arc import get_broadside_arc_hexes, hex_distance
+
+    # Get all hexes in the broadside arc
+    arc_hexes = get_broadside_arc_hexes(firing_ship, broadside, max_range)
+
+    # Find all enemy ships in arc (that are not struck)
+    enemy_ships_in_arc: list[tuple[Ship, int]] = []
+
+    for ship in all_ships.values():
+        # Skip self
+        if ship.id == firing_ship.id:
+            continue
+
+        # Skip friendly ships (same side)
+        if ship.side == firing_ship.side:
+            continue
+
+        # Skip struck ships (can't be targeted)
+        if ship.struck:
+            continue
+
+        # Check if ship's bow or stern is in arc
+        if ship.bow_hex in arc_hexes or ship.stern_hex in arc_hexes:
+            distance = hex_distance(firing_ship.bow_hex, ship.bow_hex)
+            if distance <= max_range:
+                enemy_ships_in_arc.append((ship, distance))
+
+    # If no enemies in arc, return empty list
+    if not enemy_ships_in_arc:
+        return []
+
+    # Apply closest-target rule: must fire at closest enemy
+    min_distance = min(distance for _, distance in enemy_ships_in_arc)
+    closest_ships = [ship for ship, distance in enemy_ships_in_arc if distance == min_distance]
+
+    return closest_ships
+
+
+def apply_damage(ship: Ship, hit_result: HitResult, aim: AimPoint, broadside: Broadside) -> None:
+    """Apply damage to a ship from a broadside firing.
+
+    This modifies the ship in place, updating hull/rigging, crew, and guns.
+    Also updates struck status if hull reaches 0.
+
+    Args:
+        ship: Target ship to damage (modified in place)
+        hit_result: Result from resolve_broadside_fire
+        aim: Whether firing aimed at hull or rigging
+        broadside: Which broadside was hit (for gun damage)
+    """
+    # Apply hits to hull or rigging
+    if aim == AimPoint.HULL:
+        ship.hull = max(0, ship.hull - hit_result.hits)
+    else:  # AimPoint.RIGGING
+        ship.rigging = max(0, ship.rigging - hit_result.hits)
+
+    # Apply crew casualties (only for hull hits)
+    if hit_result.crew_casualties > 0:
+        ship.crew = max(0, ship.crew - hit_result.crew_casualties)
+
+    # Apply gun damage (only at short range)
+    if hit_result.gun_damage > 0:
+        # Damage guns on the broadside that was hit
+        # Note: broadside parameter is the FIRING ship's broadside, we need to determine
+        # which broadside of the target ship faces the firing ship
+        # For MVP, we'll apply damage to both broadsides proportionally
+        total_guns = ship.guns_L + ship.guns_R
+        if total_guns > 0:
+            # Distribute damage proportionally
+            damage_left = (hit_result.gun_damage * ship.guns_L) // total_guns
+            damage_right = hit_result.gun_damage - damage_left
+            ship.guns_L = max(0, ship.guns_L - damage_left)
+            ship.guns_R = max(0, ship.guns_R - damage_right)
+
+    # Check if ship should strike (hull reaches 0)
+    if ship.hull <= 0:
+        ship.struck = True

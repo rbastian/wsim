@@ -4,8 +4,10 @@ import pytest
 
 from wsim_core.engine.combat import (
     HitTables,
+    apply_damage,
     can_fire_broadside,
     get_crew_quality_modifier,
+    get_legal_targets,
     resolve_broadside_fire,
 )
 from wsim_core.engine.rng import SeededRNG
@@ -430,3 +432,319 @@ class TestResolveBroadsideFire:
         assert result.hits == 0
         assert result.crew_casualties == 0
         assert result.gun_damage == 0
+
+
+class TestGetLegalTargets:
+    """Test closest-target rule and legal target selection."""
+
+    def test_no_enemies_no_targets(self, firing_ship):
+        """Test that no enemies means no legal targets."""
+        # Only friendly ships
+        all_ships = {
+            "firing": firing_ship,
+            "friendly": Ship(
+                id="friendly",
+                name="HMS Friendly",
+                side=Side.P1,
+                bow_hex=HexCoord(col=8, row=5),
+                stern_hex=HexCoord(col=8, row=6),
+                facing=Facing.W,
+                battle_sail_speed=4,
+                guns_L=10,
+                guns_R=10,
+                hull=12,
+                rigging=10,
+                crew=10,
+                marines=2,
+                load_L=LoadState.ROUNDSHOT,
+                load_R=LoadState.ROUNDSHOT,
+            ),
+        }
+
+        targets = get_legal_targets(firing_ship, all_ships, Broadside.R)
+        assert len(targets) == 0
+
+    def test_enemy_out_of_arc_no_targets(self, firing_ship):
+        """Test that enemy out of broadside arc is not a legal target."""
+        # Enemy ahead/north (out of right broadside arc)
+        # Right broadside for ship facing E fires to starboard (south)
+        all_ships = {
+            "firing": firing_ship,
+            "enemy": Ship(
+                id="enemy",
+                name="FS Enemy",
+                side=Side.P2,
+                bow_hex=HexCoord(col=8, row=2),  # North/ahead (out of starboard arc)
+                stern_hex=HexCoord(col=8, row=3),
+                facing=Facing.W,
+                battle_sail_speed=4,
+                guns_L=10,
+                guns_R=10,
+                hull=12,
+                rigging=10,
+                crew=10,
+                marines=2,
+                load_L=LoadState.ROUNDSHOT,
+                load_R=LoadState.ROUNDSHOT,
+            ),
+        }
+
+        # Right broadside fires south, enemy is north
+        targets = get_legal_targets(firing_ship, all_ships, Broadside.R)
+        assert len(targets) == 0
+
+    def test_single_enemy_in_arc(self, firing_ship, target_ship):
+        """Test that single enemy in arc is a legal target."""
+        all_ships = {"firing": firing_ship, "target": target_ship}
+
+        # Right broadside fires east, target is to the east
+        targets = get_legal_targets(firing_ship, all_ships, Broadside.R)
+        assert len(targets) == 1
+        assert targets[0].id == "test_target"
+
+    def test_closest_target_rule_single_closest(self, firing_ship):
+        """Test that only closest enemy is legal target."""
+        # Two enemies at different ranges
+        close_enemy = Ship(
+            id="close",
+            name="FS Close",
+            side=Side.P2,
+            bow_hex=HexCoord(col=7, row=5),  # 2 hexes away
+            stern_hex=HexCoord(col=7, row=6),
+            facing=Facing.W,
+            battle_sail_speed=4,
+            guns_L=10,
+            guns_R=10,
+            hull=12,
+            rigging=10,
+            crew=10,
+            marines=2,
+            load_L=LoadState.ROUNDSHOT,
+            load_R=LoadState.ROUNDSHOT,
+        )
+
+        far_enemy = Ship(
+            id="far",
+            name="FS Far",
+            side=Side.P2,
+            bow_hex=HexCoord(col=10, row=5),  # 5 hexes away
+            stern_hex=HexCoord(col=10, row=6),
+            facing=Facing.W,
+            battle_sail_speed=4,
+            guns_L=10,
+            guns_R=10,
+            hull=12,
+            rigging=10,
+            crew=10,
+            marines=2,
+            load_L=LoadState.ROUNDSHOT,
+            load_R=LoadState.ROUNDSHOT,
+        )
+
+        all_ships = {"firing": firing_ship, "close": close_enemy, "far": far_enemy}
+
+        # Right broadside fires east
+        targets = get_legal_targets(firing_ship, all_ships, Broadside.R)
+        assert len(targets) == 1
+        assert targets[0].id == "close"
+
+    def test_tied_for_closest_both_legal(self, firing_ship):
+        """Test that when two enemies are tied for closest, both are legal targets."""
+        enemy1 = Ship(
+            id="enemy1",
+            name="FS Enemy 1",
+            side=Side.P2,
+            bow_hex=HexCoord(col=8, row=5),  # 3 hexes away
+            stern_hex=HexCoord(col=8, row=6),
+            facing=Facing.W,
+            battle_sail_speed=4,
+            guns_L=10,
+            guns_R=10,
+            hull=12,
+            rigging=10,
+            crew=10,
+            marines=2,
+            load_L=LoadState.ROUNDSHOT,
+            load_R=LoadState.ROUNDSHOT,
+        )
+
+        enemy2 = Ship(
+            id="enemy2",
+            name="FS Enemy 2",
+            side=Side.P2,
+            bow_hex=HexCoord(col=8, row=7),  # Also 3 hexes away
+            stern_hex=HexCoord(col=8, row=8),
+            facing=Facing.W,
+            battle_sail_speed=4,
+            guns_L=10,
+            guns_R=10,
+            hull=12,
+            rigging=10,
+            crew=10,
+            marines=2,
+            load_L=LoadState.ROUNDSHOT,
+            load_R=LoadState.ROUNDSHOT,
+        )
+
+        all_ships = {"firing": firing_ship, "enemy1": enemy1, "enemy2": enemy2}
+
+        targets = get_legal_targets(firing_ship, all_ships, Broadside.R)
+        assert len(targets) == 2
+        target_ids = {t.id for t in targets}
+        assert target_ids == {"enemy1", "enemy2"}
+
+    def test_struck_ship_not_targetable(self, firing_ship):
+        """Test that struck ships cannot be targeted."""
+        # Both ships in right broadside arc (starboard/south for ship facing E)
+        struck_enemy = Ship(
+            id="struck",
+            name="FS Struck",
+            side=Side.P2,
+            bow_hex=HexCoord(col=7, row=6),
+            stern_hex=HexCoord(col=7, row=7),
+            facing=Facing.W,
+            battle_sail_speed=4,
+            guns_L=10,
+            guns_R=10,
+            hull=0,
+            rigging=10,
+            crew=10,
+            marines=2,
+            load_L=LoadState.ROUNDSHOT,
+            load_R=LoadState.ROUNDSHOT,
+            struck=True,
+        )
+
+        unstruck_enemy = Ship(
+            id="unstruck",
+            name="FS Active",
+            side=Side.P2,
+            bow_hex=HexCoord(col=9, row=7),
+            stern_hex=HexCoord(col=9, row=8),
+            facing=Facing.W,
+            battle_sail_speed=4,
+            guns_L=10,
+            guns_R=10,
+            hull=12,
+            rigging=10,
+            crew=10,
+            marines=2,
+            load_L=LoadState.ROUNDSHOT,
+            load_R=LoadState.ROUNDSHOT,
+        )
+
+        all_ships = {"firing": firing_ship, "struck": struck_enemy, "unstruck": unstruck_enemy}
+
+        targets = get_legal_targets(firing_ship, all_ships, Broadside.R)
+        # Should only target the unstruck ship, even though struck is closer
+        assert len(targets) == 1
+        assert targets[0].id == "unstruck"
+
+
+class TestApplyDamage:
+    """Test damage application to ships."""
+
+    def test_apply_hull_damage(self, target_ship, hit_tables):
+        """Test applying damage to hull."""
+        # Create a mock hit result
+        from wsim_core.engine.combat import HitResult
+
+        hit_result = HitResult(
+            hits=3,
+            crew_casualties=1,
+            gun_damage=0,
+            range=3,
+            range_bracket="medium",
+            die_rolls=[4, 5, 6],
+            modifiers_applied={},
+        )
+
+        initial_hull = target_ship.hull
+        apply_damage(target_ship, hit_result, AimPoint.HULL, Broadside.R)
+
+        assert target_ship.hull == initial_hull - 3
+        assert target_ship.crew == 10 - 1
+        assert target_ship.rigging == 10  # Unchanged
+
+    def test_apply_rigging_damage(self, target_ship):
+        """Test applying damage to rigging."""
+        from wsim_core.engine.combat import HitResult
+
+        hit_result = HitResult(
+            hits=2,
+            crew_casualties=0,
+            gun_damage=0,
+            range=3,
+            range_bracket="medium",
+            die_rolls=[5, 6],
+            modifiers_applied={},
+        )
+
+        initial_rigging = target_ship.rigging
+        apply_damage(target_ship, hit_result, AimPoint.RIGGING, Broadside.R)
+
+        assert target_ship.rigging == initial_rigging - 2
+        assert target_ship.hull == 12  # Unchanged
+        assert target_ship.crew == 10  # No casualties for rigging hits
+
+    def test_apply_gun_damage(self, target_ship):
+        """Test applying gun damage at short range."""
+        from wsim_core.engine.combat import HitResult
+
+        hit_result = HitResult(
+            hits=2,
+            crew_casualties=1,
+            gun_damage=2,
+            range=1,
+            range_bracket="short",
+            die_rolls=[6, 6, 5, 6, 6],
+            modifiers_applied={},
+        )
+
+        initial_guns = target_ship.guns_L + target_ship.guns_R
+        apply_damage(target_ship, hit_result, AimPoint.HULL, Broadside.R)
+
+        final_guns = target_ship.guns_L + target_ship.guns_R
+        assert final_guns == initial_guns - 2
+
+    def test_hull_zero_sets_struck(self, target_ship):
+        """Test that hull reaching zero sets struck flag."""
+        from wsim_core.engine.combat import HitResult
+
+        # Deal enough damage to destroy hull
+        hit_result = HitResult(
+            hits=12,
+            crew_casualties=0,
+            gun_damage=0,
+            range=1,
+            range_bracket="short",
+            die_rolls=[6] * 10,
+            modifiers_applied={},
+        )
+
+        apply_damage(target_ship, hit_result, AimPoint.HULL, Broadside.R)
+
+        assert target_ship.hull == 0
+        assert target_ship.struck is True
+
+    def test_damage_cannot_go_negative(self, target_ship):
+        """Test that tracks cannot go negative."""
+        from wsim_core.engine.combat import HitResult
+
+        # Deal more damage than ship has hull
+        hit_result = HitResult(
+            hits=100,
+            crew_casualties=50,
+            gun_damage=50,
+            range=1,
+            range_bracket="short",
+            die_rolls=[6] * 10,
+            modifiers_applied={},
+        )
+
+        apply_damage(target_ship, hit_result, AimPoint.HULL, Broadside.R)
+
+        assert target_ship.hull >= 0
+        assert target_ship.crew >= 0
+        assert target_ship.guns_L >= 0
+        assert target_ship.guns_R >= 0
