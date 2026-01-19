@@ -1,4 +1,39 @@
 
+## 2026-01-19 - RNG Abstraction Implementation (wsim-0d0)
+
+Implemented foundational Random Number Generator (RNG) abstraction to enable deterministic gameplay for testing and replay:
+
+### Components Created:
+- **RNG Abstract Base Class**: Defines interface with roll_d6(), roll_2d6(), and roll_dice(n, sides) methods
+- **SeededRNG**: Deterministic RNG using a fixed seed for:
+  - Test scenarios with reproducible outcomes
+  - Replay functionality
+  - Debugging game logic
+- **UnseededRNG**: Standard RNG using system randomness for normal gameplay
+- **create_rng() Factory**: Convenience function that returns SeededRNG when seed provided, UnseededRNG otherwise
+
+### Test Coverage:
+- Created 24 comprehensive tests organized into test classes:
+  - TestSeededRNG: 7 tests for deterministic behavior
+  - TestUnseededRNG: 5 tests for valid range checks
+  - TestCreateRNG: 3 tests for factory function
+  - TestRNGInterface: 6 parameterized tests verifying interface compliance
+  - TestDeterministicGameplay: 3 integration tests demonstrating deterministic scenarios (combat, collision, full turn replay)
+- All tests passing (139 total in test suite)
+
+### Key Features:
+- Custom number of sides supported (d4, d6, d10, d20, etc.)
+- Same seed produces identical roll sequences across runs
+- Easy dependency injection for engine components
+- Type-safe with full ty type checking support
+
+### Quality Checks:
+- ✅ Ruff formatting and linting (all checks passed)
+- ✅ Ty type checking (all checks passed)
+- ✅ All pytest tests passing (139/139)
+
+This RNG system will be used by collision detection, fouling rolls, combat hit resolution, and damage application systems.
+
 ## 2026-01-19 - Core Pydantic Models Implementation (wsim-vbx)
 
 Implemented the foundational Pydantic v2 models for the WSIM game engine:
