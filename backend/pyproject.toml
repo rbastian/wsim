@@ -17,6 +17,7 @@ dev = [
     "pytest-cov>=6.0.0",
     "hypothesis>=6.122.0",
     "httpx>=0.28.0",  # For FastAPI TestClient
+    "ruff>=0.9.0",
 ]
 
 [build-system]

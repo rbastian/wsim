@@ -9,7 +9,6 @@ import { CombatPanel } from "../components/CombatPanel";
 import { PhaseControlPanel } from "../components/PhaseControlPanel";
 import { EventLog } from "../components/EventLog";
 import { api } from "../api/client";
-import type { HexCoordinate } from "../types/hex";
 import type { Game, Ship, Broadside, BroadsideArcResponse } from "../types/game";
 
 export function GamePage() {
@@ -45,7 +44,7 @@ export function GamePage() {
     fetchGame();
   }, [gameId]);
 
-  const handleHexClick = (_hex: HexCoordinate) => {
+  const handleHexClick = () => {
     // Hex click handling can be implemented later if needed
   };
 
