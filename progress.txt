@@ -2,6 +2,136 @@
 
 ## 2026-01-19
 
+### Combat UI for Broadside Firing (wsim-4m0) - COMPLETED
+Implemented comprehensive combat panel component for the combat phase with full closest-target rule enforcement:
+
+**CombatPanel Component (frontend/src/components/CombatPanel.tsx):**
+- Complete combat workflow UI for firing broadsides during combat phase
+- Ship selection list showing all ships with loaded broadsides
+- Broadside selection (Port/Starboard) with load state validation
+- Target selection with closest-target rule enforcement and visual feedback
+- Aim point selection (Hull vs Rigging)
+- Fire button with API integration
+- Recent combat events display showing dice rolls and damage
+
+**Ship Selection:**
+- Displays all ships capable of firing (not struck, has loaded broadside)
+- Shows load state for both port and starboard broadsides
+- Click to select ship for firing
+- Change ship button to switch between multiple ships
+
+**Broadside Selection:**
+- Two-button interface for Port (L) and Starboard (R) selection
+- Disabled state for empty/unloaded broadsides
+- Shows gun count per broadside
+- Shows current load state (Loaded vs Empty)
+- Visual highlighting of selected broadside
+
+**Target Selection with Closest-Target Rule:**
+- Client-side distance calculation using hex coordinate math
+- Lists all potential targets sorted by distance
+- Visually distinguishes closest targets (legal to fire at)
+- Disables non-closest targets with explanatory text
+- Shows target distance in hexes
+- Shows target's current hull and rigging values
+- Green checkmark for legal (closest) targets
+- Red italicized text explaining closest-target rule for illegal targets
+
+**Aim Point Selection:**
+- Hull vs Rigging toggle buttons
+- Defaults to Hull aim
+- Visual highlight of selected aim point
+
+**Fire Action:**
+- Integrated with POST /games/{id}/turns/{turn}/combat/fire API endpoint
+- Validates all selections before firing
+- Shows loading state during API call
+- Error handling with user-friendly messages
+- Automatically marks broadside as empty after successful fire
+- Updates game state after damage applied
+
+**Combat Events Display:**
+- Shows up to 5 most recent combat events in reverse chronological order
+- Displays event summaries (e.g., "Ship X fired at Ship Y")
+- Shows dice rolls array for transparency
+- Shows modifiers applied to combat resolution
+- Color-coded with red accent border for combat events
+- Scrollable container for event history
+- Auto-updates with new events after each fire action
+
+**GamePage Integration:**
+- Dynamic right panel switching based on game phase:
+  - Planning phase: Shows OrdersPanel
+  - Combat phase: Shows CombatPanel
+  - Other phases: Shows placeholder with phase name
+- Passes selectedShipId to CombatPanel for ship selection state
+- Provides onShipSelect callback for ship selection from list
+- onGameUpdate callback keeps game state synchronized
+- Maintains consistent 3-column layout across all phases
+
+**Validation and Error Handling:**
+- Validates ship is not struck before allowing fire
+- Validates broadside is loaded before enabling selection
+- Ensures only closest targets can be selected
+- Shows clear error messages for invalid operations
+- API error messages displayed to user
+- Disabled states prevent invalid actions
+
+**Visual Design:**
+- Consistent dark naval theme (#1e1e1e backgrounds, #333 borders)
+- Color-coded by side (Blue for P1, Red for P2)
+- Red fire button (#e24a4a) for emphasis
+- Green highlighting for valid/closest targets (#4ade80)
+- Gray/disabled styling for unavailable options
+- Proper spacing and typography hierarchy
+- Rounded corners and borders throughout
+- Scrollable sections with overflow handling
+
+**Technical Implementation:**
+- Created frontend/src/components/CombatPanel.tsx (~470 lines)
+- Updated GamePage.tsx to conditionally render CombatPanel
+- Helper functions for load state checking and ship firing eligibility
+- Client-side hex distance calculation using cube coordinate math
+- Proper TypeScript typing throughout
+- React state management for selections and UI state
+- API integration using existing client.ts functions
+- Event log state management with slice and reverse for display
+
+**Testing:**
+- All 348 backend tests passing
+- Frontend builds successfully with no TypeScript errors
+- Ruff formatting: all checks passed
+- Ruff linting: all checks passed
+- Ty type checking: all checks passed
+- TypeScript compilation: no errors
+- Ready for end-to-end testing with running game
+
+**Closest-Target Rule Implementation:**
+- Client calculates distances for all enemy ships
+- Only enemies at minimum distance are selectable
+- Visual feedback shows which targets are legal vs blocked
+- Explanatory text for why targets are unavailable
+- Server-side enforcement provides final validation
+- Prevents player confusion through clear UI communication
+
+**What This Enables:**
+Players can now:
+1. Select ships with loaded broadsides during combat phase
+2. Choose which broadside (port/starboard) to fire
+3. See all potential targets with distance indicators
+4. Understand which targets are legal due to closest-target rule
+5. Choose aim point (hull for damage, rigging for mobility)
+6. Fire broadsides and see immediate results
+7. View combat event log with dice rolls and modifiers
+8. See updated ship states after damage applied
+
+This completes the core combat UI workflow. Combined with the existing combat API endpoint, players can now conduct naval battles following all WSIM rules including the critical closest-target restriction.
+
+**Next Steps:**
+Ready to implement event log display panel (wsim-d0w) or broadside arc/target visualization overlays (wsim-oxv).
+
+## 2026-01-19
+
 ### Ship Log Panel UI (wsim-8ly) - COMPLETED
 Implemented comprehensive ship inspector panel component for displaying detailed ship information:
 
