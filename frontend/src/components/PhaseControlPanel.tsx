@@ -118,6 +118,7 @@ export function PhaseControlPanel({ game, onGameUpdate }: PhaseControlPanelProps
         display: "flex",
         flexDirection: "column",
         gap: "12px",
+        flexShrink: 0,
       }}
     >
       {/* Phase indicator */}

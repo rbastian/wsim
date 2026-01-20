@@ -52,7 +52,7 @@ export function OrdersPanel({ game, onGameUpdate, onPreviewPath }: OrdersPanelPr
     if (playerOrders && playerOrders.orders.length > 0) {
       const ordersMap: Record<string, string> = {};
       for (const order of playerOrders.orders) {
-        ordersMap[order.ship_id] = order.movement;
+        ordersMap[order.ship_id] = order.movement_string;
       }
       setOrders(ordersMap);
     }
@@ -144,7 +144,7 @@ export function OrdersPanel({ game, onGameUpdate, onPreviewPath }: OrdersPanelPr
       // Build orders array
       const ordersArray: ShipOrders[] = playerShips.map((ship) => ({
         ship_id: ship.id,
-        movement: orders[ship.id].trim(),
+        movement_string: orders[ship.id].trim(),
       }));
 
       // Submit orders to API
@@ -222,7 +222,9 @@ export function OrdersPanel({ game, onGameUpdate, onPreviewPath }: OrdersPanelPr
         display: "flex",
         flexDirection: "column",
         gap: "16px",
-        height: "100%",
+        flex: 1,
+        minHeight: "400px",
+        maxHeight: "none",
         overflow: "auto",
       }}
     >

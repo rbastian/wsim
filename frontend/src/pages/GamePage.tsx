@@ -168,7 +168,7 @@ export function GamePage() {
         <div style={{
           flex: 1,
           display: 'flex',
-          overflow: 'hidden',
+          overflow: 'visible',
           gap: '1rem',
           minHeight: 0
         }}>
@@ -214,7 +214,7 @@ export function GamePage() {
             display: 'flex',
             flexDirection: 'column',
             gap: '1rem',
-            minHeight: 0,
+            height: '100%',
             overflow: 'auto'
           }}>
             {/* Phase control panel - always visible */}

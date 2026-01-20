@@ -182,7 +182,8 @@ export function CombatPanel({ game, selectedShipId, onGameUpdate, onShipSelect, 
         display: "flex",
         flexDirection: "column",
         gap: "16px",
-        height: "100%",
+        flex: 1,
+        minHeight: "300px",
         overflow: "auto",
       }}
     >

@@ -45,7 +45,7 @@ export interface Ship {
 
 export interface ShipOrders {
   ship_id: string;
-  movement: string;
+  movement_string: string;
 }
 
 export interface TurnOrders {
