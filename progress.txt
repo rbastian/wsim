@@ -2,6 +2,69 @@
 
 ## 2026-01-19
 
+### Movement Path Preview Visualization (wsim-6uk) - COMPLETED
+Implemented optional movement path preview that shows predicted ship paths when entering movement orders:
+
+**New Movement Preview Module (frontend/src/types/movementPreview.ts):**
+- `simulateMovementPath()`: Client-side ship movement simulation matching backend logic
+- Turn left/right logic matching backend movement_executor.py exactly
+- Forward movement with odd-q hex geometry matching backend
+- Stern position calculation from bow and facing
+- Complete path tracking with all intermediate positions
+- `getPathHexes()`: Extracts hexes for visualization
+
+**HexGrid Component Updates:**
+- Added `pathPreviewHexes` prop for path visualization
+- Blue semi-transparent (#4a90e255) highlighting for preview hexes
+- Path preview takes visual precedence over combat arc
+- Smooth CSS transitions between states
+- Hover states respect preview highlighting
+
+**OrdersPanel Component Updates:**
+- Added `onPreviewPath` callback prop
+- Focused ship ID tracking for active preview
+- Preview updates on focus, blur, and text change events
+- Blue border highlight (#4a90e2) on focused input
+- Real-time preview as movement string is typed
+- Validation integrated with preview (only valid movements previewed)
+
+**GamePage Integration:**
+- `pathPreviewHexes` state management at page level
+- `handlePreviewPath()`: Coordinates ship data + movement → path hexes
+- Wires OrdersPanel callbacks to HexGrid props
+- Automatic preview clear on input blur
+
+**User Experience Flow:**
+1. Player focuses on ship movement input field
+2. Blue border appears on focused field
+3. Existing ship position highlighted
+4. As player types movement (e.g., "L1R1"):
+   - Path simulated in real-time
+   - Blue hexes show predicted path on board
+   - Both bow and stern positions shown for each step
+5. Player sees exactly where ship will move before submitting
+6. Preview clears when input loses focus
+
+**Technical Quality:**
+- Full TypeScript type safety throughout
+- Client-side only (no backend changes)
+- ESLint clean, TypeScript compiles without errors
+- Frontend build succeeds
+- All 356 backend tests still passing
+- Movement simulation matches backend movement_executor.py exactly
+
+**Benefits:**
+- Significantly improves UX for movement planning
+- Helps players visualize complex maneuvers (turns + forward moves)
+- Reduces errors from mistyped or misunderstood movement notation
+- Enhances tactical decision-making with visual feedback
+- No performance impact (lightweight simulation)
+- Integrates seamlessly with existing UI
+
+This optional enhancement makes the planning phase much more intuitive and reduces player frustration with movement notation.
+
+## 2026-01-19
+
 ### Comprehensive README Documentation (wsim-fqg) - COMPLETED
 Created comprehensive root README.md providing complete project documentation for developers and players:
 
