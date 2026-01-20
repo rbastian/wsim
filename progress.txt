@@ -1025,3 +1025,72 @@ Players can now:
 
 The event log is a critical feature for MVP as it provides transparency, aids debugging during development, and builds player trust in the rules engine.
 
+
+---
+
+## Broadside Arc and Target Visualization (wsim-oxv)
+**Date:** 2026-01-19
+**Task:** Implement visual overlays for broadside firing arcs and valid targets during combat phase
+
+### What Was Built:
+
+#### Backend API:
+- New GET endpoint: `/games/{game_id}/ships/{ship_id}/broadside/{L|R}/arc`
+- Returns comprehensive targeting data:
+  - `arc_hexes`: List of hex coordinates in the broadside's firing arc
+  - `ships_in_arc`: IDs of all ships (any part) within the arc
+  - `valid_targets`: IDs of ships that can be legally targeted (closest enemies only)
+  - `closest_distance`: Distance to closest enemy for UI display
+- Leverages existing `get_broadside_arc_hexes` and `get_all_valid_targets` engine functions
+- Enforces closest-target rule at API level
+
+#### Frontend Visualization:
+- **HexGrid enhancements:**
+  - Orange fill (#ff990055) and orange border for hexes in selected broadside's firing arc
+  - Smooth transitions for arc highlight appearance/disappearance
+  - Arc visualization clears when broadside deselected
+
+- **Ship highlighting:**
+  - Green outline (4px) + green checkmark badge for valid targets (closest enemies)
+  - Yellow outline (3px) for ships in arc but not valid targets (not closest or friendly)
+  - Visual feedback makes closest-target rule immediately obvious to players
+
+- **CombatPanel integration:**
+  - Arc visualization automatically triggered when player selects a broadside
+  - Arc clears when ship changes or broadside deselected
+  - Seamless UX: select broadside → see arc and targets → choose target → fire
+
+### Technical Implementation:
+- Added `BroadsideArcResponse` type to frontend types
+- Extended `HexGrid` component props: `arcHexes`, `shipsInArc`, `validTargets`
+- Extended `Ship` component props: `isValidTarget`, `isInArc`
+- Added arc state management in `GamePage` with handlers:
+  - `handleBroadsideSelected`: Fetches arc data from API
+  - `handleClearArc`: Clears visualization
+- Used `useEffect` hooks in `CombatPanel` to sync broadside selection with arc visualization
+- Optimized with `useMemo` for arc hex lookup sets
+
+### Quality Assurance:
+- All backend tests pass (348 tests)
+- Backend ruff formatting and linting clean
+- Backend ty type checking passes
+- Frontend TypeScript compilation clean
+- No runtime errors during testing
+
+### What This Enables:
+Players can now:
+1. **See their firing arc** - Orange overlay shows exactly which hexes are covered by selected broadside
+2. **Identify valid targets instantly** - Green checkmark on closest enemy ships only
+3. **Understand why targets are invalid** - Yellow highlight shows ships in arc but blocked by closest-target rule
+4. **Make informed tactical decisions** - Visual feedback reveals screening opportunities and optimal positioning
+5. **Learn the closest-target rule intuitively** - No need to calculate distances manually
+
+### Why This Matters for MVP:
+The closest-target rule is a core WS&IM mechanic that can be confusing without visual feedback. This visualization:
+- Makes the rule transparent and easy to understand
+- Prevents player mistakes (trying to fire at invalid targets)
+- Enables tactical play (using small ships to screen larger vessels)
+- Provides essential UI polish for a playable demo
+- Demonstrates the quality of the rules engine implementation
+
+This completes one of the highest-priority MVP tasks and significantly improves combat phase UX.
