@@ -16,6 +16,9 @@ interface HexGridProps {
   selectedShipId?: string | null;
   onHexClick?: (hex: HexCoordinate) => void;
   onShipClick?: (shipId: string) => void;
+  arcHexes?: [number, number][];
+  shipsInArc?: string[];
+  validTargets?: string[];
 }
 
 interface Hex {
@@ -32,6 +35,9 @@ export function HexGrid({
   selectedShipId = null,
   onHexClick,
   onShipClick,
+  arcHexes = [],
+  shipsInArc = [],
+  validTargets = [],
 }: HexGridProps) {
   const layout = useMemo<HexLayout>(() => ({
     hexSize,
@@ -83,6 +89,26 @@ export function HexGrid({
     }
   };
 
+  // Create a set of arc hexes for quick lookup
+  const arcHexSet = useMemo(() => {
+    const set = new Set<string>();
+    arcHexes.forEach(([col, row]) => {
+      set.add(`${col},${row}`);
+    });
+    return set;
+  }, [arcHexes]);
+
+  // Check if a hex is in the arc
+  const isHexInArc = (coord: HexCoordinate): boolean => {
+    return arcHexSet.has(`${coord.col},${coord.row}`);
+  };
+
+  // Create a set of valid targets for quick lookup
+  const validTargetSet = useMemo(() => new Set(validTargets), [validTargets]);
+
+  // Create a set of ships in arc for quick lookup
+  const shipsInArcSet = useMemo(() => new Set(shipsInArc), [shipsInArc]);
+
   return (
     <svg
       width="100%"
@@ -96,51 +122,67 @@ export function HexGrid({
       }}
     >
       {/* Hex grid layer */}
-      {hexes.map((hex) => (
-        <g key={`${hex.coord.col}-${hex.coord.row}`}>
-          <polygon
-            points={hex.points}
-            fill="transparent"
-            stroke="#1e3a5f"
-            strokeWidth="1.5"
-            style={{
-              cursor: onHexClick ? 'pointer' : 'default',
-              transition: 'fill 0.2s',
-            }}
-            onClick={() => handleHexClick(hex.coord)}
-            onMouseEnter={(e) => {
-              if (onHexClick) {
-                e.currentTarget.setAttribute('fill', '#1e3a5f33');
-              }
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.setAttribute('fill', 'transparent');
-            }}
-          />
-          <text
-            x={hex.center.x}
-            y={hex.center.y}
-            textAnchor="middle"
-            dominantBaseline="middle"
-            fill="#4a5f7f"
-            fontSize={hexSize * 0.3}
-            style={{ pointerEvents: 'none', userSelect: 'none' }}
-          >
-            {hex.coord.col},{hex.coord.row}
-          </text>
-        </g>
-      ))}
+      {hexes.map((hex) => {
+        const inArc = isHexInArc(hex.coord);
+        const arcFill = inArc ? '#ff990055' : 'transparent';
+        const arcStroke = inArc ? '#ff9900' : '#1e3a5f';
+        const arcStrokeWidth = inArc ? '2' : '1.5';
+
+        return (
+          <g key={`${hex.coord.col}-${hex.coord.row}`}>
+            <polygon
+              points={hex.points}
+              fill={arcFill}
+              stroke={arcStroke}
+              strokeWidth={arcStrokeWidth}
+              style={{
+                cursor: onHexClick ? 'pointer' : 'default',
+                transition: 'fill 0.2s, stroke 0.2s',
+              }}
+              onClick={() => handleHexClick(hex.coord)}
+              onMouseEnter={(e) => {
+                if (onHexClick && !inArc) {
+                  e.currentTarget.setAttribute('fill', '#1e3a5f33');
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!inArc) {
+                  e.currentTarget.setAttribute('fill', 'transparent');
+                }
+              }}
+            />
+            <text
+              x={hex.center.x}
+              y={hex.center.y}
+              textAnchor="middle"
+              dominantBaseline="middle"
+              fill="#4a5f7f"
+              fontSize={hexSize * 0.3}
+              style={{ pointerEvents: 'none', userSelect: 'none' }}
+            >
+              {hex.coord.col},{hex.coord.row}
+            </text>
+          </g>
+        );
+      })}
 
       {/* Ships layer */}
-      {ships.map((ship) => (
-        <Ship
-          key={ship.id}
-          ship={ship}
-          layout={layout}
-          isSelected={ship.id === selectedShipId}
-          onClick={handleShipClick}
-        />
-      ))}
+      {ships.map((ship) => {
+        const isValidTarget = validTargetSet.has(ship.id);
+        const isInArc = shipsInArcSet.has(ship.id);
+
+        return (
+          <Ship
+            key={ship.id}
+            ship={ship}
+            layout={layout}
+            isSelected={ship.id === selectedShipId}
+            onClick={handleShipClick}
+            isValidTarget={isValidTarget}
+            isInArc={isInArc}
+          />
+        );
+      })}
     </svg>
   );
 }

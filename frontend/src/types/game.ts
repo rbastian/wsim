@@ -206,3 +206,10 @@ export interface FireBroadsideResponse {
   state: Game;
   events: EventLogEntry[];
 }
+
+export interface BroadsideArcResponse {
+  arc_hexes: [number, number][];
+  ships_in_arc: string[];
+  valid_targets: string[];
+  closest_distance: number | null;
+}
