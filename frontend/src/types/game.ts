@@ -55,14 +55,22 @@ export interface TurnOrders {
   ready: boolean;
 }
 
+export interface DiceRoll {
+  num_dice: number;
+  die_type: number;
+  rolls: number[];
+  total: number;
+}
+
 export interface EventLogEntry {
   turn_number: number;
   phase: GamePhase;
-  type: string;
+  event_type: string;
   summary: string;
-  dice_rolls?: number[];
+  dice_roll?: DiceRoll;
   modifiers?: Record<string, number>;
   state_diff?: Record<string, unknown>;
+  metadata?: Record<string, unknown>;
 }
 
 export interface Game {

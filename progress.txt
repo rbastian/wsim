@@ -958,3 +958,70 @@ The game board foundation is now in place. Users can:
 
 Next priorities: ship rendering as 2-hex pieces (wsim-787) and ship log panel UI (wsim-8ly).
 
+---
+
+## 2026-01-19: Event Log Display Panel Implementation (wsim-d0w)
+
+### Implemented Features:
+Completed a comprehensive event log display panel that provides full transparency into game actions and outcomes.
+
+**EventLog Component (frontend/src/components/EventLog.tsx):**
+- Chronological display of all game events grouped by turn
+- Clear phase badges with color coding:
+  - Planning: Blue (#4a90e2)
+  - Movement: Green (#50c878)
+  - Combat: Red (#e74c3c)
+  - Reload: Orange (#f39c12)
+- Event type badges for quick identification
+- Detailed dice roll display with individual rolls and totals (e.g., "2d6: [3, 5] = 8")
+- Modifier display showing all applied modifiers
+- Auto-scroll functionality to latest events
+- Dual filtering system:
+  - Phase filter (all/planning/movement/combat/reload)
+  - Event type filter (dynamically populated from actual event types)
+- Current turn highlighting for easy navigation
+- Event count badge showing filtered results
+- Scrollable container with proper overflow handling
+
+**Type System Updates:**
+- Updated EventLogEntry interface to match backend Pydantic model
+- Added DiceRoll interface with num_dice, die_type, rolls array, and total
+- Changed event_type field name from 'type' to match backend
+- Added optional metadata field for extensibility
+- Fixed CombatPanel to use new dice_roll structure
+
+**GamePage Integration:**
+- Added EventLog as bottom panel in 3-panel layout
+- 280px fixed height for optimal visibility without overwhelming UI
+- Integrated with existing game state and event_log data
+- Passes currentTurn prop for context highlighting
+- Maintains responsive layout with proper flex behavior
+
+### Technical Details:
+- Component uses React refs for auto-scroll behavior
+- Groups events by turn using reduce for efficient rendering
+- Color-coded phase badges match game phase colors throughout UI
+- Monospace font for dice and modifier display (better readability)
+- Smooth scroll behavior on new events
+- Proper TypeScript typing throughout
+- Zero compilation errors or warnings
+
+### Quality Assurance:
+- All backend tests pass (348 tests)
+- Backend ruff formatting check passes
+- Backend ruff linting passes with "All checks passed!"
+- Backend ty type checking passes
+- Frontend TypeScript compilation succeeds
+- Frontend builds successfully with Vite
+
+### What This Enables:
+Players can now:
+1. See complete audit trail of all game actions
+2. Filter events by phase or type for debugging
+3. Review dice rolls and modifiers for transparency
+4. Track game progress turn-by-turn
+5. Quickly identify current turn events
+6. Debug rule application and outcomes
+
+The event log is a critical feature for MVP as it provides transparency, aids debugging during development, and builds player trust in the rules engine.
+
