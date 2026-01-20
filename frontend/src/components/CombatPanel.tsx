@@ -478,7 +478,7 @@ export function CombatPanel({ game, selectedShipId, onGameUpdate, onShipSelect }
               <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                 {recentEvents.slice().reverse().slice(0, 5).map((event, idx) => (
                   <div
-                    key={`${event.turn_number}-${event.type}-${idx}`}
+                    key={`${event.turn_number}-${event.event_type}-${idx}`}
                     style={{
                       fontSize: "11px",
                       padding: "8px",
@@ -490,9 +490,9 @@ export function CombatPanel({ game, selectedShipId, onGameUpdate, onShipSelect }
                     <div style={{ fontWeight: "bold", color: "#fff", marginBottom: "4px" }}>
                       {event.summary}
                     </div>
-                    {event.dice_rolls && event.dice_rolls.length > 0 && (
+                    {event.dice_roll && (
                       <div style={{ color: "#888" }}>
-                        Dice: [{event.dice_rolls.join(", ")}]
+                        Dice: [{event.dice_roll.rolls.join(", ")}] = {event.dice_roll.total}
                       </div>
                     )}
                     {event.modifiers && Object.keys(event.modifiers).length > 0 && (

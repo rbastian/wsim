@@ -6,6 +6,7 @@ import { HexGrid } from "../components/HexGrid";
 import { ShipLogPanel } from "../components/ShipLogPanel";
 import { OrdersPanel } from "../components/OrdersPanel";
 import { CombatPanel } from "../components/CombatPanel";
+import { EventLog } from "../components/EventLog";
 import { api } from "../api/client";
 import type { HexCoordinate } from "../types/hex";
 import type { Game, Ship } from "../types/game";
@@ -95,83 +96,103 @@ export function GamePage() {
       <div style={{
         flex: 1,
         display: 'flex',
+        flexDirection: 'column',
         overflow: 'hidden',
         padding: '1rem',
         gap: '1rem'
       }}>
-        {/* Left panel - Ship Log */}
-        <div style={{
-          width: '320px',
-          flexShrink: 0,
-          display: 'flex',
-          flexDirection: 'column',
-          minHeight: 0
-        }}>
-          <ShipLogPanel ship={selectedShip} />
-        </div>
-
-        {/* Center - Hex Grid Board */}
+        {/* Top section - Board and side panels */}
         <div style={{
           flex: 1,
-          minHeight: 0,
-          overflow: 'auto',
-          backgroundColor: '#1a1a1a',
-          borderRadius: '8px',
-          padding: '1rem'
-        }}>
-          <HexGrid
-            width={game.map_width}
-            height={game.map_height}
-            hexSize={25}
-            ships={ships}
-            selectedShipId={selectedShipId}
-            onHexClick={handleHexClick}
-            onShipClick={handleShipClick}
-          />
-        </div>
-
-        {/* Right panel - Orders/Combat panels */}
-        <div style={{
-          width: '320px',
-          flexShrink: 0,
           display: 'flex',
-          flexDirection: 'column',
+          overflow: 'hidden',
+          gap: '1rem',
           minHeight: 0
         }}>
-          {game.phase === 'planning' ? (
-            <OrdersPanel game={game} onGameUpdate={handleGameUpdate} />
-          ) : game.phase === 'combat' ? (
-            <CombatPanel
-              game={game}
+          {/* Left panel - Ship Log */}
+          <div style={{
+            width: '320px',
+            flexShrink: 0,
+            display: 'flex',
+            flexDirection: 'column',
+            minHeight: 0
+          }}>
+            <ShipLogPanel ship={selectedShip} />
+          </div>
+
+          {/* Center - Hex Grid Board */}
+          <div style={{
+            flex: 1,
+            minHeight: 0,
+            overflow: 'auto',
+            backgroundColor: '#1a1a1a',
+            borderRadius: '8px',
+            padding: '1rem'
+          }}>
+            <HexGrid
+              width={game.map_width}
+              height={game.map_height}
+              hexSize={25}
+              ships={ships}
               selectedShipId={selectedShipId}
-              onGameUpdate={handleGameUpdate}
-              onShipSelect={handleShipClick}
+              onHexClick={handleHexClick}
+              onShipClick={handleShipClick}
             />
-          ) : (
-            <div
-              style={{
-                backgroundColor: "#1e1e1e",
-                border: "2px solid #333",
-                borderRadius: "8px",
-                padding: "16px",
-                color: "#e0e0e0",
-              }}
-            >
-              <h3
+          </div>
+
+          {/* Right panel - Orders/Combat panels */}
+          <div style={{
+            width: '320px',
+            flexShrink: 0,
+            display: 'flex',
+            flexDirection: 'column',
+            minHeight: 0
+          }}>
+            {game.phase === 'planning' ? (
+              <OrdersPanel game={game} onGameUpdate={handleGameUpdate} />
+            ) : game.phase === 'combat' ? (
+              <CombatPanel
+                game={game}
+                selectedShipId={selectedShipId}
+                onGameUpdate={handleGameUpdate}
+                onShipSelect={handleShipClick}
+              />
+            ) : (
+              <div
                 style={{
-                  margin: "0 0 12px 0",
-                  fontSize: "14px",
-                  fontWeight: "bold",
-                  color: "#aaa",
+                  backgroundColor: "#1e1e1e",
+                  border: "2px solid #333",
+                  borderRadius: "8px",
+                  padding: "16px",
+                  color: "#e0e0e0",
                 }}
               >
-                PHASE: {game.phase.toUpperCase()}
-              </h3>
-              <p style={{ fontSize: "13px", color: "#888", fontStyle: "italic" }}>
-                Use the API or phase resolution buttons to continue
-              </p>
-            </div>
-          )}
+                <h3
+                  style={{
+                    margin: "0 0 12px 0",
+                    fontSize: "14px",
+                    fontWeight: "bold",
+                    color: "#aaa",
+                  }}
+                >
+                  PHASE: {game.phase.toUpperCase()}
+                </h3>
+                <p style={{ fontSize: "13px", color: "#888", fontStyle: "italic" }}>
+                  Use the API or phase resolution buttons to continue
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Bottom section - Event Log */}
+        <div style={{
+          height: '280px',
+          flexShrink: 0,
+          display: 'flex',
+          minHeight: 0
+        }}>
+          <EventLog events={game.event_log} currentTurn={game.turn_number} />
         </div>
       </div>
     </div>
