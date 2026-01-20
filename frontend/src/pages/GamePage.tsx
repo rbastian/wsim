@@ -6,6 +6,7 @@ import { HexGrid } from "../components/HexGrid";
 import { ShipLogPanel } from "../components/ShipLogPanel";
 import { OrdersPanel } from "../components/OrdersPanel";
 import { CombatPanel } from "../components/CombatPanel";
+import { PhaseControlPanel } from "../components/PhaseControlPanel";
 import { EventLog } from "../components/EventLog";
 import { api } from "../api/client";
 import type { HexCoordinate } from "../types/hex";
@@ -160,17 +161,24 @@ export function GamePage() {
             />
           </div>
 
-          {/* Right panel - Orders/Combat panels */}
+          {/* Right panel - Phase control and Orders/Combat panels */}
           <div style={{
             width: '320px',
             flexShrink: 0,
             display: 'flex',
             flexDirection: 'column',
-            minHeight: 0
+            gap: '1rem',
+            minHeight: 0,
+            overflow: 'auto'
           }}>
-            {game.phase === 'planning' ? (
+            {/* Phase control panel - always visible */}
+            <PhaseControlPanel game={game} onGameUpdate={handleGameUpdate} />
+
+            {/* Phase-specific panels */}
+            {game.phase === 'planning' && (
               <OrdersPanel game={game} onGameUpdate={handleGameUpdate} />
-            ) : game.phase === 'combat' ? (
+            )}
+            {game.phase === 'combat' && (
               <CombatPanel
                 game={game}
                 selectedShipId={selectedShipId}
@@ -179,30 +187,6 @@ export function GamePage() {
                 onBroadsideSelected={handleBroadsideSelected}
                 onClearArc={handleClearArc}
               />
-            ) : (
-              <div
-                style={{
-                  backgroundColor: "#1e1e1e",
-                  border: "2px solid #333",
-                  borderRadius: "8px",
-                  padding: "16px",
-                  color: "#e0e0e0",
-                }}
-              >
-                <h3
-                  style={{
-                    margin: "0 0 12px 0",
-                    fontSize: "14px",
-                    fontWeight: "bold",
-                    color: "#aaa",
-                  }}
-                >
-                  PHASE: {game.phase.toUpperCase()}
-                </h3>
-                <p style={{ fontSize: "13px", color: "#888", fontStyle: "italic" }}>
-                  Use the API or phase resolution buttons to continue
-                </p>
-              </div>
             )}
           </div>
         </div>
