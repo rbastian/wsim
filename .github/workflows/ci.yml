@@ -27,7 +27,7 @@ jobs:
         run: curl -LsSf https://astral.sh/uv/install.sh | sh
 
       - name: Install dependencies
-        run: ~/.local/bin/uv sync
+        run: ~/.local/bin/uv sync --extra dev
 
       - name: Run ruff format check
         run: ~/.local/bin/uv run ruff format --check .
@@ -58,7 +58,7 @@ jobs:
         run: curl -LsSf https://astral.sh/uv/install.sh | sh
 
       - name: Install dependencies
-        run: ~/.local/bin/uv sync
+        run: ~/.local/bin/uv sync --extra dev
 
       - name: Run pytest with coverage
         run: ~/.local/bin/uv run pytest --cov=wsim_core --cov=wsim_api --cov-report=term --cov-report=xml
