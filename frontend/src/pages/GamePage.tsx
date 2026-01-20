@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { HexGrid } from "../components/HexGrid";
 import { ShipLogPanel } from "../components/ShipLogPanel";
 import { OrdersPanel } from "../components/OrdersPanel";
+import { CombatPanel } from "../components/CombatPanel";
 import { api } from "../api/client";
 import type { HexCoordinate } from "../types/hex";
 import type { Game, Ship } from "../types/game";
@@ -137,7 +138,40 @@ export function GamePage() {
           flexDirection: 'column',
           minHeight: 0
         }}>
-          <OrdersPanel game={game} onGameUpdate={handleGameUpdate} />
+          {game.phase === 'planning' ? (
+            <OrdersPanel game={game} onGameUpdate={handleGameUpdate} />
+          ) : game.phase === 'combat' ? (
+            <CombatPanel
+              game={game}
+              selectedShipId={selectedShipId}
+              onGameUpdate={handleGameUpdate}
+              onShipSelect={handleShipClick}
+            />
+          ) : (
+            <div
+              style={{
+                backgroundColor: "#1e1e1e",
+                border: "2px solid #333",
+                borderRadius: "8px",
+                padding: "16px",
+                color: "#e0e0e0",
+              }}
+            >
+              <h3
+                style={{
+                  margin: "0 0 12px 0",
+                  fontSize: "14px",
+                  fontWeight: "bold",
+                  color: "#aaa",
+                }}
+              >
+                PHASE: {game.phase.toUpperCase()}
+              </h3>
+              <p style={{ fontSize: "13px", color: "#888", fontStyle: "italic" }}>
+                Use the API or phase resolution buttons to continue
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </div>
