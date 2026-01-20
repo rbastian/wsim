@@ -2,6 +2,116 @@
 
 ## 2026-01-19
 
+### JSON Game State Persistence (wsim-i26) - COMPLETED
+Implemented comprehensive JSON persistence system that allows games to be saved to and loaded from disk, surviving server restarts:
+
+**GamePersistence Module (wsim_core/serialization/game_persistence.py):**
+- Core persistence engine handling JSON file operations
+- `save_game()`: Serializes complete game state using Pydantic's model_dump(mode="json")
+- `load_game()`: Loads and validates game from JSON with full schema validation
+- `delete_saved_game()`: Removes saved game files
+- `list_saved_games()`: Lists all available saved game IDs
+- `save_all_games()`: Batch save operation for multiple games
+- `load_all_games()`: Loads all saved games from directory
+- `clear_all_saved_games()`: Clears all saved files (returns count deleted)
+- `game_exists()`: Checks if saved game file exists
+- Configurable save directory with automatic creation
+- Human-readable JSON format for easy inspection and debugging
+
+**PersistentGameStore (wsim_api/persistent_store.py):**
+- Extends GameStore with automatic file-backed persistence
+- Auto-save on create_game() and update_game() operations
+- Auto-delete saved file on delete_game()
+- Optional auto-load of existing games on initialization
+- Graceful handling of corrupted files (logs and skips, doesn't crash)
+- `save_all()`: Explicit save all in-memory games to disk
+- `clear_saved_files()`: Clear disk files without affecting memory
+- Thread-safe for single-process deployments
+- Zero-config: works as drop-in replacement for GameStore
+
+**Configuration System (wsim_api/store.py):**
+- Environment variable control: `WSIM_ENABLE_PERSISTENCE=true/false`
+- Save directory configurable: `WSIM_SAVE_DIRECTORY=saved_games`
+- `get_game_store()` returns PersistentGameStore when enabled
+- Falls back to standard in-memory GameStore when disabled
+- Default: persistence DISABLED for backward compatibility
+- No breaking changes to existing code
+
+**Persistence API Endpoints (wsim_api/routers/persistence.py):**
+- POST `/persistence/games/{id}/save`: Manually save specific game to disk
+- POST `/persistence/games/{id}/load`: Load saved game into memory
+- POST `/persistence/save-all`: Save all in-memory games
+- GET `/persistence/saved-games`: List all saved game IDs
+- DELETE `/persistence/saved-games`: Clear all saved game files
+- DELETE `/persistence/games/{id}/saved`: Delete specific saved file
+- All endpoints validate persistence is enabled (503 if not configured)
+- Proper HTTP status codes and error messages
+- Full OpenAPI documentation
+
+**Testing:**
+- Created `tests/test_persistence.py` with 18 comprehensive tests:
+  - Directory creation and initialization
+  - Save/load round-trips with data integrity validation
+  - Ship data preservation across save/load
+  - Event log preservation
+  - Optional field handling (game_ended, winner)
+  - Multiple save/load cycles
+  - Error handling (nonexistent games, corrupted files)
+  - Batch operations (save_all, load_all, clear_all)
+- Created `tests/test_persistent_store.py` with 12 tests:
+  - Auto-save on create/update operations
+  - Auto-delete files on game deletion
+  - Auto-load existing games on initialization
+  - Graceful handling of corrupted files
+  - Persistence across store recreations (simulated restarts)
+  - Multi-game scenarios
+  - Global singleton management
+- All 386 tests passing (30 new persistence tests)
+
+**Quality Assurance:**
+- Ruff formatting: ✓ all checks passed
+- Ruff linting: ✓ all checks passed
+- Ty type checking: ✓ all checks passed
+- Full type safety with Pydantic validation throughout
+- Proper exception chaining (raise ... from e)
+- Context manager usage for file operations (contextlib.suppress)
+- No unused imports or variables
+
+**Use Cases Enabled:**
+1. **Server Restart Resilience**: Games auto-load on startup, players can resume
+2. **Manual Backups**: Players/admins can save games explicitly
+3. **Game State Inspection**: JSON files are human-readable for debugging
+4. **Server Maintenance**: Maintenance without losing active games
+5. **Export/Import**: Move games between environments or servers
+6. **Development/Testing**: Inspect exact game state during development
+
+**Implementation Highlights:**
+- Optional feature: disabled by default, zero impact on existing deployments
+- Files saved as `{game_id}.json` in configured directory
+- Pydantic ensures saved state matches schema exactly (no schema drift)
+- All game state preserved: ships, positions, stats, orders, events, victory conditions
+- Corrupted files handled gracefully (logged, skipped on auto-load)
+- Idempotent operations (can save/load repeatedly without issues)
+- Clear separation: persistence layer separate from game logic
+
+**Files Created:**
+- `backend/wsim_core/serialization/game_persistence.py` (164 lines)
+- `backend/wsim_api/persistent_store.py` (135 lines)
+- `backend/wsim_api/routers/persistence.py` (206 lines)
+- `backend/tests/test_persistence.py` (315 lines)
+- `backend/tests/test_persistent_store.py` (234 lines)
+
+**Files Modified:**
+- `backend/wsim_api/store.py`: Added environment variable logic to get_game_store()
+- `backend/wsim_api/main.py`: Added persistence router to FastAPI app
+
+**Total Addition:** 1,079 lines of production code and tests
+
+**Impact on MVP:**
+This completes the final optional enhancement for the MVP. The persistence system provides production-ready game state management without adding complexity for users who don't need it. The game can now be deployed with confidence that game state won't be lost during server maintenance or restarts.
+
+## 2026-01-19
+
 ### Movement Path Preview Visualization (wsim-6uk) - COMPLETED
 Implemented optional movement path preview that shows predicted ship paths when entering movement orders:
 
