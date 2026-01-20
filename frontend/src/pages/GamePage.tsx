@@ -10,6 +10,7 @@ import { PhaseControlPanel } from "../components/PhaseControlPanel";
 import { EventLog } from "../components/EventLog";
 import { api } from "../api/client";
 import type { Game, Ship, Broadside, BroadsideArcResponse } from "../types/game";
+import { simulateMovementPath, getPathHexes } from "../types/movementPreview";
 
 export function GamePage() {
   const { gameId } = useParams<{ gameId: string }>();
@@ -18,6 +19,7 @@ export function GamePage() {
   const [error, setError] = useState<string | null>(null);
   const [selectedShipId, setSelectedShipId] = useState<string | null>(null);
   const [arcData, setArcData] = useState<BroadsideArcResponse | null>(null);
+  const [pathPreviewHexes, setPathPreviewHexes] = useState<[number, number][]>([]);
 
   // Fetch game state on mount
   useEffect(() => {
@@ -70,6 +72,26 @@ export function GamePage() {
 
   const handleClearArc = () => {
     setArcData(null);
+  };
+
+  const handlePreviewPath = (shipId: string | null, movement: string) => {
+    if (!shipId || !movement || !game) {
+      setPathPreviewHexes([]);
+      return;
+    }
+
+    const ship = game.ships[shipId];
+    if (!ship) {
+      setPathPreviewHexes([]);
+      return;
+    }
+
+    const path = simulateMovementPath(ship, movement);
+    if (path) {
+      setPathPreviewHexes(getPathHexes(path));
+    } else {
+      setPathPreviewHexes([]);
+    }
   };
 
   if (loading) {
@@ -181,6 +203,7 @@ export function GamePage() {
               arcHexes={arcData?.arc_hexes}
               shipsInArc={arcData?.ships_in_arc}
               validTargets={arcData?.valid_targets}
+              pathPreviewHexes={pathPreviewHexes}
             />
           </div>
 
@@ -199,7 +222,11 @@ export function GamePage() {
 
             {/* Phase-specific panels */}
             {game.phase === 'planning' && (
-              <OrdersPanel game={game} onGameUpdate={handleGameUpdate} />
+              <OrdersPanel
+                game={game}
+                onGameUpdate={handleGameUpdate}
+                onPreviewPath={handlePreviewPath}
+              />
             )}
             {game.phase === 'combat' && (
               <CombatPanel

@@ -19,6 +19,7 @@ interface HexGridProps {
   arcHexes?: [number, number][];
   shipsInArc?: string[];
   validTargets?: string[];
+  pathPreviewHexes?: [number, number][];
 }
 
 interface Hex {
@@ -38,6 +39,7 @@ export function HexGrid({
   arcHexes = [],
   shipsInArc = [],
   validTargets = [],
+  pathPreviewHexes = [],
 }: HexGridProps) {
   const layout = useMemo<HexLayout>(() => ({
     hexSize,
@@ -109,6 +111,20 @@ export function HexGrid({
   // Create a set of ships in arc for quick lookup
   const shipsInArcSet = useMemo(() => new Set(shipsInArc), [shipsInArc]);
 
+  // Create a set of path preview hexes for quick lookup
+  const pathPreviewHexSet = useMemo(() => {
+    const set = new Set<string>();
+    pathPreviewHexes.forEach(([col, row]) => {
+      set.add(`${col},${row}`);
+    });
+    return set;
+  }, [pathPreviewHexes]);
+
+  // Check if a hex is in the path preview
+  const isHexInPathPreview = (coord: HexCoordinate): boolean => {
+    return pathPreviewHexSet.has(`${coord.col},${coord.row}`);
+  };
+
   return (
     <svg
       width="100%"
@@ -124,29 +140,42 @@ export function HexGrid({
       {/* Hex grid layer */}
       {hexes.map((hex) => {
         const inArc = isHexInArc(hex.coord);
-        const arcFill = inArc ? '#ff990055' : 'transparent';
-        const arcStroke = inArc ? '#ff9900' : '#1e3a5f';
-        const arcStrokeWidth = inArc ? '2' : '1.5';
+        const inPathPreview = isHexInPathPreview(hex.coord);
+
+        // Path preview takes precedence over arc visualization
+        let hexFill = 'transparent';
+        let hexStroke = '#1e3a5f';
+        let hexStrokeWidth = '1.5';
+
+        if (inPathPreview) {
+          hexFill = '#4a90e255';  // Blue semi-transparent for path preview
+          hexStroke = '#4a90e2';  // Blue border
+          hexStrokeWidth = '2';
+        } else if (inArc) {
+          hexFill = '#ff990055';  // Orange semi-transparent for arc
+          hexStroke = '#ff9900';  // Orange border
+          hexStrokeWidth = '2';
+        }
 
         return (
           <g key={`${hex.coord.col}-${hex.coord.row}`}>
             <polygon
               points={hex.points}
-              fill={arcFill}
-              stroke={arcStroke}
-              strokeWidth={arcStrokeWidth}
+              fill={hexFill}
+              stroke={hexStroke}
+              strokeWidth={hexStrokeWidth}
               style={{
                 cursor: onHexClick ? 'pointer' : 'default',
                 transition: 'fill 0.2s, stroke 0.2s',
               }}
               onClick={() => handleHexClick(hex.coord)}
               onMouseEnter={(e) => {
-                if (onHexClick && !inArc) {
+                if (onHexClick && !inArc && !inPathPreview) {
                   e.currentTarget.setAttribute('fill', '#1e3a5f33');
                 }
               }}
               onMouseLeave={(e) => {
-                if (!inArc) {
+                if (!inArc && !inPathPreview) {
                   e.currentTarget.setAttribute('fill', 'transparent');
                 }
               }}

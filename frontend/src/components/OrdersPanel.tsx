@@ -8,6 +8,7 @@ import { api } from "../api/client";
 interface OrdersPanelProps {
   game: Game;
   onGameUpdate: (game: Game) => void;
+  onPreviewPath?: (shipId: string | null, movement: string) => void;
 }
 
 // Movement validation based on backend parser
@@ -36,13 +37,14 @@ function validateMovementSyntax(movement: string): { valid: boolean; error?: str
   return { valid: true };
 }
 
-export function OrdersPanel({ game, onGameUpdate }: OrdersPanelProps) {
+export function OrdersPanel({ game, onGameUpdate, onPreviewPath }: OrdersPanelProps) {
   const [currentPlayer, setCurrentPlayer] = useState<Side>("P1");
   const [orders, setOrders] = useState<Record<string, string>>({});
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
   const [markingReady, setMarkingReady] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [focusedShipId, setFocusedShipId] = useState<string | null>(null);
 
   // Initialize orders from game state if already submitted
   useEffect(() => {
@@ -109,6 +111,26 @@ export function OrdersPanel({ game, onGameUpdate }: OrdersPanelProps) {
           return next;
         });
       }
+    }
+
+    // Update path preview if this ship is focused
+    if (focusedShipId === shipId && onPreviewPath) {
+      onPreviewPath(shipId, movement);
+    }
+  };
+
+  const handleFocus = (shipId: string) => {
+    setFocusedShipId(shipId);
+    if (onPreviewPath) {
+      const movement = orders[shipId] || "";
+      onPreviewPath(shipId, movement);
+    }
+  };
+
+  const handleBlur = () => {
+    setFocusedShipId(null);
+    if (onPreviewPath) {
+      onPreviewPath(null, "");
     }
   };
 
@@ -325,13 +347,15 @@ export function OrdersPanel({ game, onGameUpdate }: OrdersPanelProps) {
                     type="text"
                     value={order}
                     onChange={(e) => handleOrderChange(ship.id, e.target.value)}
+                    onFocus={() => handleFocus(ship.id)}
+                    onBlur={handleBlur}
                     disabled={isReady}
                     placeholder="e.g., L1R1, 0, LLR2"
                     style={{
                       width: "100%",
                       padding: "6px 8px",
                       backgroundColor: isReady ? "#1a1a1a" : "#1e1e1e",
-                      border: validationError ? "1px solid #e24a4a" : "1px solid #555",
+                      border: validationError ? "1px solid #e24a4a" : focusedShipId === ship.id ? "1px solid #4a90e2" : "1px solid #555",
                       borderRadius: "4px",
                       color: "#fff",
                       fontSize: "12px",
