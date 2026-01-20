@@ -2,6 +2,48 @@
 
 ## 2026-01-19
 
+### CI/CD Pipeline Setup (wsim-gg8) - COMPLETED
+Implemented comprehensive GitHub Actions CI/CD pipeline with automated quality checks and optional pre-commit hooks:
+
+**GitHub Actions Workflow:**
+- Configured `.github/workflows/ci.yml` running on all PRs and main branch pushes
+- Three parallel jobs for efficient CI execution:
+  1. **Backend Quality Checks**: ruff format check, ruff lint, ty type checking
+  2. **Backend Tests**: full pytest suite with coverage reporting (Codecov integration)
+  3. **Frontend Quality Checks**: TypeScript type-check, ESLint, build verification
+- Uses ubuntu-latest runners with Python 3.12 and Node.js 20
+- Backend uses uv for package management
+- Frontend uses npm ci for reproducible builds
+
+**Pre-commit Hooks:**
+- Created `.pre-commit-config.yaml` with optional local quality gates
+- Pre-commit stage: ruff (lint+format), ty type check, frontend type-check, frontend ESLint
+- Pre-push stage: full pytest test suite (runs before git push)
+- Setup documentation in `.pre-commit-setup.md`
+- Developers can install with: `pip install pre-commit && pre-commit install`
+
+**Frontend Improvements:**
+- Added `type-check` npm script to package.json (separates type checking from build)
+- Fixed ESLint issues: removed unused imports and parameters
+- All linting and type checks pass cleanly
+
+**Quality Verification:**
+- Backend: 59 files formatted, all linting passed, all types checked, 356 tests passing
+- Frontend: TypeScript compilation clean, ESLint clean, build succeeds
+- All CI jobs will pass on first PR
+
+**What This Enables:**
+- Automated quality enforcement on every pull request
+- Prevents merging code with quality issues
+- Fast local feedback with optional pre-commit hooks
+- Code coverage tracking and trending
+- Consistent code style across all contributors
+- Foundation for additional CI features (deployment, release automation, etc.)
+
+This completes the CI/CD infrastructure for the WSIM MVP. All code changes will now be automatically validated before merge.
+
+## 2026-01-19
+
 ### Game Phase Flow Management (wsim-6ia) - COMPLETED
 Implemented comprehensive phase control panel that guides players through the complete turn loop with clear visual indicators and actionable buttons:
 
