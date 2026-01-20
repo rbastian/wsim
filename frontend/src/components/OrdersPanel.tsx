@@ -223,8 +223,7 @@ export function OrdersPanel({ game, onGameUpdate, onPreviewPath }: OrdersPanelPr
         flexDirection: "column",
         gap: "16px",
         flex: 1,
-        minHeight: "400px",
-        maxHeight: "none",
+        minHeight: 0,
         overflow: "auto",
       }}
     >

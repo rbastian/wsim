@@ -102,18 +102,23 @@ export function CombatPanel({ game, selectedShipId, onGameUpdate, onShipSelect, 
 
   // Get potential targets from API arc data if available, otherwise use client-side calculation
   const potentialTargets = selectedShip && selectedBroadside && arcData
-    ? arcData.ships_in_arc.map(shipId => {
-        const ship = game.ships[shipId];
-        const isValid = arcData.valid_targets.includes(shipId);
-        return {
-          ship,
-          distance: hexDistance(selectedShip.bow_hex, ship.bow_hex),
-          isClosest: isValid, // Valid targets are the closest according to server
-        };
-      }).sort((a, b) => a.distance - b.distance)
+    ? arcData.ships_in_arc
+        .filter(shipId => game.ships[shipId]) // Ensure ship exists
+        .map(shipId => {
+          const ship = game.ships[shipId];
+          const isValid = arcData.valid_targets.includes(shipId);
+          return {
+            ship,
+            distance: hexDistance(selectedShip.bow_hex, ship.bow_hex),
+            isClosest: isValid, // Valid targets are the closest according to server
+          };
+        })
+        .sort((a, b) => a.distance - b.distance)
     : selectedShip && selectedBroadside
     ? getPotentialTargets(selectedShip, ships)
     : [];
+
+  console.log("CombatPanel - selectedShip:", selectedShip?.name, "selectedBroadside:", selectedBroadside, "arcData:", arcData, "potentialTargets:", potentialTargets.length);
 
   // Determine which ships can fire
   const shipsAbleToFire = ships.filter(canShipFire);
@@ -145,6 +150,12 @@ export function CombatPanel({ game, selectedShipId, onGameUpdate, onShipSelect, 
       setSelectedBroadside(null);
       setSelectedTarget(null);
       setSelectedAim("hull");
+
+      // Clear arc visualization
+      onClearArc();
+
+      // Clear ship selection so user can select another ship
+      onShipSelect("");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to fire broadside");
       console.error("Failed to fire broadside:", err);
@@ -194,7 +205,7 @@ export function CombatPanel({ game, selectedShipId, onGameUpdate, onShipSelect, 
         flexDirection: "column",
         gap: "16px",
         flex: 1,
-        minHeight: "300px",
+        minHeight: 0,
         overflow: "auto",
       }}
     >

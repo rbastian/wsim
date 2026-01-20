@@ -52,6 +52,8 @@ export function GamePage() {
 
   const handleShipClick = (shipId: string) => {
     setSelectedShipId(shipId);
+    // Clear arc data when selecting a new ship
+    setArcData(null);
   };
 
   const handleGameUpdate = (updatedGame: Game) => {
