@@ -24,6 +24,7 @@ from wsim_core.engine.movement_parser import (
 from wsim_core.engine.reload import create_reload_event, reload_all_ships
 from wsim_core.engine.rng import create_rng
 from wsim_core.engine.targeting import get_all_valid_targets, get_ships_in_arc
+from wsim_core.engine.victory import check_victory_condition, create_victory_event
 from wsim_core.models.common import AimPoint, Broadside, GamePhase, LoadState
 from wsim_core.models.events import EventLogEntry
 from wsim_core.models.game import Game
@@ -689,6 +690,14 @@ async def fire_broadside(
     # Update game state
     game.event_log.append(event)
 
+    # Check victory condition after combat
+    victory_result = check_victory_condition(game)
+    if victory_result.game_ended:
+        game.game_ended = True
+        game.winner = victory_result.winner
+        victory_event = create_victory_event(victory_result, turn, game.phase)
+        game.event_log.append(victory_event)
+
     # Update game in store
     store.update_game(game)
 
@@ -857,6 +866,15 @@ async def resolve_reload(game_id: str, turn: int) -> ResolveReloadResponse:
     game.phase = GamePhase.RELOAD
     game.event_log.extend(reload_events)
 
+    # Check victory condition after reload (e.g., turn limit)
+    victory_result = check_victory_condition(game)
+    if victory_result.game_ended:
+        game.game_ended = True
+        game.winner = victory_result.winner
+        victory_event = create_victory_event(victory_result, turn, game.phase)
+        game.event_log.append(victory_event)
+        reload_events.append(victory_event)
+
     # Update game in store
     store.update_game(game)
 
@@ -908,6 +926,13 @@ async def advance_turn(game_id: str, turn: int) -> AdvanceTurnResponse:
         raise HTTPException(
             status_code=400,
             detail=f"Cannot advance turn from phase {game.phase.value}, must be in RELOAD phase",
+        )
+
+    # Check if game has ended
+    if game.game_ended:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Cannot advance turn: game has ended (winner: {game.winner or 'draw'})",
         )
 
     # Increment turn number

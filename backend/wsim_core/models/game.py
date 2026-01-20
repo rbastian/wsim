@@ -42,6 +42,8 @@ class Game(BaseModel):
     # Victory conditions
     turn_limit: int | None = Field(default=None, description="Maximum turns (None = unlimited)")
     victory_condition: str = Field(default="first_struck", description="Victory condition type")
+    game_ended: bool = Field(default=False, description="Whether the game has ended")
+    winner: str | None = Field(default=None, description="Winner side (P1, P2, or None for draw)")
 
     def get_ship(self, ship_id: str) -> Ship:
         """Get a ship by ID.

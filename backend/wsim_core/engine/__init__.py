@@ -72,6 +72,14 @@ from .targeting import (
     get_targeting_info,
     is_valid_target,
 )
+from .victory import (
+    VictoryResult,
+    check_first_side_struck_two_ships,
+    check_first_struck,
+    check_score_after_turns,
+    check_victory_condition,
+    create_victory_event,
+)
 
 __all__ = [
     # Arc calculation
@@ -141,4 +149,11 @@ __all__ = [
     "reload_all_ships",
     "reload_broadside",
     "reload_ship",
+    # Victory
+    "VictoryResult",
+    "check_first_side_struck_two_ships",
+    "check_first_struck",
+    "check_score_after_turns",
+    "check_victory_condition",
+    "create_victory_event",
 ]
