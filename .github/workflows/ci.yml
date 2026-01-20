@@ -23,8 +23,10 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Install uv
-        run: curl -LsSf https://astral.sh/uv/install.sh | sh
+      - name: Install uv and ty
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          curl -LsSf https://astral.sh/ty/install.sh | sh
 
       - name: Install dependencies
         run: ~/.local/bin/uv sync --extra dev
@@ -36,7 +38,7 @@ jobs:
         run: ~/.local/bin/uv run ruff check .
 
       - name: Run ty type check
-        run: ~/.local/bin/uv run ty check wsim_core wsim_api
+        run: ~/.local/bin/ty check wsim_core wsim_api
 
   backend-tests:
     name: Backend Tests

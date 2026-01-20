@@ -18,7 +18,6 @@ dev = [
     "hypothesis>=6.122.0",
     "httpx>=0.28.0",  # For FastAPI TestClient
     "ruff>=0.9.0",
-    "ty>=0.4.0",
 ]
 
 [build-system]
