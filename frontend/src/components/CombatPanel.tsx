@@ -200,7 +200,7 @@ export function CombatPanel({ game, selectedShipId, onGameUpdate, onShipSelect, 
           BROADSIDE FIRE
         </h3>
         <p style={{ fontSize: "12px", color: "#888", marginBottom: "8px" }}>
-          Select a ship from the board to fire
+          Click a ship button below (or on the map) to begin firing
         </p>
       </div>
 
@@ -208,7 +208,7 @@ export function CombatPanel({ game, selectedShipId, onGameUpdate, onShipSelect, 
       {!selectedShip && (
         <div style={{ flex: 1, overflow: "auto" }}>
           <div style={{ fontSize: "13px", color: "#aaa", marginBottom: "8px", fontWeight: "bold" }}>
-            Ships Ready to Fire:
+            Step 1: Select a Ship to Fire
           </div>
           {shipsAbleToFire.length === 0 ? (
             <p style={{ fontSize: "13px", color: "#888", fontStyle: "italic" }}>
@@ -287,7 +287,7 @@ export function CombatPanel({ game, selectedShipId, onGameUpdate, onShipSelect, 
           {/* Broadside selection */}
           <div>
             <div style={{ fontSize: "13px", color: "#aaa", marginBottom: "8px", fontWeight: "bold" }}>
-              Select Broadside:
+              Step 2: Select Broadside to Fire
             </div>
             <div style={{ display: "flex", gap: "8px" }}>
               <button
@@ -343,7 +343,7 @@ export function CombatPanel({ game, selectedShipId, onGameUpdate, onShipSelect, 
           {selectedBroadside && (
             <div style={{ flex: 1, overflow: "auto", minHeight: 0 }}>
               <div style={{ fontSize: "13px", color: "#aaa", marginBottom: "8px", fontWeight: "bold" }}>
-                Select Target:
+                Step 3: Select Target (Closest Only)
               </div>
               {potentialTargets.length === 0 ? (
                 <p style={{ fontSize: "13px", color: "#888", fontStyle: "italic" }}>
@@ -398,7 +398,7 @@ export function CombatPanel({ game, selectedShipId, onGameUpdate, onShipSelect, 
           {selectedBroadside && selectedTarget && (
             <div>
               <div style={{ fontSize: "13px", color: "#aaa", marginBottom: "8px", fontWeight: "bold" }}>
-                Aim Point:
+                Step 4: Select Aim Point
               </div>
               <div style={{ display: "flex", gap: "8px" }}>
                 <button
