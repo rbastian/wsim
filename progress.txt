@@ -2,6 +2,45 @@
 
 ## 2026-01-19
 
+### Comprehensive README Documentation (wsim-fqg) - COMPLETED
+Created comprehensive root README.md providing complete project documentation for developers and players:
+
+**Content Sections:**
+- **Project Overview**: Summary of MVP features, implementation status, and future roadmap
+- **Tech Stack**: Detailed backend (Python/FastAPI) and frontend (React/TypeScript) technology listing
+- **Quick Start**: Step-by-step guide to run the game locally in under 5 minutes
+- **Development Setup**: Complete setup instructions for backend and frontend development
+- **How to Play**: Full gameplay guide including:
+  - Starting games and selecting scenarios
+  - Turn sequence explanation (Planning → Movement → Combat → Reload)
+  - Movement controls with syntax examples
+  - Combat controls and closest-target rule explanation
+  - Victory conditions
+- **Game Rules Summary**: Core concepts and rules for new players
+- **Running Tests**: Test execution and coverage instructions for backend
+- **API Documentation**: API endpoint reference with examples and link to interactive docs
+- **Project Structure**: Complete directory tree with file descriptions
+- **Contributing**: Code quality standards, development workflow, CI/CD guidance
+
+**Key Features:**
+- Table of contents for easy navigation
+- Code examples for all commands and operations
+- Movement syntax guide with examples (`L1R1`, `0`, `LLR2`, etc.)
+- Phase-by-phase gameplay instructions with color coding
+- Test coverage documentation (356 tests)
+- CI/CD workflow explanation
+- Beads issue tracking integration
+
+**Audience Coverage:**
+1. **New Players**: Can understand game mechanics and how to play
+2. **New Developers**: Can set up environment and start contributing
+3. **Contributors**: Understand code quality standards and workflows
+4. **Project Managers**: See feature status and architecture
+
+This completes the documentation task for the MVP. The project now has comprehensive documentation that makes it accessible to new users and contributors.
+
+## 2026-01-19
+
 ### CI/CD Pipeline Setup (wsim-gg8) - COMPLETED
 Implemented comprehensive GitHub Actions CI/CD pipeline with automated quality checks and optional pre-commit hooks:
 
