@@ -2,6 +2,111 @@
 
 ## 2026-01-19
 
+### Game Phase Flow Management (wsim-6ia) - COMPLETED
+Implemented comprehensive phase control panel that guides players through the complete turn loop with clear visual indicators and actionable buttons:
+
+**PhaseControlPanel Component (frontend/src/components/PhaseControlPanel.tsx):**
+- Always-visible phase status panel showing current phase with color-coded indicator dot
+- Phase-specific instructions explaining what needs to happen next
+- Smart actionable buttons that appear only when appropriate:
+  - "Resolve Movement" button (planning phase, after both players mark ready)
+  - "Reload Broadsides" button (combat phase)
+  - "Advance to Turn N" button (reload phase)
+- Real-time validation - buttons only enabled when action is valid
+- Loading states during API calls with disabled button state
+- Error handling with clear user-friendly error messages
+- Turn counter display with optional turn limit indicator
+- Seamless integration with existing API endpoints
+
+**Phase Flow Implementation:**
+1. **PLANNING Phase (Blue #4a90e2):**
+   - Instructions show which players need to submit orders
+   - Once both players ready, "Resolve Movement" button becomes enabled
+   - Button triggers POST /games/{id}/turns/{turn}/resolve/movement
+   - Automatic transition to COMBAT phase after movement resolution
+
+2. **MOVEMENT Phase (Green #50c878):**
+   - Shows completion indicator with checkmark
+   - Informs player movement is complete and to continue to combat
+   - No user action required - informational only
+
+3. **COMBAT Phase (Red #e74c3c):**
+   - CombatPanel shown below for firing broadsides
+   - "Reload Broadsides" button available after combat actions
+   - Button triggers POST /games/{id}/turns/{turn}/resolve/reload
+   - Transitions to RELOAD phase after reloading
+
+4. **RELOAD Phase (Orange #f39c12):**
+   - Shows reload completion
+   - "Advance to Turn N+1" button available
+   - Button triggers POST /games/{id}/turns/{turn}/advance
+   - Resets to PLANNING phase for next turn with cleared orders
+
+**GamePage Integration:**
+- PhaseControlPanel always visible at top of right panel
+- Phase-specific panels (OrdersPanel, CombatPanel) conditionally shown below
+- Right panel has vertical scroll for overflow handling
+- Maintains consistent 3-column layout across all phases
+- onGameUpdate callback keeps game state synchronized after phase transitions
+- Clean separation between phase control and phase-specific actions
+
+**Visual Design:**
+- Color-coded phase indicators matching event log colors
+- Status dot pulsing animation for current phase
+- Button colors match phase colors for visual consistency
+- Disabled states clearly shown with gray styling
+- Loading spinners and states during API operations
+- Error messages in red with border highlighting
+- Turn counter at bottom with subtle divider
+- Consistent dark theme (#1e1e1e backgrounds, #333 borders)
+
+**Validation and Error Handling:**
+- Movement resolution requires both players to have submitted orders
+- Buttons disabled and gray when conditions not met
+- Clear error messages for API failures
+- Loading state prevents double-clicking
+- Graceful error recovery without page refresh
+
+**Technical Implementation:**
+- Created frontend/src/components/PhaseControlPanel.tsx (~320 lines)
+- Updated GamePage.tsx to integrate PhaseControlPanel at top of right panel
+- React state management for loading and error states
+- Proper TypeScript typing throughout
+- API integration using existing client.ts functions
+- Conditional rendering based on game.phase
+- Smart button enabling logic with validation functions
+
+**Testing:**
+- All 348 backend tests passing
+- Frontend builds successfully with no TypeScript errors
+- Ruff formatting: all checks passed
+- Ruff linting: all checks passed
+- Ty type checking: all checks passed
+- Ready for end-to-end gameplay testing
+
+**What This Enables:**
+Players can now:
+1. See clear visual indicator of current phase at all times
+2. Understand what needs to happen next through contextual instructions
+3. Execute phase transitions with one-click buttons
+4. Progress through complete turn loop: Planning → Movement → Combat → Reload → Advance
+5. Receive immediate feedback on errors or validation issues
+6. See turn counter and know their progress through the game
+7. Experience guided workflow instead of having to remember API endpoints
+
+**Impact on MVP:**
+This completes one of the highest-priority features for making WSIM playable. The phase flow management system:
+- Makes the turn loop intuitive and self-documenting
+- Eliminates confusion about "what do I do next?"
+- Provides professional-quality UX for phase transitions
+- Demonstrates the robustness of the backend phase system
+- Enables true end-to-end gameplay without manual API calls
+- Sets the foundation for victory condition checking (happens after phase transitions)
+
+The game is now playable through the full turn loop with a clear, guided user interface.
+
+## 2026-01-19
+
 ### Combat UI for Broadside Firing (wsim-4m0) - COMPLETED
 Implemented comprehensive combat panel component for the combat phase with full closest-target rule enforcement:
 
