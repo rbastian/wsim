@@ -87,6 +87,8 @@ export interface Game {
   event_log: EventLogEntry[];
   turn_limit: number | null;
   victory_condition: string;
+  game_ended: boolean;
+  winner: string | null;
 }
 
 // Scenario types

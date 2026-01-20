@@ -110,6 +110,30 @@ export function GamePage() {
         </p>
       </div>
 
+      {/* Victory Banner */}
+      {game.game_ended && (
+        <div style={{
+          padding: '1.5rem',
+          backgroundColor: game.winner === 'P1' ? '#2d5016' : game.winner === 'P2' ? '#501616' : '#3d3d16',
+          borderBottom: '3px solid',
+          borderColor: game.winner === 'P1' ? '#4a8029' : game.winner === 'P2' ? '#802929' : '#808029',
+          textAlign: 'center'
+        }}>
+          <h2 style={{
+            margin: 0,
+            marginBottom: '0.5rem',
+            color: '#fff',
+            fontSize: '24px',
+            fontWeight: 'bold'
+          }}>
+            {game.winner ? `${game.winner} WINS!` : 'DRAW!'}
+          </h2>
+          <p style={{ margin: 0, color: '#ddd', fontSize: '14px' }}>
+            Game Over
+          </p>
+        </div>
+      )}
+
       {/* Main content area */}
       <div style={{
         flex: 1,
