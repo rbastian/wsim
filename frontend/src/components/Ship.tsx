@@ -9,6 +9,8 @@ interface ShipProps {
   layout: HexLayout;
   isSelected: boolean;
   onClick: (shipId: string) => void;
+  isValidTarget?: boolean;
+  isInArc?: boolean;
 }
 
 // Calculate a facing arrow for the bow
@@ -58,13 +60,26 @@ function getShipColor(side: string, isSelected: boolean, struck: boolean): strin
   return baseColor;
 }
 
-export function Ship({ ship, layout, isSelected, onClick }: ShipProps) {
+export function Ship({ ship, layout, isSelected, onClick, isValidTarget = false, isInArc = false }: ShipProps) {
   const bowCenter = hexToPixel(ship.bow_hex, layout);
   const sternCenter = hexToPixel(ship.stern_hex, layout);
 
   const shipColor = getShipColor(ship.side, isSelected, ship.struck);
-  const strokeColor = isSelected ? '#ffffff' : shipColor;
-  const strokeWidth = isSelected ? 3 : 2;
+
+  // Determine stroke color and width based on targeting status
+  let strokeColor = shipColor;
+  let strokeWidth = 2;
+
+  if (isSelected) {
+    strokeColor = '#ffffff';
+    strokeWidth = 3;
+  } else if (isValidTarget) {
+    strokeColor = '#4ade80'; // Green for valid targets
+    strokeWidth = 4;
+  } else if (isInArc) {
+    strokeColor = '#fbbf24'; // Yellow for ships in arc but not valid targets
+    strokeWidth = 3;
+  }
 
   // Calculate midpoint for ship name
   const midX = (bowCenter.x + sternCenter.x) / 2;
@@ -185,6 +200,33 @@ export function Ship({ ship, layout, isSelected, onClick }: ShipProps) {
             stroke="#ff0000"
             strokeWidth={3}
           />
+        </g>
+      )}
+
+      {/* Valid target indicator */}
+      {isValidTarget && (
+        <g>
+          <circle
+            cx={bowCenter.x - layout.hexSize * 0.6}
+            cy={bowCenter.y - layout.hexSize * 0.6}
+            r={layout.hexSize * 0.25}
+            fill="#4ade80"
+            stroke="#000000"
+            strokeWidth={1}
+            opacity={0.9}
+          />
+          <text
+            x={bowCenter.x - layout.hexSize * 0.6}
+            y={bowCenter.y - layout.hexSize * 0.6}
+            textAnchor="middle"
+            dominantBaseline="middle"
+            fill="#000000"
+            fontSize={layout.hexSize * 0.3}
+            fontWeight="bold"
+            style={{ pointerEvents: 'none', userSelect: 'none' }}
+          >
+            ✓
+          </text>
         </g>
       )}
     </g>

@@ -2,6 +2,7 @@
 
 import type {
   AdvanceTurnResponse,
+  BroadsideArcResponse,
   CreateGameRequest,
   CreateGameResponse,
   FireBroadsideRequest,
@@ -125,6 +126,12 @@ export const api = {
         method: "POST",
         body: JSON.stringify(request),
       }
+    ),
+
+  // Broadside arc and targeting info
+  getBroadsideArc: (gameId: string, shipId: string, broadside: "L" | "R") =>
+    fetchJson<BroadsideArcResponse>(
+      `/games/${gameId}/ships/${shipId}/broadside/${broadside}/arc`
     ),
 };
 

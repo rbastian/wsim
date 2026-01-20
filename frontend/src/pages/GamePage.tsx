@@ -9,7 +9,7 @@ import { CombatPanel } from "../components/CombatPanel";
 import { EventLog } from "../components/EventLog";
 import { api } from "../api/client";
 import type { HexCoordinate } from "../types/hex";
-import type { Game, Ship } from "../types/game";
+import type { Game, Ship, Broadside, BroadsideArcResponse } from "../types/game";
 
 export function GamePage() {
   const { gameId } = useParams<{ gameId: string }>();
@@ -17,6 +17,7 @@ export function GamePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedShipId, setSelectedShipId] = useState<string | null>(null);
+  const [arcData, setArcData] = useState<BroadsideArcResponse | null>(null);
 
   // Fetch game state on mount
   useEffect(() => {
@@ -53,6 +54,22 @@ export function GamePage() {
 
   const handleGameUpdate = (updatedGame: Game) => {
     setGame(updatedGame);
+  };
+
+  const handleBroadsideSelected = async (shipId: string, broadside: Broadside) => {
+    if (!gameId) return;
+
+    try {
+      const arcResponse = await api.getBroadsideArc(gameId, shipId, broadside);
+      setArcData(arcResponse);
+    } catch (err) {
+      console.error("Failed to fetch arc data:", err);
+      setArcData(null);
+    }
+  };
+
+  const handleClearArc = () => {
+    setArcData(null);
   };
 
   if (loading) {
@@ -137,6 +154,9 @@ export function GamePage() {
               selectedShipId={selectedShipId}
               onHexClick={handleHexClick}
               onShipClick={handleShipClick}
+              arcHexes={arcData?.arc_hexes}
+              shipsInArc={arcData?.ships_in_arc}
+              validTargets={arcData?.valid_targets}
             />
           </div>
 
@@ -156,6 +176,8 @@ export function GamePage() {
                 selectedShipId={selectedShipId}
                 onGameUpdate={handleGameUpdate}
                 onShipSelect={handleShipClick}
+                onBroadsideSelected={handleBroadsideSelected}
+                onClearArc={handleClearArc}
               />
             ) : (
               <div

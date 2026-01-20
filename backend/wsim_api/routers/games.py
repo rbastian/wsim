@@ -5,6 +5,7 @@ from pathlib import Path
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
+from wsim_core.engine.arc import get_broadside_arc_hexes
 from wsim_core.engine.collision import detect_and_resolve_collisions
 from wsim_core.engine.combat import (
     HitTables,
@@ -22,6 +23,7 @@ from wsim_core.engine.movement_parser import (
 )
 from wsim_core.engine.reload import create_reload_event, reload_all_ships
 from wsim_core.engine.rng import create_rng
+from wsim_core.engine.targeting import get_all_valid_targets, get_ships_in_arc
 from wsim_core.models.common import AimPoint, Broadside, GamePhase, LoadState
 from wsim_core.models.events import EventLogEntry
 from wsim_core.models.game import Game
@@ -691,6 +693,106 @@ async def fire_broadside(
     store.update_game(game)
 
     return FireBroadsideResponse(state=game, events=[event])
+
+
+class BroadsideArcRequest(BaseModel):
+    """Request for broadside arc and targeting information."""
+
+    ship_id: str = Field(description="ID of the ship to get arc for")
+    broadside: str = Field(description="Which broadside (L or R)", pattern="^(L|R)$")
+
+
+class BroadsideArcResponse(BaseModel):
+    """Response with broadside arc hexes and valid targets."""
+
+    arc_hexes: list[tuple[int, int]] = Field(
+        description="List of [col, row] hex coordinates in the broadside arc"
+    )
+    ships_in_arc: list[str] = Field(description="IDs of all ships with any part in arc")
+    valid_targets: list[str] = Field(
+        description="IDs of ships that can be legally targeted (closest enemies)"
+    )
+    closest_distance: int | None = Field(
+        description="Distance to closest enemy, if any (for UI display)"
+    )
+
+
+@router.get(
+    "/{game_id}/ships/{ship_id}/broadside/{broadside}/arc",
+    response_model=BroadsideArcResponse,
+)
+async def get_broadside_arc_info(
+    game_id: str, ship_id: str, broadside: str
+) -> BroadsideArcResponse:
+    """Get broadside arc hexes and valid target information.
+
+    This endpoint provides visualization data for the UI to show:
+    - Which hexes are in the broadside's firing arc
+    - Which ships are in the arc
+    - Which ships can be legally targeted (closest-target rule)
+
+    Args:
+        game_id: The game identifier
+        ship_id: The ship whose broadside arc to calculate
+        broadside: Which broadside (L or R)
+
+    Returns:
+        Arc hexes, ships in arc, and valid targets
+
+    Raises:
+        HTTPException: If game or ship not found, or invalid broadside
+    """
+    store = get_game_store()
+    game = store.get_game(game_id)
+
+    if game is None:
+        raise HTTPException(status_code=404, detail=f"Game '{game_id}' not found")
+
+    # Get ship
+    try:
+        ship = game.get_ship(ship_id)
+    except KeyError as e:
+        raise HTTPException(status_code=404, detail=f"Ship '{ship_id}' not found") from e
+
+    # Parse broadside
+    if broadside not in ("L", "R"):
+        raise HTTPException(status_code=400, detail="Broadside must be 'L' or 'R'")
+
+    broadside_enum = Broadside.L if broadside == "L" else Broadside.R
+
+    # Get arc hexes
+    arc_hexes_set = get_broadside_arc_hexes(ship, broadside_enum, max_range=10)
+    arc_hexes_list: list[tuple[int, int]] = [
+        (hex_coord.col, hex_coord.row) for hex_coord in arc_hexes_set
+    ]
+
+    # Get ships in arc
+    all_ships = list(game.ships.values())
+    ships_in_arc_info = get_ships_in_arc(ship, all_ships, broadside_enum, max_range=10)
+    ships_in_arc_ids = [target_info.ship.id for target_info in ships_in_arc_info]
+
+    # Get valid targets (enforcing closest-target rule)
+    valid_targets_ships = get_all_valid_targets(ship, all_ships, broadside_enum, max_range=10)
+    valid_target_ids = [target.id for target in valid_targets_ships]
+
+    # Calculate closest distance for display
+    closest_distance = None
+    if ships_in_arc_info:
+        # Only consider active enemies for closest distance
+        enemy_distances = [
+            target_info.distance
+            for target_info in ships_in_arc_info
+            if target_info.ship.side != ship.side and not target_info.ship.struck
+        ]
+        if enemy_distances:
+            closest_distance = min(enemy_distances)
+
+    return BroadsideArcResponse(
+        arc_hexes=arc_hexes_list,
+        ships_in_arc=ships_in_arc_ids,
+        valid_targets=valid_target_ids,
+        closest_distance=closest_distance,
+    )
 
 
 class ResolveReloadResponse(BaseModel):

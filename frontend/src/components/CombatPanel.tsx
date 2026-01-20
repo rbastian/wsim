@@ -10,6 +10,8 @@ interface CombatPanelProps {
   selectedShipId: string | null;
   onGameUpdate: (game: Game) => void;
   onShipSelect: (shipId: string) => void;
+  onBroadsideSelected: (shipId: string, broadside: Broadside) => void;
+  onClearArc: () => void;
 }
 
 // Helper function to determine if a broadside is loaded
@@ -66,7 +68,7 @@ function getPotentialTargets(firingShip: Ship, allShips: Ship[]): TargetInfo[] {
   return targets.sort((a, b) => a.distance - b.distance);
 }
 
-export function CombatPanel({ game, selectedShipId, onGameUpdate, onShipSelect }: CombatPanelProps) {
+export function CombatPanel({ game, selectedShipId, onGameUpdate, onShipSelect, onBroadsideSelected, onClearArc }: CombatPanelProps) {
   const [selectedBroadside, setSelectedBroadside] = useState<Broadside | null>(null);
   const [selectedTarget, setSelectedTarget] = useState<string | null>(null);
   const [selectedAim, setSelectedAim] = useState<AimPoint>("hull");
@@ -85,7 +87,17 @@ export function CombatPanel({ game, selectedShipId, onGameUpdate, onShipSelect }
     setSelectedBroadside(null);
     setSelectedTarget(null);
     setError(null);
-  }, [selectedShipId]);
+    onClearArc();
+  }, [selectedShipId, onClearArc]);
+
+  // Update arc visualization when broadside is selected
+  useEffect(() => {
+    if (selectedShip && selectedBroadside) {
+      onBroadsideSelected(selectedShip.id, selectedBroadside);
+    } else {
+      onClearArc();
+    }
+  }, [selectedShip, selectedBroadside, onBroadsideSelected, onClearArc]);
 
   // Get potential targets when broadside is selected
   const potentialTargets = selectedShip && selectedBroadside
