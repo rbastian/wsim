@@ -2,7 +2,7 @@
 // Allows players to fire broadsides at legal targets with closest-target rule enforcement
 
 import { useState, useEffect } from "react";
-import type { Game, Ship, Broadside, AimPoint, EventLogEntry } from "../types/game";
+import type { Game, Ship, Broadside, AimPoint, EventLogEntry, BroadsideArcResponse } from "../types/game";
 import { api } from "../api/client";
 
 interface CombatPanelProps {
@@ -12,6 +12,7 @@ interface CombatPanelProps {
   onShipSelect: (shipId: string) => void;
   onBroadsideSelected: (shipId: string, broadside: Broadside) => void;
   onClearArc: () => void;
+  arcData: BroadsideArcResponse | null;
 }
 
 // Helper function to determine if a broadside is loaded
@@ -68,7 +69,7 @@ function getPotentialTargets(firingShip: Ship, allShips: Ship[]): TargetInfo[] {
   return targets.sort((a, b) => a.distance - b.distance);
 }
 
-export function CombatPanel({ game, selectedShipId, onGameUpdate, onShipSelect, onBroadsideSelected, onClearArc }: CombatPanelProps) {
+export function CombatPanel({ game, selectedShipId, onGameUpdate, onShipSelect, onBroadsideSelected, onClearArc, arcData }: CombatPanelProps) {
   const [selectedBroadside, setSelectedBroadside] = useState<Broadside | null>(null);
   const [selectedTarget, setSelectedTarget] = useState<string | null>(null);
   const [selectedAim, setSelectedAim] = useState<AimPoint>("hull");
@@ -99,8 +100,18 @@ export function CombatPanel({ game, selectedShipId, onGameUpdate, onShipSelect, 
     }
   }, [selectedShip, selectedBroadside]); // Callbacks are now memoized in parent
 
-  // Get potential targets when broadside is selected
-  const potentialTargets = selectedShip && selectedBroadside
+  // Get potential targets from API arc data if available, otherwise use client-side calculation
+  const potentialTargets = selectedShip && selectedBroadside && arcData
+    ? arcData.ships_in_arc.map(shipId => {
+        const ship = game.ships[shipId];
+        const isValid = arcData.valid_targets.includes(shipId);
+        return {
+          ship,
+          distance: hexDistance(selectedShip.bow_hex, ship.bow_hex),
+          isClosest: isValid, // Valid targets are the closest according to server
+        };
+      }).sort((a, b) => a.distance - b.distance)
+    : selectedShip && selectedBroadside
     ? getPotentialTargets(selectedShip, ships)
     : [];
 

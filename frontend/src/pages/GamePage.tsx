@@ -236,6 +236,7 @@ export function GamePage() {
                 onShipSelect={handleShipClick}
                 onBroadsideSelected={handleBroadsideSelected}
                 onClearArc={handleClearArc}
+                arcData={arcData}
               />
             )}
           </div>
