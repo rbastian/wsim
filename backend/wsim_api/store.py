@@ -1,5 +1,6 @@
 """In-memory game store for managing active games."""
 
+import os
 import uuid
 
 from wsim_core.models.game import Game
@@ -90,10 +91,21 @@ _game_store: GameStore | None = None
 def get_game_store() -> GameStore:
     """Get the global game store instance.
 
+    If WSIM_ENABLE_PERSISTENCE env var is set to "true", returns a PersistentGameStore.
+    Otherwise, returns standard in-memory GameStore.
+
     Returns:
-        The game store singleton
+        The game store singleton (persistent or in-memory based on config)
     """
     global _game_store
     if _game_store is None:
-        _game_store = GameStore()
+        enable_persistence = os.environ.get("WSIM_ENABLE_PERSISTENCE", "false").lower() == "true"
+        if enable_persistence:
+            # Import here to avoid circular dependency
+            from .persistent_store import PersistentGameStore
+
+            save_dir = os.environ.get("WSIM_SAVE_DIRECTORY", "saved_games")
+            _game_store = PersistentGameStore(save_directory=save_dir, auto_load=True)
+        else:
+            _game_store = GameStore()
     return _game_store

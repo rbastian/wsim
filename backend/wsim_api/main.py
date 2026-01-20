@@ -1,9 +1,10 @@
 """FastAPI application entry point."""
 
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .routers import games
+from .routers import games, persistence
 
 app = FastAPI(
     title="Wooden Ships & Iron Men API",
@@ -22,6 +23,7 @@ app.add_middleware(
 
 # Include routers
 app.include_router(games.router)
+app.include_router(persistence.router)
 
 
 @app.get("/")
