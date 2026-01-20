@@ -496,3 +496,43 @@ The FastAPI foundation is now complete. Ready to implement order submission and 
 
 **Next Steps:**
 Ready to implement reload and turn advance endpoints (wsim-739) to complete the core turn loop.
+
+## 2026-01-19 - Victory Conditions Implementation (wsim-ejj)
+
+Implemented complete victory condition checking and game end detection system:
+
+**Engine Layer:**
+- Created `victory.py` module with `VictoryResult` class
+- Implemented three victory condition types:
+  - `first_struck`: First ship to strike (surrender) causes that side to lose
+  - `score_after_turns`: At turn limit, side with most remaining hull wins
+  - `first_side_struck_two_ships`: First side to lose two ships loses
+- Added `check_victory_condition()` dispatcher that routes to appropriate checker
+- Created `create_victory_event()` to generate game end event log entries
+
+**Data Model Changes:**
+- Added `game_ended: bool` field to Game model
+- Added `winner: str | None` field to Game model (can be "P1", "P2", or None for draw)
+
+**API Integration:**
+- Victory checking after combat in `fire_broadside` endpoint
+- Victory checking after reload in `resolve_reload` endpoint (for turn limit condition)
+- Added validation in `advance_turn` to prevent advancing after game ends
+- Victory events are automatically emitted and added to event log
+
+**UI Changes:**
+- Updated TypeScript Game interface with game_ended and winner fields
+- Added prominent victory banner to GamePage component
+- Banner displays winner with color-coded styling:
+  - Green background for P1 victory
+  - Red background for P2 victory
+  - Yellow background for draw
+
+**Quality Assurance:**
+- All 348 existing tests passing
+- Code formatted with ruff
+- Code linted with ruff (no errors)
+- Type checked with ty (no errors)
+
+The system now properly detects game end conditions according to each scenario's victory configuration, displays the result to players, and prevents further turn advancement once a game has concluded.
+
