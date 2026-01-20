@@ -88,7 +88,7 @@ export function CombatPanel({ game, selectedShipId, onGameUpdate, onShipSelect, 
     setSelectedTarget(null);
     setError(null);
     onClearArc();
-  }, [selectedShipId, onClearArc]);
+  }, [selectedShipId]); // Remove onClearArc from deps to prevent infinite loop
 
   // Update arc visualization when broadside is selected
   useEffect(() => {
@@ -97,7 +97,7 @@ export function CombatPanel({ game, selectedShipId, onGameUpdate, onShipSelect, 
     } else {
       onClearArc();
     }
-  }, [selectedShip, selectedBroadside, onBroadsideSelected, onClearArc]);
+  }, [selectedShip, selectedBroadside]); // Callbacks are now memoized in parent
 
   // Get potential targets when broadside is selected
   const potentialTargets = selectedShip && selectedBroadside

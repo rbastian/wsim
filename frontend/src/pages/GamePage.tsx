@@ -1,7 +1,7 @@
 // Main game page with board, ship inspector, orders panel, etc.
 
 import { useParams } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { HexGrid } from "../components/HexGrid";
 import { ShipLogPanel } from "../components/ShipLogPanel";
 import { OrdersPanel } from "../components/OrdersPanel";
@@ -58,7 +58,7 @@ export function GamePage() {
     setGame(updatedGame);
   };
 
-  const handleBroadsideSelected = async (shipId: string, broadside: Broadside) => {
+  const handleBroadsideSelected = useCallback(async (shipId: string, broadside: Broadside) => {
     if (!gameId) return;
 
     try {
@@ -68,11 +68,11 @@ export function GamePage() {
       console.error("Failed to fetch arc data:", err);
       setArcData(null);
     }
-  };
+  }, [gameId]);
 
-  const handleClearArc = () => {
+  const handleClearArc = useCallback(() => {
     setArcData(null);
-  };
+  }, []);
 
   const handlePreviewPath = (shipId: string | null, movement: string) => {
     if (!shipId || !movement || !game) {
