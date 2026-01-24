@@ -1648,3 +1648,47 @@ The coverage percentage for games.py remained at 87.71% because the newly added 
 
 Some error paths (lines 574-584, 627-629, 696-699) remain untested as they require complex game state manipulation that would make tests brittle. These paths are partially covered by integration tests.
 
+---
+
+## Additional Error Handling Tests (wsim-0i2) - 2026-01-24
+
+**Objective:** Add comprehensive error handling tests to improve coverage of games router
+
+**Implementation:**
+
+Added 4 new error handling tests focusing on API validation and error paths:
+
+1. **Broadside Arc Error Handling:**
+   - Test for invalid broadside parameter (not 'L' or 'R') in get_broadside_arc endpoint
+
+2. **Create Game Error Handling:**
+   - Test for non-existent scenario ID
+
+3. **Fire Broadside Parameter Validation:**
+   - Test for invalid broadside parameter (Pydantic validation)
+   - Test for invalid aim parameter (Pydantic validation)
+
+**Tests Added:**
+- `TestErrorHandling.test_get_broadside_arc_invalid_broadside` - Tests line 771 error path
+- `TestErrorHandling.test_create_game_with_invalid_scenario` - Tests scenario not found path
+- `TestErrorHandling.test_fire_broadside_invalid_broadside_parameter` - Tests Pydantic validation
+- `TestErrorHandling.test_fire_broadside_invalid_aim_parameter` - Tests Pydantic validation
+
+**Results:**
+- All 491 tests passing (4 new tests added)
+- Games router coverage: improved from 91.83% to 92.31% (+0.48%)
+- Total backend coverage: improved from 97.21% to 97.26% (+0.05%)
+- Specifically covered line 771 (invalid broadside error path)
+
+**Files Changed:**
+- `backend/tests/test_games_router.py` - Added 4 new error handling tests in TestErrorHandling class
+
+**Notes:**
+
+These tests improve coverage by explicitly testing error conditions that could occur in production:
+1. API parameter validation for broadside values
+2. Scenario loading error paths
+3. Pydantic validation for invalid enum values
+
+The tests are focused, maintainable, and provide clear documentation of expected error behaviors. Some error paths like the scenarios directory not found (line 78) are difficult to test in integration tests without complex mocking that would make tests brittle.
+
