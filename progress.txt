@@ -1,5 +1,85 @@
 # WSIM UX Redesign Progress
 
+## 2026-01-24: Custom Fonts and Typography System (wsim-93f)
+
+Implemented comprehensive naval chart typography system completing Phase 7, Bead 14 of the UX redesign. The game now features period-appropriate fonts that create an immersive 18th-century naval command experience.
+
+**Google Fonts Integration:**
+- Added preconnect links for optimized font loading
+- Imported IM Fell English (period naval documents, weights 400/700 + italic)
+- Imported Cinzel (refined classical UI, weights 400/600/700)
+- Imported Courier Prime (monospace for orders, weights 400/700)
+- Updated page title to "Wooden Ships & Iron Men"
+
+**Typography System (typography.css):**
+Created comprehensive 500-line typography stylesheet with:
+- CSS custom properties (--font-display, --font-body, --font-mono)
+- Complete fallback stacks (Georgia/Times, Courier New)
+- Heading hierarchy (H1-H6) with IM Fell English
+- Body text in Cinzel with optimal line height (1.5)
+- Monospace inputs in Courier Prime for movement notation
+
+**Font Application:**
+- **IM Fell English**: Ship names (22px), turn numbers (24px), headers, fire button (18px)
+- **Cinzel**: All UI elements, buttons (14-16px), phase badges, labels
+- **Courier Prime**: Movement input (16px), combat notation, stat values
+
+**Typography Classes:**
+- .text-secondary, .text-faded for information hierarchy
+- .ship-name, .turn-number for game state displays
+- .stat-value, .stat-label for damage and status
+- .phase-badge, .side-badge, .status-badge for indicators
+- Component-specific classes for panel headers, controls
+
+**Color Palette Consolidation:**
+Moved all colors to CSS variables in index.css:
+- Ocean colors: --ocean-deep, --ocean-surface, --ocean-highlight
+- Parchment UI: --parchment-base, --parchment-dark, --parchment-border
+- Ink typography: --ink-primary, --ink-secondary, --ink-faded
+- Phase colors: --phase-planning, --phase-combat, etc.
+- Status indicators: --ready-green, --struck-gray, --fouled-orange
+
+**Text Effects:**
+- Display emphasis: 1px shadow for ship names and large headers
+- Legible text: subtle shadows for busy backgrounds
+- Critical information: stronger shadows with bold weight
+
+**Responsive Typography:**
+- **Tablet (768-1023px)**: Base 13px, headers scaled proportionally
+- **Mobile (<768px)**: Base 12px, maintained input readability (16px min)
+- Phase badges: 14px → 12px → 10px across breakpoints
+- Ship names: 22px → 20px → 18px across breakpoints
+- Letter spacing adjusted for smaller screens
+
+**Font Loading Optimization:**
+- font-display: swap prevents FOIT (Flash of Invisible Text)
+- Preconnect links reduce latency for Google Fonts
+- Comprehensive fallback stacks prevent layout shift
+- System fonts display immediately during font fetch
+- Font loading class for progressive enhancement
+
+**Technical Results:**
+- ✅ Frontend build: 312.25 KB gzipped (+4KB for fonts, well within budget)
+- ✅ TypeScript: No type errors
+- ✅ Backend tests: 386 passed in 1.29s
+- ✅ Ruff format/check: All checks passed
+- ✅ Ty type checking: All checks passed
+- ✅ No breaking changes to existing components
+
+**User Experience:**
+The naval chart typography transforms the interface into an authentic period experience:
+- IM Fell English evokes 18th-century ship logs and naval charts
+- Cinzel provides refined, classical readability for all UI elements
+- Courier Prime makes movement notation clear with monospace precision
+- Letter spacing creates proper typographic hierarchy
+- Responsive scaling maintains readability on all devices
+- Consistent font weights guide user attention
+- Period aesthetic reinforces theme without sacrificing usability
+
+The typography system is complete, maintainable, and provides excellent performance. All fonts load efficiently with proper fallbacks. The naval chart aesthetic is now consistently applied across all text elements.
+
+---
+
 ## 2026-01-24: Keyboard Navigation & ARIA Accessibility (wsim-hvq)
 
 Implemented comprehensive keyboard navigation and ARIA attributes, completing Phase 6, Bead 12 of the UX redesign. The game interface is now fully accessible to keyboard-only users and screen reader users.
