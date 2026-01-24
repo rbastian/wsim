@@ -743,3 +743,81 @@ This bead establishes the layout foundation. The following beads are now unblock
 - wsim-cd6: Add ship visual state indicators (ready, struck, fouled)
 
 The full-screen ocean battlefield is now in place, ready for the detailed HUD and panel components.
+
+---
+
+## 2026-01-24: Combat Phase Panel Content (wsim-toj)
+
+Implemented the CombatControls component that provides full combat functionality within ShipActionPanel during the combat phase, completing Phase 4, Bead 8 of the UX redesign.
+
+**Component Architecture:**
+- New `CombatControls.tsx` component (645 lines)
+- Integrated into GamePage.tsx for combat phase
+- Receives arcData, ship, and game state from parent
+- Manages combat selections locally (broadside, target, aim point)
+- Calls API to fire broadsides and updates game state
+
+**Combat Workflow:**
+1. **Broadside Selection**: User clicks PORT (L) or STARBOARD (R) button
+   - Only enabled if broadside is loaded (load state = "R")
+   - Shows gun count and load status
+   - Green dot badge indicator for loaded broadsides
+   - Selected state: red background (#a74a4a) with golden border
+2. **Target Selection**: Scrollable list appears with ships in arc
+   - Shows ship name, distance in hexes, hull/rigging status
+   - Valid targets (closest) have green checkmark
+   - Invalid targets (not closest) are disabled with explanation
+   - Selected target: golden highlight (#f4d03f)
+3. **Aim Point**: Hull or Rigging selector buttons appear
+   - Default: Hull
+   - Red background when selected
+4. **Fire**: Large "🔥 Fire Broadside" button enables
+   - Period naval typography (IM Fell English, 18px)
+   - Red theme with dark border
+   - Hover: scale(1.05) transform
+   - Active: scale(0.98) for press feedback
+   - Disables during firing with "Firing..." text
+
+**Styling Details (per UX_REDESIGN.md):**
+- Combat red theme: #a74a4a for selected/action states
+- Parchment backgrounds: #d4c5a9, rgba(255,255,255,0.3)
+- Golden selection: #f4d03f with 12px glow shadow
+- Typography:
+  - Cinzel for UI elements (14-16px, weight 600-700)
+  - IM Fell English for Fire button (18px, weight 700)
+- Load badges: Green (#4a8f4a) circles with dot indicator
+- Smooth transitions: 0.2s on all interactive elements
+- Hover effects: translateY(-2px) for broadsides, translateX(4px) for targets
+
+**Integration:**
+- Conditionally rendered in ShipActionPanel when phase === 'combat'
+- Uses existing arcData prop from GamePage
+- Triggers onBroadsideSelected callback for hex map visualization
+- Clears arc on broadside deselection or ship change
+- Resets all selections after successful fire
+
+**State Management:**
+- Local state: selectedBroadside, selectedTarget, selectedAim, firing, error
+- Resets on ship change to prevent stale selections
+- Error handling with red alert banner
+- Loading state prevents double-firing
+
+**User Experience:**
+- No loaded broadsides: Shows italic message "No loaded broadsides available"
+- No valid targets: Shows "No valid targets in arc"
+- Closest-target rule enforced: Disables non-closest targets with explanation
+- Smooth workflow: Each selection enables next step
+- Clear visual feedback at every stage
+
+**Testing:**
+- All 386 backend tests pass (0.74s)
+- TypeScript type checking: no errors
+- Frontend builds successfully (303.99 KB bundle)
+- No ESLint errors in modified files
+
+**What's Next:**
+The combat phase panel content is complete. Next unblocked beads:
+- wsim-3vl: Integrate combat targeting visualization (P1) - render arcs and highlights on hex map
+- wsim-pkn: Add animations and micro-interactions (P2) - pulse, slide, shake, glow effects
+
+This completes the combat controls migration from the old CombatPanel to the new ShipActionPanel system, maintaining all functionality while applying the naval chart aesthetic.
