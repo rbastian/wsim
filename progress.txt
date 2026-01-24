@@ -1,5 +1,47 @@
 # WSIM UX Redesign Progress
 
+## 2026-01-24: Comprehensive Test Coverage for Persistence & Victory (wsim-c1n)
+
+Significantly improved test coverage for low-coverage modules, achieving the project goal of >90% overall coverage.
+
+**Persistence API Tests (tests/test_persistence_api.py):**
+
+Added 20 comprehensive tests for all persistence API endpoints:
+- Save/load game operations with success and error cases
+- 404 error handling for non-existent games and files
+- 503 error handling when persistence is not enabled
+- 400 error handling for invalid/corrupted game files
+- Save all, list saved games, clear saved games operations
+- Delete specific saved game files
+- Full roundtrip testing to verify state preservation
+
+**Victory Condition Tests (tests/engine/test_victory.py):**
+
+Added 25 comprehensive tests covering all victory conditions:
+- `check_first_struck`: Tests for no strikes, P1 struck, P2 struck
+- `check_score_after_turns`: Tests for:
+  - Turn limit not reached
+  - P1 wins on hull points
+  - P2 wins on hull points
+  - Draw scenarios
+  - No turn limit set
+  - Multiple ships per side
+  - Zero hull ships
+- `check_first_side_struck_two_ships`: Tests for:
+  - No strikes, one strike
+  - P1 loses two ships
+  - P2 loses two ships
+  - More than two ships struck
+- Victory dispatcher tests for all condition types
+- Edge cases and boundary conditions
+
+**Coverage Improvements:**
+- wsim_api/routers/persistence.py: 45% → 100% (+55%)
+- wsim_core/engine/victory.py: 51% → 100% (+49%)
+- Overall project coverage: 88.02% → 91.73% (+3.71%)
+
+All tests pass with proper type checking and formatting. The implementation includes proper fixtures for test isolation and dependency injection for testing both persistent and non-persistent store configurations.
+
 ## 2026-01-24: Keyboard Navigation & ARIA Accessibility (wsim-hvq)
 
 Implemented comprehensive keyboard navigation and ARIA attributes, completing Phase 6, Bead 12 of the UX redesign. The game interface is now fully accessible to keyboard-only users and screen reader users.
