@@ -51,6 +51,22 @@ export function PlanningControls({ ship, game, onGameUpdate, onPreviewPath }: Pl
   const hasSubmittedOrders = playerOrdersData !== null && playerOrdersData.orders.some(o => o.ship_id === ship.id);
   const isReady = playerOrdersData?.ready || false;
 
+  // Check if ALL ships on this side have submitted orders
+  const allShipsHaveOrders = (() => {
+    const playerShips = Object.values(game.ships).filter(
+      s => s.side === ship.side && !s.struck
+    );
+
+    if (!playerOrdersData || playerOrdersData.orders.length === 0) {
+      return false;
+    }
+
+    // Check that every active ship has an order
+    return playerShips.every(s =>
+      playerOrdersData.orders.some(o => o.ship_id === s.id)
+    );
+  })();
+
   // Initialize movement from existing orders
   useEffect(() => {
     if (playerOrdersData && playerOrdersData.orders.length > 0) {
@@ -153,7 +169,7 @@ export function PlanningControls({ ship, game, onGameUpdate, onPreviewPath }: Pl
   };
 
   const canSubmit = isValid && !isReady && !submitting;
-  const canMarkReady = hasSubmittedOrders && !isReady && !markingReady;
+  const canMarkReady = hasSubmittedOrders && allShipsHaveOrders && !isReady && !markingReady;
 
   return (
     <section
@@ -375,6 +391,23 @@ export function PlanningControls({ ship, game, onGameUpdate, onPreviewPath }: Pl
         >
           {markingReady ? "Marking Ready..." : isReady ? "✓ Ready" : "Mark Ready"}
         </button>
+
+        {/* Info message when not all ships have orders */}
+        {hasSubmittedOrders && !allShipsHaveOrders && !isReady && (
+          <div
+            style={{
+              marginTop: "8px",
+              fontSize: "11px",
+              color: "#8b7d6b",
+              backgroundColor: "rgba(255, 255, 255, 0.5)",
+              padding: "8px",
+              borderRadius: "4px",
+              border: "1px dashed #8b7355",
+            }}
+          >
+            ℹ️ All ships must submit orders before marking ready
+          </div>
+        )}
       </div>
 
       {/* Add shake animation */}

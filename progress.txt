@@ -1,5 +1,31 @@
 # WSIM UX Redesign Progress
 
+## 2026-01-24: Fix Squadron Ready Button Behavior (wsim-fqj)
+
+Fixed the confusing behavior where clicking "Mark Ready" on one ship would incorrectly mark all ships in the squadron as ready.
+
+**Root Cause:**
+The backend API marks an entire side (P1 or P2) as ready, not individual ships. However, the UI presented a "Mark Ready" button on each ship's panel, giving the false impression that ships could be marked ready individually. The button would enable after just one ship submitted orders, which led to users clicking it and being surprised when all their ships appeared ready.
+
+**Changes Made:**
+1. Updated `PlanningControls.tsx` to add `allShipsHaveOrders` check:
+   - Verifies that ALL active ships on the player's side have submitted orders
+   - Only enables "Mark Ready" button when this condition is met
+2. Added informative message when button is disabled:
+   - Shows "ℹ️ All ships must submit orders before marking ready"
+   - Helps users understand why they can't mark ready yet
+3. Updated `canMarkReady` logic to require:
+   - This ship has submitted orders (hasSubmittedOrders)
+   - ALL ships have submitted orders (allShipsHaveOrders)
+   - Side is not already marked ready (!isReady)
+
+**Testing:**
+- All 483 backend tests pass
+- TypeScript type checking passes for frontend
+- UI now correctly prevents marking side as ready until all ships have orders
+
+This aligns the UI behavior with the backend's side-level ready system while making it clear that marking ready applies to the entire side, not just individual ships.
+
 ## 2026-01-24: Fix Movement Validation Error Messages (wsim-jdg)
 
 Fixed the generic 'API error: Bad Request' message to display detailed validation errors when movement orders are invalid.
