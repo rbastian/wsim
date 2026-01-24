@@ -2,7 +2,7 @@
   "id": "mvp_crossing_paths_v1",
   "name": "Crossing Paths",
   "description": "Ships start close and on converging courses. Expect collisions and fouling.",
-  "map": { "width": 18, "height": 14 },
+  "map": { "width": 32, "height": 18 },
   "wind": { "direction": "S" },
   "turn_limit": 12,
   "victory": { "type": "score_after_turns", "metric": "remaining_hull" },

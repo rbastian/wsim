@@ -327,7 +327,7 @@ export function GamePage() {
           <HexGrid
             width={game.map_width}
             height={game.map_height}
-            hexSize={48}
+            hexSize={30}
             ships={ships}
             selectedShipId={selectedShipId}
             onHexClick={handleHexClick}
