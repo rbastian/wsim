@@ -19,6 +19,7 @@ interface HexGridProps {
   arcHexes?: [number, number][];
   shipsInArc?: string[];
   validTargets?: string[];
+  selectedTargetId?: string | null;
   pathPreviewHexes?: [number, number][];
   readyShips?: Set<string>;
 }
@@ -40,6 +41,7 @@ export function HexGrid({
   arcHexes = [],
   shipsInArc = [],
   validTargets = [],
+  selectedTargetId = null,
   pathPreviewHexes = [],
   readyShips = new Set(),
 }: HexGridProps) {
@@ -229,6 +231,7 @@ export function HexGrid({
         const isValidTarget = validTargetSet.has(ship.id);
         const isInArc = shipsInArcSet.has(ship.id);
         const isReady = readyShips.has(ship.id);
+        const isSelectedTarget = ship.id === selectedTargetId;
 
         return (
           <Ship
@@ -241,6 +244,7 @@ export function HexGrid({
             isValidTarget={isValidTarget}
             isInArc={isInArc}
             isReady={isReady}
+            isSelectedTarget={isSelectedTarget}
           />
         );
       })}

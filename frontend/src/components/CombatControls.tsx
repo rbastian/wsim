@@ -12,6 +12,7 @@ interface CombatControlsProps {
   onGameUpdate: (game: Game) => void;
   onBroadsideSelected: (shipId: string, broadside: Broadside) => void;
   onClearArc: () => void;
+  onTargetSelected?: (targetId: string | null) => void;
   arcData: BroadsideArcResponse | null;
 }
 
@@ -40,6 +41,7 @@ export function CombatControls({
   onGameUpdate,
   onBroadsideSelected,
   onClearArc,
+  onTargetSelected,
   arcData,
 }: CombatControlsProps) {
   const [selectedBroadside, setSelectedBroadside] = useState<Broadside | null>(null);
@@ -65,6 +67,13 @@ export function CombatControls({
       onClearArc();
     }
   }, [ship.id, selectedBroadside, onBroadsideSelected, onClearArc]);
+
+  // Notify parent of target selection changes
+  useEffect(() => {
+    if (onTargetSelected) {
+      onTargetSelected(selectedTarget);
+    }
+  }, [selectedTarget, onTargetSelected]);
 
   const handleBroadsideSelect = (broadside: Broadside) => {
     if (!isBroadsideLoaded(ship, broadside)) return;
