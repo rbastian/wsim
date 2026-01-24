@@ -157,7 +157,7 @@ export function ShipActionPanel({ id = "ship-action-panel", isOpen, selectedShip
             background: "none",
             border: "none",
             fontSize: "28px",
-            color: "#5a4a3a",
+            color: "#2c1810",
             cursor: "pointer",
             padding: 0,
             width: "32px",
@@ -167,8 +167,8 @@ export function ShipActionPanel({ id = "ship-action-panel", isOpen, selectedShip
             justifyContent: "center",
             transition: "color 0.2s",
           }}
-          onMouseEnter={(e) => (e.currentTarget.style.color = "#2c1810")}
-          onMouseLeave={(e) => (e.currentTarget.style.color = "#5a4a3a")}
+          onMouseEnter={(e) => (e.currentTarget.style.color = "#1c1000")}
+          onMouseLeave={(e) => (e.currentTarget.style.color = "#2c1810")}
         >
           ×
         </button>
@@ -195,7 +195,7 @@ export function ShipActionPanel({ id = "ship-action-panel", isOpen, selectedShip
             <span
               style={{
                 padding: "4px 8px",
-                backgroundColor: "#d4874f",
+                backgroundColor: "#b86f3f",
                 borderRadius: "4px",
                 fontSize: "11px",
                 fontWeight: "bold",
@@ -235,7 +235,7 @@ export function ShipActionPanel({ id = "ship-action-panel", isOpen, selectedShip
               style={{
                 fontSize: "12px",
                 fontWeight: 600,
-                color: "#5a4a3a",
+                color: "#4a3a2a",
                 marginBottom: "4px",
                 display: "flex",
                 justifyContent: "space-between",
@@ -265,7 +265,7 @@ export function ShipActionPanel({ id = "ship-action-panel", isOpen, selectedShip
                 style={{
                   height: "100%",
                   width: `${(selectedShip.hull / 15) * 100}%`,
-                  background: "linear-gradient(90deg, #a74a4a 0%, #d4874f 100%)",
+                  background: "linear-gradient(90deg, #a74a4a 0%, #b86f3f 100%)",
                   transition: "width 0.4s ease-out",
                   filter: selectedShip.hull > 10 ? "hue-rotate(60deg) saturate(0.8)" : selectedShip.hull > 5 ? "saturate(1)" : "saturate(1.2) brightness(1.1)",
                   animation: selectedShip.hull < 5 ? "pulse-critical 1.5s ease-in-out infinite" : "none",
@@ -281,7 +281,7 @@ export function ShipActionPanel({ id = "ship-action-panel", isOpen, selectedShip
               style={{
                 fontSize: "12px",
                 fontWeight: 600,
-                color: "#5a4a3a",
+                color: "#4a3a2a",
                 marginBottom: "4px",
                 display: "flex",
                 justifyContent: "space-between",
@@ -327,7 +327,7 @@ export function ShipActionPanel({ id = "ship-action-panel", isOpen, selectedShip
               style={{
                 fontSize: "12px",
                 fontWeight: 600,
-                color: "#5a4a3a",
+                color: "#4a3a2a",
                 marginBottom: "4px",
                 display: "flex",
                 justifyContent: "space-between",

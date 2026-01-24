@@ -264,6 +264,22 @@ aside:focus-visible {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
+/* ============================================
+   REDUCED MOTION SUPPORT
+   Per UX_REDESIGN.md and WCAG 2.1 SC 2.3.3
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;
