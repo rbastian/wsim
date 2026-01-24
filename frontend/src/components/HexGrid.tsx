@@ -20,6 +20,7 @@ interface HexGridProps {
   shipsInArc?: string[];
   validTargets?: string[];
   pathPreviewHexes?: [number, number][];
+  readyShips?: Set<string>;
 }
 
 interface Hex {
@@ -40,6 +41,7 @@ export function HexGrid({
   shipsInArc = [],
   validTargets = [],
   pathPreviewHexes = [],
+  readyShips = new Set(),
 }: HexGridProps) {
   const layout = useMemo<HexLayout>(() => ({
     hexSize,
@@ -88,6 +90,29 @@ export function HexGrid({
   const handleShipClick = (shipId: string) => {
     if (onShipClick) {
       onShipClick(shipId);
+    }
+  };
+
+  const handleShipKeyDown = (e: React.KeyboardEvent, shipId: string) => {
+    // Handle arrow key navigation between ships
+    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+      e.preventDefault();
+
+      const currentIndex = ships.findIndex(s => s.id === shipId);
+      if (currentIndex === -1) return;
+
+      let nextIndex = currentIndex;
+
+      if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+        nextIndex = (currentIndex + 1) % ships.length;
+      } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+        nextIndex = (currentIndex - 1 + ships.length) % ships.length;
+      }
+
+      const nextShip = ships[nextIndex];
+      if (nextShip && onShipClick) {
+        onShipClick(nextShip.id);
+      }
     }
   };
 
@@ -203,6 +228,7 @@ export function HexGrid({
       {ships.map((ship) => {
         const isValidTarget = validTargetSet.has(ship.id);
         const isInArc = shipsInArcSet.has(ship.id);
+        const isReady = readyShips.has(ship.id);
 
         return (
           <Ship
@@ -211,8 +237,10 @@ export function HexGrid({
             layout={layout}
             isSelected={ship.id === selectedShipId}
             onClick={handleShipClick}
+            onKeyDown={handleShipKeyDown}
             isValidTarget={isValidTarget}
             isInArc={isInArc}
+            isReady={isReady}
           />
         );
       })}

@@ -115,9 +115,7 @@ async def load_game(game_id: str) -> LoadGameResponse:
         GameStore.create_game(store, game)
         return LoadGameResponse(game_id=game_id, success=True)
     except FileNotFoundError as e:
-        raise HTTPException(
-            status_code=404, detail=f"Saved game {game_id} not found"
-        ) from e
+        raise HTTPException(status_code=404, detail=f"Saved game {game_id} not found") from e
     except ValueError as e:
         raise HTTPException(status_code=400, detail=f"Invalid game file: {e}") from e
 
@@ -200,6 +198,4 @@ async def delete_saved_game(game_id: str) -> dict[str, str]:
         store._persistence.delete_saved_game(game_id)
         return {"message": f"Saved game {game_id} deleted", "game_id": game_id}
     except FileNotFoundError as e:
-        raise HTTPException(
-            status_code=404, detail=f"Saved game {game_id} not found"
-        ) from e
+        raise HTTPException(status_code=404, detail=f"Saved game {game_id} not found") from e

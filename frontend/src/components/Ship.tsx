@@ -1,5 +1,6 @@
 // Ship component for rendering 2-hex ships with facing indicators
 
+import { useState } from 'react';
 import type { Ship as ShipData, Facing } from '../types/game';
 import type { HexLayout } from '../types/hex';
 import { hexToPixel } from '../types/hex';
@@ -12,6 +13,7 @@ interface ShipProps {
   isValidTarget?: boolean;
   isInArc?: boolean;
   isReady?: boolean;
+  onKeyDown?: (e: React.KeyboardEvent, shipId: string) => void;
 }
 
 // Calculate a facing arrow for the bow
@@ -107,6 +109,7 @@ export function Ship({
   isValidTarget = false,
   isInArc = false,
   isReady = false,
+  onKeyDown,
 }: ShipProps) {
   const bowCenter = hexToPixel(ship.bow_hex, layout);
   const sternCenter = hexToPixel(ship.stern_hex, layout);
@@ -120,16 +123,53 @@ export function Ship({
 
   const facingArrowPoints = getFacingArrowPoints(bowCenter, layout.hexSize, ship.facing);
 
-  // Opacity: struck ships are semi-transparent
-  const opacity = ship.struck ? 0.4 : 0.85;
+  // Opacity: struck ships are semi-transparent, hovered ships are fully opaque
+  const [isHovered, setIsHovered] = useState(false);
+  const [justSelected, setJustSelected] = useState(false);
+
+  const baseOpacity = ship.struck ? 0.4 : 0.85;
+  const opacity = isHovered && !ship.struck ? 1 : baseOpacity;
+
+  // Enhanced stroke width on hover
+  const hoverStrokeWidth = isHovered && !isSelected ? strokeStyle.width + 0.5 : strokeStyle.width;
+
+  const handleClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onClick(ship.id);
+
+    // Trigger selection animation
+    setJustSelected(true);
+    setTimeout(() => setJustSelected(false), 300);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      onClick(ship.id);
+      setJustSelected(true);
+      setTimeout(() => setJustSelected(false), 300);
+    }
+
+    if (onKeyDown) {
+      onKeyDown(e, ship.id);
+    }
+  };
 
   return (
     <g
-      onClick={(e) => {
-        e.stopPropagation();
-        onClick(ship.id);
+      onClick={handleClick}
+      onKeyDown={handleKeyDown}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      tabIndex={0}
+      role="button"
+      aria-label={`${ship.name}, ${ship.side}, Hull ${ship.hull}, ${isReady ? 'Ready' : 'Not ready'}`}
+      aria-pressed={isSelected}
+      style={{
+        cursor: 'pointer',
+        transition: 'all 0.15s ease-out',
       }}
-      style={{ cursor: 'pointer' }}
+      className={justSelected ? 'ship-just-selected' : ''}
     >
       {/* Glow effect for selected ships */}
       {isSelected && (
@@ -164,9 +204,10 @@ export function Ship({
         r={layout.hexSize * 0.7}
         fill={shipColor}
         stroke={strokeStyle.color}
-        strokeWidth={strokeStyle.width}
+        strokeWidth={hoverStrokeWidth}
         strokeDasharray={strokeStyle.dashArray}
         opacity={opacity}
+        style={{ transition: 'stroke-width 0.15s ease-out, opacity 0.15s ease-out' }}
       >
         {/* Pulsing animation for ready ships */}
         {isReady && !ship.struck && (
@@ -181,9 +222,10 @@ export function Ship({
         r={layout.hexSize * 0.7}
         fill={shipColor}
         stroke={strokeStyle.color}
-        strokeWidth={strokeStyle.width}
+        strokeWidth={hoverStrokeWidth}
         strokeDasharray={strokeStyle.dashArray}
         opacity={opacity}
+        style={{ transition: 'stroke-width 0.15s ease-out, opacity 0.15s ease-out' }}
       >
         {/* Pulsing animation for ready ships */}
         {isReady && !ship.struck && (
@@ -198,9 +240,10 @@ export function Ship({
         x2={sternCenter.x}
         y2={sternCenter.y}
         stroke={strokeStyle.color}
-        strokeWidth={strokeStyle.width * 1.5}
+        strokeWidth={hoverStrokeWidth * 1.5}
         strokeDasharray={strokeStyle.dashArray}
         opacity={opacity}
+        style={{ transition: 'stroke-width 0.15s ease-out, opacity 0.15s ease-out' }}
       />
 
       {/* Facing arrow on bow */}
