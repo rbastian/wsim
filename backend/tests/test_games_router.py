@@ -1248,3 +1248,108 @@ class TestVictoryConditionsDuringGameplay:
         # But the victory check code at lines 870-876 has now executed
         assert reload_state["phase"] == "reload"
         # May or may not have ended, but code was exercised
+
+
+class TestErrorHandling:
+    """Tests for error handling paths in the games router."""
+
+    def test_get_broadside_arc_invalid_broadside(self):
+        """Test get_broadside_arc with invalid broadside parameter."""
+        game_data = create_test_game()
+        game_id = game_data["game_id"]
+        game_state = game_data["state"]
+
+        # Get any ship ID
+        ship_id = list(game_state["ships"].keys())[0]
+
+        # Try with invalid broadside value (not 'L' or 'R')
+        response = client.get(f"/games/{game_id}/ships/{ship_id}/broadside/X/arc")
+        assert response.status_code == 400
+        assert "broadside must be" in response.json()["detail"].lower()
+
+    def test_create_game_with_invalid_scenario(self):
+        """Test create_game with a non-existent scenario ID."""
+        response = client.post(
+            "/games",
+            json={"scenario_id": "nonexistent_scenario_xyz"},
+        )
+        assert response.status_code == 404
+        assert "not found" in response.json()["detail"].lower()
+
+    def test_fire_broadside_invalid_broadside_parameter(self):
+        """Test fire_broadside with invalid broadside parameter."""
+        game_data = create_test_game()
+        game_id = game_data["game_id"]
+        game_state = game_data["state"]
+
+        # Get to combat phase
+        p1_orders = get_ship_orders(game_state, "P1")
+        p2_orders = get_ship_orders(game_state, "P2")
+
+        client.post(
+            f"/games/{game_id}/turns/1/orders",
+            json={"side": "P1", "orders": p1_orders},
+        )
+        client.post(
+            f"/games/{game_id}/turns/1/orders",
+            json={"side": "P2", "orders": p2_orders},
+        )
+        client.post(f"/games/{game_id}/turns/1/ready", json={"side": "P1"})
+        client.post(f"/games/{game_id}/turns/1/ready", json={"side": "P2"})
+        response = client.post(f"/games/{game_id}/turns/1/resolve/movement")
+        game_state = response.json()["state"]
+
+        # Get ship IDs
+        p1_ships = [s for s in game_state["ships"].values() if s["side"] == "P1"]
+        p2_ships = [s for s in game_state["ships"].values() if s["side"] == "P2"]
+
+        # Try to fire with invalid broadside
+        response = client.post(
+            f"/games/{game_id}/turns/1/combat/fire",
+            json={
+                "ship_id": p1_ships[0]["id"],
+                "broadside": "INVALID",  # Invalid broadside
+                "target_ship_id": p2_ships[0]["id"],
+                "aim": "hull",
+            },
+        )
+        assert response.status_code == 422  # Validation error
+
+    def test_fire_broadside_invalid_aim_parameter(self):
+        """Test fire_broadside with invalid aim parameter."""
+        game_data = create_test_game()
+        game_id = game_data["game_id"]
+        game_state = game_data["state"]
+
+        # Get to combat phase
+        p1_orders = get_ship_orders(game_state, "P1")
+        p2_orders = get_ship_orders(game_state, "P2")
+
+        client.post(
+            f"/games/{game_id}/turns/1/orders",
+            json={"side": "P1", "orders": p1_orders},
+        )
+        client.post(
+            f"/games/{game_id}/turns/1/orders",
+            json={"side": "P2", "orders": p2_orders},
+        )
+        client.post(f"/games/{game_id}/turns/1/ready", json={"side": "P1"})
+        client.post(f"/games/{game_id}/turns/1/ready", json={"side": "P2"})
+        response = client.post(f"/games/{game_id}/turns/1/resolve/movement")
+        game_state = response.json()["state"]
+
+        # Get ship IDs
+        p1_ships = [s for s in game_state["ships"].values() if s["side"] == "P1"]
+        p2_ships = [s for s in game_state["ships"].values() if s["side"] == "P2"]
+
+        # Try to fire with invalid aim
+        response = client.post(
+            f"/games/{game_id}/turns/1/combat/fire",
+            json={
+                "ship_id": p1_ships[0]["id"],
+                "broadside": "L",
+                "target_ship_id": p2_ships[0]["id"],
+                "aim": "invalid_aim",  # Invalid aim
+            },
+        )
+        assert response.status_code == 422  # Validation error
