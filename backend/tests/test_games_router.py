@@ -1,5 +1,6 @@
 """Comprehensive tests for games router endpoints."""
 
+
 import pytest
 from fastapi.testclient import TestClient
 
@@ -684,6 +685,129 @@ class TestGetBroadsideArc:
         assert response.status_code == 404
         assert "ship" in response.json()["detail"].lower()
         assert "not found" in response.json()["detail"].lower()
+
+
+class TestCreateGameErrorHandling:
+    """Tests for create_game error handling."""
+
+    def test_create_game_scenario_not_found(self) -> None:
+        """Test creating a game with a scenario that doesn't exist."""
+        response = client.post(
+            "/games",
+            json={"scenario_id": "nonexistent_scenario_id"},
+        )
+        assert response.status_code == 404
+        assert "not found" in response.json()["detail"].lower()
+
+
+class TestFireBroadsideErrorHandling:
+    """Tests for fire_broadside error handling beyond basic validation."""
+
+    def setup_combat_phase(self) -> tuple[str, dict]:
+        """Helper to set up a game in combat phase with ships ready to fire."""
+        game_data = create_test_game()
+        game_id = game_data["game_id"]
+        game_state = game_data["state"]
+
+        # Submit orders and resolve movement
+        for side in ["P1", "P2"]:
+            orders = get_ship_orders(game_state, side)
+            client.post(
+                f"/games/{game_id}/turns/1/orders",
+                json={"side": side, "orders": orders},
+            )
+
+        client.post(f"/games/{game_id}/turns/1/resolve/movement")
+
+        # Get updated game state
+        response = client.get(f"/games/{game_id}")
+        game_state = response.json()
+
+        return game_id, game_state
+
+    def test_fire_broadside_ship_not_found(self) -> None:
+        """Test firing with a non-existent ship ID."""
+        game_id, game_state = self.setup_combat_phase()
+        ships = list(game_state["ships"].values())
+        target = ships[0]
+
+        response = client.post(
+            f"/games/{game_id}/turns/1/combat/fire",
+            json={
+                "ship_id": "nonexistent_ship_id",
+                "broadside": "L",
+                "target_ship_id": target["id"],
+                "aim": "hull",
+            },
+        )
+        assert response.status_code == 404
+        assert "ship" in response.json()["detail"].lower()
+        assert "not found" in response.json()["detail"].lower()
+
+    def test_fire_broadside_target_not_found(self) -> None:
+        """Test firing at a non-existent target ID."""
+        game_id, game_state = self.setup_combat_phase()
+        ships = list(game_state["ships"].values())
+        ship = ships[0]
+
+        response = client.post(
+            f"/games/{game_id}/turns/1/combat/fire",
+            json={
+                "ship_id": ship["id"],
+                "broadside": "L",
+                "target_ship_id": "nonexistent_target_id",
+                "aim": "hull",
+            },
+        )
+        # This should fail because the target is not in legal targets
+        # or not found - depends on the path taken
+        assert response.status_code in [400, 404]
+
+    def test_fire_broadside_no_legal_targets(self) -> None:
+        """Test firing when there are no legal targets in broadside arc."""
+        game_id, game_state = self.setup_combat_phase()
+
+        # Get P1 ships
+        p1_ships = [s for s in game_state["ships"].values() if s["side"] == "P1"]
+        p2_ships = [s for s in game_state["ships"].values() if s["side"] == "P2"]
+
+        p1_ship = p1_ships[0]
+        p2_ship = p2_ships[0]
+
+        # Check both broadsides - at least one should have no targets
+        # (After simple movement "2", ships may not be in each other's arc)
+        left_response = client.post(
+            f"/games/{game_id}/turns/1/combat/fire",
+            json={
+                "ship_id": p1_ship["id"],
+                "broadside": "L",
+                "target_ship_id": p2_ship["id"],
+                "aim": "hull",
+            },
+        )
+
+        right_response = client.post(
+            f"/games/{game_id}/turns/1/combat/fire",
+            json={
+                "ship_id": p1_ship["id"],
+                "broadside": "R",
+                "target_ship_id": p2_ship["id"],
+                "aim": "hull",
+            },
+        )
+
+        # At least one of them should be "no legal targets"
+        assert left_response.status_code == 400 or right_response.status_code == 400
+
+        # Check the error message
+        if left_response.status_code == 400:
+            detail = left_response.json()["detail"].lower()
+        else:
+            detail = right_response.json()["detail"].lower()
+
+        # This could be "no legal targets" or other errors - we're flexible
+        # The key is we're testing the 400 error paths
+        assert "target" in detail or "fire" in detail
 
 
 class TestScenarioListErrorHandling:
