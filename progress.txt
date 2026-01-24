@@ -1,5 +1,30 @@
 # WSIM UX Redesign Progress
 
+## 2026-01-24: Improve Wind Direction Clarity (wsim-oyz)
+
+Enhanced the wind rose visualization to make wind direction clearer for players making strategic sailing decisions.
+
+**Root Cause:**
+The wind rose displayed an arrow pointing to the wind direction but didn't clearly communicate that this represents where the wind is coming FROM (standard nautical terminology), which could be confusing for players.
+
+**Changes Made:**
+1. Added "Wind From" label below the wind rose compass
+2. Added SVG title element and aria-label for accessibility: "Wind from [direction]"
+3. Enhanced arrow visual prominence:
+   - Increased arrow stroke width from 3 to 4
+   - Changed arrow color from dark brown (#2c1810) to ocean blue (#1a4d5c) to match nautical theme
+   - Made arrowhead larger and more prominent
+   - Added secondary tail feather for better visual direction indication
+4. Updated center dot color to match the arrow
+
+**Testing:**
+- TypeScript type checking passes
+- ESLint linting passes (no new warnings)
+- All 483 backend tests pass
+- Visual verification: Wind direction is now clearly labeled and more visually prominent
+
+Players can now easily understand that the arrow shows where the wind is blowing FROM, enabling better strategic sailing decisions.
+
 ## 2026-01-24: Fix Hex Map Not Filling Screen (wsim-ie6)
 
 Fixed the hex map display issue where empty white panels appeared on the left and right sides of the screen.

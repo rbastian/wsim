@@ -20,14 +20,18 @@ export function WindRose({ direction, size = 60 }: WindRoseProps) {
   const angle = DIRECTION_ANGLES[direction] || 0;
 
   return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 100 100"
-      style={{
-        filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2))',
-      }}
-    >
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 100 100"
+        role="img"
+        aria-label={`Wind from ${direction}`}
+        style={{
+          filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2))',
+        }}
+      >
+      <title>Wind from {direction}</title>
       {/* Outer circle */}
       <circle
         cx="50"
@@ -79,7 +83,7 @@ export function WindRose({ direction, size = 60 }: WindRoseProps) {
         />
       ))}
 
-      {/* Wind direction pointer (arrow) */}
+      {/* Wind direction pointer (arrow) - shows where wind comes FROM */}
       <g
         transform={`rotate(${angle} 50 50)`}
         style={{
@@ -87,32 +91,43 @@ export function WindRose({ direction, size = 60 }: WindRoseProps) {
           transformOrigin: 'center',
         }}
       >
-        {/* Arrow shaft */}
+        {/* Arrow shaft - thicker and blue-tinted for clarity */}
         <line
           x1="50"
           y1="50"
           x2="50"
           y2="12"
-          stroke="#2c1810"
-          strokeWidth="3"
+          stroke="#1a4d5c"
+          strokeWidth="4"
           strokeLinecap="round"
         />
 
-        {/* Arrowhead */}
+        {/* Arrowhead - larger and more prominent */}
         <path
-          d="M 50 8 L 45 18 L 50 15 L 55 18 Z"
-          fill="#2c1810"
+          d="M 50 6 L 43 20 L 50 16 L 57 20 Z"
+          fill="#1a4d5c"
           stroke="none"
         />
 
-        {/* Decorative tail */}
+        {/* Decorative tail feathers */}
         <path
-          d="M 45 52 L 50 50 L 55 52"
+          d="M 45 54 L 50 50 L 55 54"
           fill="none"
-          stroke="#2c1810"
+          stroke="#1a4d5c"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+
+        {/* Secondary tail feather */}
+        <path
+          d="M 46 58 L 50 55 L 54 58"
+          fill="none"
+          stroke="#1a4d5c"
           strokeWidth="2"
           strokeLinecap="round"
           strokeLinejoin="round"
+          opacity="0.6"
         />
       </g>
 
@@ -121,7 +136,7 @@ export function WindRose({ direction, size = 60 }: WindRoseProps) {
         cx="50"
         cy="50"
         r="4"
-        fill="#2c1810"
+        fill="#1a4d5c"
       />
 
       {/* Direction label */}
@@ -138,5 +153,16 @@ export function WindRose({ direction, size = 60 }: WindRoseProps) {
         {direction}
       </text>
     </svg>
+    <div style={{
+      fontSize: '11px',
+      fontWeight: 600,
+      color: '#2c1810',
+      fontFamily: "'Cinzel', serif",
+      letterSpacing: '0.5px',
+      textAlign: 'center',
+    }}>
+      Wind From
+    </div>
+  </div>
   );
 }
