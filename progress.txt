@@ -1,5 +1,26 @@
 # WSIM UX Redesign Progress
 
+## 2026-01-24: Fix Hex Map Not Filling Screen (wsim-ie6)
+
+Fixed the hex map display issue where empty white panels appeared on the left and right sides of the screen.
+
+**Root Cause:**
+The SVG element in `HexGrid.tsx` had `height: 'auto'` in its styling, which caused it to scale based on its aspect ratio instead of filling the available container space. This left empty white space on the sides when the container was wider than the aspect ratio allowed.
+
+**Changes Made:**
+1. Updated `HexGrid.tsx` SVG element styling:
+   - Changed from `height: 'auto'` to `maxHeight: '100%'`
+   - Added `preserveAspectRatio="xMidYMid meet"` attribute for proper scaling
+   - Set both `maxWidth` and `maxHeight` to `100%` to constrain the SVG
+
+**Testing:**
+- TypeScript type checking passes
+- ESLint linting passes (no new warnings)
+- All 483 backend tests pass
+- Visual verification: SVG now fills available space while maintaining aspect ratio
+
+The hex map now properly utilizes the full screen width and height, eliminating the empty white panels on the sides.
+
 ## 2026-01-24: Fix Mark Ready Button Bug (wsim-9kz)
 
 Fixed the mark ready button on the ship panel that was not functioning correctly.
