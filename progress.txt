@@ -1692,3 +1692,45 @@ These tests improve coverage by explicitly testing error conditions that could o
 
 The tests are focused, maintainable, and provide clear documentation of expected error behaviors. Some error paths like the scenarios directory not found (line 78) are difficult to test in integration tests without complex mocking that would make tests brittle.
 
+---
+
+## Scenario Validation Error Path Tests (wsim-xmf) - 2026-01-24
+
+**Objective:** Add comprehensive tests for scenario validation error paths in load_scenario_from_file
+
+**Implementation:**
+
+Added 3 new tests to improve coverage of error handling in `wsim_core/serialization/scenario_loader.py`:
+
+1. **ValidationError Handling:**
+   - Test load_scenario_from_file with invalid Pydantic validation (missing required field)
+   - Covers lines 50-51 error path
+
+2. **ValueError from Duplicate Ship IDs:**
+   - Test load_scenario_from_file with duplicate ship IDs
+   - Covers lines 57-58 error path (validate_ship_ids_unique)
+
+3. **ValueError from Ship Out of Bounds:**
+   - Test load_scenario_from_file with ship positioned outside map bounds
+   - Covers lines 57-58 error path (validate_ships_in_bounds)
+
+**Tests Added:**
+- `test_load_scenario_from_file_with_validation_error` - ValidationError handling
+- `test_load_scenario_from_file_with_value_error_duplicate_ids` - Duplicate ID validation
+- `test_load_scenario_from_file_with_value_error_out_of_bounds` - Bounds validation
+
+**Results:**
+- All 494 tests passing (3 new tests added)
+- Scenario loader coverage: improved from 93.44% to 100.00% (+6.56%)
+- Total backend coverage: improved from 97.26% to 97.34% (+0.08%)
+- Zero missing lines in scenario_loader.py module
+
+**Files Changed:**
+- `backend/tests/serialization/test_scenario_loader.py` - Added 3 comprehensive error path tests
+
+**Notes:**
+
+These tests complete the coverage of the scenario_loader module by testing all error handling paths in `load_scenario_from_file`. Each test creates a temporary JSON file with specific invalid data to trigger the error condition, ensuring proper exception handling and error message propagation.
+
+The tests use pytest's `raises` context manager to verify that `ScenarioLoadError` is raised with appropriate error messages. Temporary files are properly cleaned up using try/finally blocks.
+
