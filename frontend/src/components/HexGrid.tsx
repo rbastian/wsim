@@ -157,10 +157,11 @@ export function HexGrid({
       width="100%"
       height="100%"
       viewBox={`0 0 ${svgWidth} ${svgHeight}`}
+      preserveAspectRatio="xMidYMid meet"
       style={{
         backgroundColor: 'transparent',
         maxWidth: '100%',
-        height: 'auto',
+        maxHeight: '100%',
       }}
     >
       {/* Hex grid layer */}
