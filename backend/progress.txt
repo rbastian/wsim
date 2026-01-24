@@ -536,3 +536,78 @@ Implemented complete victory condition checking and game end detection system:
 
 The system now properly detects game end conditions according to each scenario's victory configuration, displays the result to players, and prevents further turn advancement once a game has concluded.
 
+
+## 2026-01-24
+
+### Animations and Micro-Interactions (wsim-pkn) - COMPLETED
+Implemented comprehensive animation system for immersive naval combat experience per UX_REDESIGN.md Phase 5, Bead 10:
+
+**Keyframe Animations (frontend/src/index.css):**
+- `pulse-ready`: Ship ready state with 2s opacity pulse (0.85 → 1 → 0.85)
+- `pulse-critical`: Critical damage warning with 1.5s opacity pulse for low health
+- `pulse-fire`: Fire button pulse with expanding box-shadow ring effect
+- `pulse-advance`: Advance turn button glow when both players ready
+- `pulse-glow`: General ready-to-advance glow for interactive elements
+- `phase-transition`: TopHUD phase badge scale + rotate + fade transition (600ms)
+- `shake`: Invalid input shake animation (horizontal 4px oscillation, 300ms)
+- `slide-in/slide-out`: Panel entrance/exit animations
+- `arc-pulse`: Targeting arc pulse opacity (0.2 → 0.35)
+- `select-ship`: Ship selection animation with scale pulse (1 → 1.1 → 1)
+
+**Phase Transition Animation (TurnPhaseIndicator.tsx):**
+- Detects phase changes via useEffect hook
+- Triggers phase-transition animation when phase changes
+- Scale to 1.2, rotate 10deg, opacity fade to 0.5 at peak
+- 600ms ease-in-out duration
+- Background color smoothly transitions between phase colors
+- Returns to normal state after animation completes
+
+**Fire Broadside Button Ripple Effect (CombatControls.tsx):**
+- CSS ::before pseudo-element for ripple
+- Starts at center (0x0) with rgba(255, 255, 255, 0.3)
+- Expands to 300px diameter on hover
+- 0.6s transition duration
+- Only activates when button is not disabled
+- z-index preserved with relative positioning
+
+**Smooth Transitions Across All Components:**
+- All buttons: 0.2s transition on background, border, transform, box-shadow
+- Ship hover states: 0.15s ease-out for opacity and stroke-width
+- Damage track bars: 0.4s ease-out for width changes
+- Panel slides: 0.3s cubic-bezier for natural feel
+- Phase badge: 0.3s ease-out for background color
+- Input fields: 0.2s for border-color changes
+
+**Hover Effects on Interactive Elements:**
+- Buttons: translateY(-1px/-2px) lift + box-shadow depth increase
+- Target list items: translateX(4px) slide + border color change
+- Ship elements: opacity increase to 1.0, stroke-width increase
+- Broadside buttons: scale(1.05) when selected
+- Close button: color transition to darker shade
+
+**Ready State Animations:**
+- Ships with submitted orders: pulsing green border + checkmark badge
+- Ready ships: SVG animate attributeName="opacity" with 2s infinite loop
+- Ready button glows with pulse-glow animation
+- Advance Turn button glows when both players ready
+
+**Critical State Warnings:**
+- Hull < 5: pulse-critical animation + saturated red gradient
+- Rigging < 4: pulse-critical animation
+- Crew < 4: pulse-critical animation
+- All use 1.5s ease-in-out infinite loop
+
+**Verification:**
+- Frontend build successful (vite build, no errors)
+- Backend type checking passed (uv run ty check)
+- Backend formatting and linting passed (uv run ruff format && ruff check)
+- All animations follow UX_REDESIGN.md specifications
+- Consistent timing: 0.2-0.3s for state changes, 1.5-2s for pulses
+
+**Technical Notes:**
+- Animations consolidated in index.css for global reuse
+- Component-specific animations use <style> tags when needed (ripple effect)
+- React state hooks trigger animations via className toggling
+- CSS transitions handle smooth property changes
+- SVG <animate> elements for ship pulse effects
+- All animations respect :disabled and :hover states
