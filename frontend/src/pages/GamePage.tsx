@@ -314,15 +314,15 @@ export function GamePage() {
 
         {/* Hex grid - fills remaining space */}
         <div className="hex-map-container" style={{
-          width: '100%',
-          height: '100%',
+          position: 'absolute',
+          inset: 0,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           overflow: 'auto',
           padding: '2rem',
-          position: 'relative',
-          zIndex: 2
+          zIndex: 2,
+          boxSizing: 'border-box'
         }}>
           <HexGrid
             width={game.map_width}
