@@ -580,6 +580,7 @@ export function CombatControls({
         <button
           onClick={handleFire}
           disabled={firing}
+          className="fire-broadside-button"
           style={{
             width: "100%",
             padding: "18px",
@@ -625,15 +626,24 @@ export function CombatControls({
         </button>
       )}
 
-      {/* Add ripple effect animation */}
+      {/* Add ripple effect animation for Fire Broadside button */}
       <style>{`
-        @keyframes pulse-fire {
-          0%, 100% {
-            box-shadow: 0 0 0 0 rgba(167, 74, 74, 0.7);
-          }
-          50% {
-            box-shadow: 0 0 0 15px rgba(167, 74, 74, 0);
-          }
+        .fire-broadside-button::before {
+          content: '';
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          width: 0;
+          height: 0;
+          border-radius: 50%;
+          background: rgba(255, 255, 255, 0.3);
+          transform: translate(-50%, -50%);
+          transition: width 0.6s, height 0.6s;
+        }
+
+        .fire-broadside-button:hover:not(:disabled)::before {
+          width: 300px;
+          height: 300px;
         }
       `}</style>
     </section>
