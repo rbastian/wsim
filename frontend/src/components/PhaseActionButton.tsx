@@ -141,9 +141,9 @@ export function PhaseActionButton({ game, onGameUpdate }: PhaseActionButtonProps
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px' }}>
       <button
+        className={`phase-action-button ${bothPlayersReady() ? 'ready-to-advance' : ''}`}
         onClick={handleClick}
         disabled={!isEnabled()}
-        className={bothPlayersReady() ? 'ready-to-advance' : ''}
         style={{
           padding: '14px 32px',
           fontFamily: "'Cinzel', serif",

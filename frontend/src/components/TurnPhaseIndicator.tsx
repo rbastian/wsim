@@ -40,6 +40,7 @@ export function TurnPhaseIndicator({ turn, phase, turnLimit }: TurnPhaseIndicato
     <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
       {/* Turn number */}
       <span
+        className="turn-number"
         style={{
           fontFamily: "'IM Fell English', serif",
           fontSize: '24px',
@@ -53,7 +54,7 @@ export function TurnPhaseIndicator({ turn, phase, turnLimit }: TurnPhaseIndicato
 
       {/* Phase badge */}
       <span
-        className={isTransitioning ? 'phase-badge-transitioning' : ''}
+        className={`phase-badge ${isTransitioning ? 'phase-badge-transitioning' : ''}`}
         style={{
           padding: '8px 20px',
           borderRadius: '24px',

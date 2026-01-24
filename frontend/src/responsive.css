@@ -1,0 +1,244 @@
+/* ============================================
+   RESPONSIVE BREAKPOINTS
+   Per UX_REDESIGN.md Phase 5, Bead 11
+   ============================================ */
+
+/* Large Desktop: 1440px+ */
+/* Default layout as described */
+
+/* Desktop: 1024px - 1439px */
+@media (max-width: 1439px) {
+  .ship-action-panel {
+    width: 340px !important;
+  }
+
+  .top-hud {
+    padding: 0 24px !important;
+  }
+}
+
+/* Tablet: 768px - 1023px */
+@media (max-width: 1023px) {
+  .ship-action-panel {
+    width: 100% !important;
+    max-width: 400px !important;
+    right: 0;
+    left: auto;
+  }
+
+  .top-hud {
+    height: 70px !important;
+    padding: 0 16px !important;
+    flex-wrap: wrap;
+  }
+
+  .wind-rose-container {
+    width: 50px !important;
+    height: 50px !important;
+  }
+
+  .turn-number {
+    font-size: 20px !important;
+  }
+
+  .phase-badge {
+    font-size: 12px !important;
+    padding: 6px 16px !important;
+  }
+
+  .ready-count-indicator {
+    font-size: 12px !important;
+    padding: 6px 12px !important;
+  }
+
+  .phase-action-button {
+    font-size: 14px !important;
+    padding: 12px 24px !important;
+  }
+}
+
+/* Mobile: < 768px */
+@media (max-width: 767px) {
+  /* Ship Action Panel - Bottom Drawer */
+  .ship-action-panel {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 50vh !important;
+    top: auto !important;
+    bottom: 0 !important;
+    border-left: none !important;
+    border-top: 3px solid #8b7355 !important;
+    transform: translateY(100%) !important;
+  }
+
+  .ship-action-panel.open {
+    transform: translateY(0) !important;
+  }
+
+  /* Adjust panel content for mobile */
+  .ship-action-panel {
+    padding: 16px !important;
+  }
+
+  /* Top HUD adjustments */
+  .top-hud {
+    height: 60px !important;
+    padding: 0 12px !important;
+    gap: 8px;
+  }
+
+  .wind-rose-container {
+    width: 40px !important;
+    height: 40px !important;
+  }
+
+  .turn-phase-indicator {
+    gap: 8px !important;
+  }
+
+  .turn-number {
+    font-size: 16px !important;
+  }
+
+  .phase-badge {
+    font-size: 10px !important;
+    padding: 4px 12px !important;
+  }
+
+  .ready-count-indicator {
+    font-size: 11px !important;
+    padding: 4px 10px !important;
+  }
+
+  .ready-count-indicator span:first-child {
+    display: none; /* Hide icon on mobile */
+  }
+
+  .phase-action-button {
+    padding: 8px 16px !important;
+    font-size: 12px !important;
+  }
+
+  /* Simplify damage tracks on mobile */
+  .damage-track-bar {
+    height: 20px !important;
+  }
+
+  .damage-track-label {
+    font-size: 11px !important;
+  }
+
+  /* Ship status heading */
+  .ship-status-heading {
+    font-size: 12px !important;
+  }
+
+  /* Panel header */
+  .panel-header h2 {
+    font-size: 18px !important;
+  }
+
+  .side-badge {
+    font-size: 11px !important;
+    padding: 3px 8px !important;
+  }
+
+  /* Armament section */
+  .armament-section h4 {
+    font-size: 11px !important;
+  }
+
+  .armament-box {
+    padding: 6px !important;
+  }
+
+  .armament-box > div {
+    font-size: 10px !important;
+  }
+
+  /* Combat controls */
+  .broadside-button {
+    padding: 12px !important;
+    font-size: 14px !important;
+  }
+
+  .target-item {
+    padding: 10px !important;
+  }
+
+  .aim-button {
+    padding: 10px !important;
+    font-size: 12px !important;
+  }
+
+  .fire-button {
+    padding: 14px !important;
+    font-size: 16px !important;
+  }
+
+  /* Planning controls */
+  .movement-section {
+    padding: 16px !important;
+  }
+
+  .movement-input {
+    padding: 10px !important;
+    font-size: 16px !important;
+  }
+
+  .submit-button,
+  .ready-button {
+    padding: 12px !important;
+    font-size: 13px !important;
+  }
+
+  /* Hex map container - adjust for mobile */
+  .hex-map-container {
+    padding: 1rem !important;
+  }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+  /* Larger touch targets for mobile */
+  button {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  .broadside-button,
+  .aim-button,
+  .target-item {
+    min-height: 48px;
+  }
+
+  /* Prevent double-tap zoom */
+  * {
+    touch-action: manipulation;
+  }
+}
+
+/* Landscape mobile */
+@media (max-width: 767px) and (orientation: landscape) {
+  .ship-action-panel {
+    height: 60vh !important;
+  }
+
+  .top-hud {
+    height: 50px !important;
+  }
+
+  .wind-rose-container {
+    width: 35px !important;
+    height: 35px !important;
+  }
+
+  .turn-number {
+    font-size: 14px !important;
+  }
+
+  .phase-badge {
+    font-size: 9px !important;
+    padding: 3px 10px !important;
+  }
+}

@@ -71,6 +71,7 @@ export function ShipActionPanel({ isOpen, selectedShip, game, onClose, children,
       aria-label="Ship actions panel"
       aria-hidden={!isOpen}
       tabIndex={-1}
+      className={`ship-action-panel ${isOpen ? 'open' : ''}`}
       style={{
         position: "fixed",
         right: 0,
@@ -92,6 +93,7 @@ export function ShipActionPanel({ isOpen, selectedShip, game, onClose, children,
     >
       {/* Panel Header */}
       <header
+        className="panel-header"
         style={{
           display: "flex",
           justifyContent: "space-between",
@@ -114,6 +116,7 @@ export function ShipActionPanel({ isOpen, selectedShip, game, onClose, children,
             {selectedShip.name}
           </h2>
           <span
+            className="side-badge"
             style={{
               display: "inline-block",
               padding: "4px 12px",
@@ -207,6 +210,7 @@ export function ShipActionPanel({ isOpen, selectedShip, game, onClose, children,
       <section aria-labelledby="status-heading" style={{ marginBottom: "24px" }}>
         <h3
           id="status-heading"
+          className="ship-status-heading"
           style={{
             margin: "0 0 12px 0",
             fontSize: "14px",
@@ -225,6 +229,7 @@ export function ShipActionPanel({ isOpen, selectedShip, game, onClose, children,
           {/* Hull */}
           <div>
             <div
+              className="damage-track-label"
               style={{
                 fontSize: "12px",
                 fontWeight: 600,
@@ -238,6 +243,7 @@ export function ShipActionPanel({ isOpen, selectedShip, game, onClose, children,
               <span>{selectedShip.hull}</span>
             </div>
             <div
+              className="damage-track-bar"
               role="progressbar"
               aria-label="Hull integrity"
               aria-valuenow={selectedShip.hull}
@@ -269,6 +275,7 @@ export function ShipActionPanel({ isOpen, selectedShip, game, onClose, children,
           {/* Rigging */}
           <div>
             <div
+              className="damage-track-label"
               style={{
                 fontSize: "12px",
                 fontWeight: 600,
@@ -282,6 +289,7 @@ export function ShipActionPanel({ isOpen, selectedShip, game, onClose, children,
               <span>{selectedShip.rigging}</span>
             </div>
             <div
+              className="damage-track-bar"
               role="progressbar"
               aria-label="Rigging integrity"
               aria-valuenow={selectedShip.rigging}
@@ -313,6 +321,7 @@ export function ShipActionPanel({ isOpen, selectedShip, game, onClose, children,
           {/* Crew */}
           <div>
             <div
+              className="damage-track-label"
               style={{
                 fontSize: "12px",
                 fontWeight: 600,
@@ -326,6 +335,7 @@ export function ShipActionPanel({ isOpen, selectedShip, game, onClose, children,
               <span>{selectedShip.crew}</span>
             </div>
             <div
+              className="damage-track-bar"
               role="progressbar"
               aria-label="Crew complement"
               aria-valuenow={selectedShip.crew}
@@ -356,7 +366,7 @@ export function ShipActionPanel({ isOpen, selectedShip, game, onClose, children,
         </div>
 
         {/* Load Status */}
-        <div style={{ marginTop: "16px" }}>
+        <div className="armament-section" style={{ marginTop: "16px" }}>
           <h4
             style={{
               margin: "0 0 8px 0",
@@ -372,6 +382,7 @@ export function ShipActionPanel({ isOpen, selectedShip, game, onClose, children,
           <div style={{ display: "flex", gap: "12px" }}>
             {/* Port (L) */}
             <div
+              className="armament-box"
               style={{
                 flex: 1,
                 padding: "8px",
@@ -400,6 +411,7 @@ export function ShipActionPanel({ isOpen, selectedShip, game, onClose, children,
 
             {/* Starboard (R) */}
             <div
+              className="armament-box"
               style={{
                 flex: 1,
                 padding: "8px",
