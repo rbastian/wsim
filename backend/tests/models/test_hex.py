@@ -36,6 +36,15 @@ def test_hex_coord_equality() -> None:
     assert coord1 != coord3
 
 
+def test_hex_coord_equality_with_non_hex() -> None:
+    """Test HexCoord equality with non-HexCoord object."""
+    coord = HexCoord(col=5, row=10)
+    # Should return NotImplemented when comparing with non-HexCoord
+    assert coord != "not a coord"
+    assert coord != (5, 10)
+    assert coord != 42
+
+
 def test_hex_coord_hash() -> None:
     """Test HexCoord can be used as dict key."""
     coord1 = HexCoord(col=5, row=10)
