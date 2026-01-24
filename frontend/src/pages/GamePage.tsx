@@ -12,9 +12,13 @@ import { OrdersPanel } from "../components/OrdersPanel";
 import { CombatPanel } from "../components/CombatPanel";
 import { PhaseControlPanel } from "../components/PhaseControlPanel";
 import { EventLog } from "../components/EventLog";
+import { ScreenReaderLiveRegion } from "../components/ScreenReaderLiveRegion";
+import { SkipLinks } from "../components/SkipLinks";
 import { api } from "../api/client";
 import type { Game, Ship, Broadside, BroadsideArcResponse } from "../types/game";
 import { simulateMovementPath, getPathHexes } from "../types/movementPreview";
+import { useKeyboardShortcuts } from "../hooks/useKeyboardShortcuts";
+import { useScreenReader } from "../hooks/useScreenReader";
 
 export function GamePage() {
   const { gameId } = useParams<{ gameId: string }>();
@@ -28,6 +32,62 @@ export function GamePage() {
   const [selectedTargetId, setSelectedTargetId] = useState<string | null>(null);
   // Track which ships have submitted orders and marked ready
   const [shipReadyState, setShipReadyState] = useState<Map<string, boolean>>(new Map());
+
+  // Screen reader announcements
+  const { announce } = useScreenReader();
+
+  // Keyboard shortcuts
+  useKeyboardShortcuts({
+    shortcuts: [
+      {
+        key: "Escape",
+        description: "Close ship action panel",
+        action: () => {
+          if (isPanelOpen) {
+            handlePanelClose();
+            announce("Ship action panel closed", "polite");
+          }
+        },
+      },
+      {
+        key: "?",
+        shift: true,
+        description: "Show keyboard shortcuts help",
+        action: () => {
+          announce(
+            "Keyboard shortcuts: Escape to close panel, Tab to navigate, Enter or Space to select ships, Arrow keys to navigate between ships, Question mark for help",
+            "polite"
+          );
+        },
+      },
+      {
+        key: "h",
+        description: "Focus on TopHUD",
+        action: () => {
+          const hud = document.querySelector(".top-hud") as HTMLElement;
+          if (hud) {
+            hud.focus();
+            announce("Focused on game controls", "polite");
+          }
+        },
+      },
+      {
+        key: "m",
+        description: "Focus on hex map",
+        action: () => {
+          const map = document.querySelector(".hex-map-container") as HTMLElement;
+          if (map) {
+            const firstShip = document.querySelector('[role="button"][aria-pressed]') as HTMLElement;
+            if (firstShip) {
+              firstShip.focus();
+              announce("Focused on hex map", "polite");
+            }
+          }
+        },
+      },
+    ],
+    enabled: !!game && !game.game_ended,
+  });
 
   // Fetch game state on mount
   useEffect(() => {
@@ -86,6 +146,17 @@ export function GamePage() {
     setIsPanelOpen(true);
     // Clear arc data when selecting a new ship
     setArcData(null);
+
+    // Announce ship selection to screen readers
+    if (game) {
+      const ship = game.ships[shipId];
+      if (ship) {
+        announce(
+          `Selected ${ship.name}, ${ship.side}. Hull ${ship.hull}, Rigging ${ship.rigging}, Crew ${ship.crew}.`,
+          "polite"
+        );
+      }
+    }
   };
 
   const handlePanelClose = () => {
@@ -98,6 +169,28 @@ export function GamePage() {
   };
 
   const handleGameUpdate = (updatedGame: Game) => {
+    // Announce phase changes
+    if (game && game.phase !== updatedGame.phase) {
+      const phaseNames: Record<string, string> = {
+        planning: "Planning Phase",
+        movement: "Movement Phase",
+        combat: "Combat Phase",
+        reload: "Reload Phase",
+      };
+      announce(`Phase changed to ${phaseNames[updatedGame.phase] || updatedGame.phase}`, "assertive");
+    }
+
+    // Announce turn changes
+    if (game && game.turn_number !== updatedGame.turn_number) {
+      announce(`Advanced to Turn ${updatedGame.turn_number}`, "assertive");
+    }
+
+    // Announce game end
+    if (updatedGame.game_ended && (!game || !game.game_ended)) {
+      const winnerText = updatedGame.winner ? `${updatedGame.winner} wins!` : "Game ended in a draw!";
+      announce(winnerText, "assertive");
+    }
+
     setGame(updatedGame);
   };
 
@@ -165,6 +258,10 @@ export function GamePage() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>
+      {/* Screen reader live regions and skip links */}
+      <ScreenReaderLiveRegion />
+      <SkipLinks />
+
       {/* Top HUD with wind rose, turn/phase indicator, and phase action button */}
       <TopHUD game={game} onGameUpdate={handleGameUpdate} shipReadyState={shipReadyState} />
 
@@ -194,12 +291,17 @@ export function GamePage() {
       )}
 
       {/* Full-screen hex map ocean container */}
-      <div style={{
-        flex: 1,
-        position: 'relative',
-        overflow: 'hidden',
-        background: 'radial-gradient(ellipse at center, #1a4d5c 0%, #0d2d3a 100%)'
-      }}>
+      <main
+        id="main-content"
+        role="main"
+        aria-label="Game battlefield"
+        style={{
+          flex: 1,
+          position: 'relative',
+          overflow: 'hidden',
+          background: 'radial-gradient(ellipse at center, #1a4d5c 0%, #0d2d3a 100%)'
+        }}
+      >
         {/* Wave texture overlay */}
         <div style={{
           position: 'absolute',
@@ -238,10 +340,11 @@ export function GamePage() {
             readyShips={new Set(Array.from(shipReadyState.keys()).filter(id => shipReadyState.get(id)))}
           />
         </div>
-      </div>
+      </main>
 
       {/* Ship Action Panel - slides in from right */}
       <ShipActionPanel
+        id="ship-actions"
         isOpen={isPanelOpen}
         selectedShip={selectedShip}
         game={game}

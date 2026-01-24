@@ -408,6 +408,8 @@ export function CombatControls({
                   key={targetShip.id}
                   onClick={() => isValid && setSelectedTarget(targetShip.id)}
                   disabled={!isValid}
+                  aria-label={`Target ${targetShip.name}, ${distance} hexes away, Hull ${targetShip.hull}, Rigging ${targetShip.rigging}${isValid ? ', valid target' : ', not valid - not closest'}`}
+                  aria-pressed={selectedTarget === targetShip.id}
                   style={{
                     padding: "12px",
                     background:
@@ -510,9 +512,11 @@ export function CombatControls({
           >
             Aim Point
           </h4>
-          <div style={{ display: "flex", gap: "12px" }}>
+          <div role="radiogroup" aria-label="Select aim point" style={{ display: "flex", gap: "12px" }}>
             <button
               className="aim-button"
+              role="radio"
+              aria-checked={selectedAim === "hull"}
               onClick={() => setSelectedAim("hull")}
               style={{
                 flex: 1,
@@ -536,6 +540,8 @@ export function CombatControls({
             </button>
             <button
               className="aim-button"
+              role="radio"
+              aria-checked={selectedAim === "rigging"}
               onClick={() => setSelectedAim("rigging")}
               style={{
                 flex: 1,
@@ -586,6 +592,7 @@ export function CombatControls({
           onClick={handleFire}
           disabled={firing}
           className="fire-button"
+          aria-label={`Fire ${selectedBroadside === "L" ? "port" : "starboard"} broadside at ${game.ships[selectedTarget]?.name}, aiming at ${selectedAim}`}
           style={{
             width: "100%",
             padding: "18px",

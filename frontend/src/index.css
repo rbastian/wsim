@@ -205,18 +205,63 @@ button:focus-visible {
   animation: pulse-fire 1.5s ease-in-out infinite;
 }
 
-/* Custom focus styles for better accessibility */
+/* ============================================
+   ACCESSIBILITY & FOCUS STYLES
+   Per UX_REDESIGN.md Phase 6, Bead 12
+   ============================================ */
+
+/* Hide focus outline for mouse users, show for keyboard users */
+*:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Custom focus styles for keyboard navigation */
 *:focus-visible {
   outline: 3px solid #f4d03f;
   outline-offset: 2px;
   border-radius: 4px;
+  transition: outline 0.2s ease-in-out;
 }
 
-/* Focus styles for SVG elements */
+/* Focus styles for buttons */
+button:focus-visible {
+  outline: 3px solid #f4d03f;
+  outline-offset: 3px;
+  box-shadow: 0 0 0 5px rgba(244, 208, 63, 0.2);
+}
+
+/* Focus styles for inputs */
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 3px solid #4a7ba7;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(74, 123, 167, 0.2);
+}
+
+/* Focus styles for links */
+a:focus-visible {
+  outline: 3px solid #f4d03f;
+  outline-offset: 3px;
+  background: rgba(244, 208, 63, 0.1);
+}
+
+/* Focus styles for SVG elements (ships) */
 g[role="button"]:focus-visible {
   outline: 3px solid #f4d03f;
   outline-offset: 4px;
   filter: drop-shadow(0 0 12px rgba(244, 208, 63, 0.8));
+}
+
+/* Focus styles for panels */
+aside:focus-visible {
+  outline: none; /* Panels use custom focus indicator */
+}
+
+/* Skip links focus styles */
+.skip-link:focus {
+  outline: 3px solid #f4d03f;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 @media (prefers-color-scheme: light) {
