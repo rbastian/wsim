@@ -1734,3 +1734,48 @@ These tests complete the coverage of the scenario_loader module by testing all e
 
 The tests use pytest's `raises` context manager to verify that `ScenarioLoadError` is raised with appropriate error messages. Temporary files are properly cleaned up using try/finally blocks.
 
+
+## wsim-l2h: Frontend Testing Infrastructure and Unit Tests
+
+Established comprehensive testing infrastructure for the frontend, which previously had zero test coverage:
+
+**Testing Infrastructure:**
+- Installed Vitest as the test runner (natural choice for Vite-based projects)
+- Added @testing-library/react, @testing-library/jest-dom, and @testing-library/user-event
+- Configured Vitest with TypeScript support and jsdom environment
+- Created test setup file with automatic cleanup after each test
+- Added npm scripts: `test`, `test:ui`, and `test:run`
+
+**API Client Tests (19 tests):**
+- Comprehensive coverage of all API endpoints: health, scenarios, games, orders, phases, combat
+- Error handling tests: HTTP errors with detail messages, network failures, malformed JSON
+- URL construction and request parameter validation
+- Mock fetch implementation with proper async/await patterns
+- Tests for ApiError class and its properties
+
+**useScreenReader Hook Tests (10 tests):**
+- Announcement functionality with polite and assertive priorities
+- Live region DOM manipulation and aria-live attribute setting
+- Cleanup and timeout handling to prevent memory leaks
+- Custom live region ID support
+- Edge cases: missing live region, empty strings, special characters (XSS protection)
+- Sequential announcements and cancellation behavior
+
+**useKeyboardShortcuts Hook Tests (18 tests):**
+- Basic key matching with case-insensitivity
+- All modifier keys: Ctrl, Alt, Shift, Meta (Cmd/Win)
+- Multiple modifier combinations
+- preventDefault behavior (default true, configurable false)
+- Multiple shortcuts and first-match-wins behavior
+- Enable/disable functionality with dynamic updates
+- Cleanup on unmount
+- Special keys: Escape, Enter, Space, Arrow keys
+- Undefined modifiers (match any state) behavior
+
+**Results:**
+- All 47 tests passing
+- TypeScript type checking passes without errors
+- Provides solid foundation for future component testing
+- Establishes testing patterns and best practices for the project
+
+This work ensures that core frontend utilities have comprehensive test coverage and establishes the infrastructure needed to add tests for React components in the future.
