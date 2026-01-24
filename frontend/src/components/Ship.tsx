@@ -11,6 +11,7 @@ interface ShipProps {
   onClick: (shipId: string) => void;
   isValidTarget?: boolean;
   isInArc?: boolean;
+  isReady?: boolean;
 }
 
 // Calculate a facing arrow for the bow
@@ -45,47 +46,82 @@ function getFacingArrowPoints(center: { x: number; y: number }, hexSize: number,
   return `${tipX},${tipY} ${baseLeftX},${baseLeftY} ${baseRightX},${baseRightY}`;
 }
 
-// Get ship color based on side
-function getShipColor(side: string, isSelected: boolean, struck: boolean): string {
+// Get ship color based on side and state
+function getShipColor(side: string, struck: boolean): string {
   if (struck) {
-    return '#666666'; // Gray for struck ships
+    return '#6a6a6a'; // --struck-gray
   }
 
-  const baseColor = side === 'P1' ? '#3b82f6' : '#ef4444'; // Blue for P1, Red for P2
-
-  if (isSelected) {
-    return side === 'P1' ? '#60a5fa' : '#f87171'; // Lighter shade when selected
-  }
-
-  return baseColor;
+  // Player colors based on UX redesign
+  return side === 'P1' ? '#3a5ba7' : '#a73a3a'; // --player-1 / --player-2
 }
 
-export function Ship({ ship, layout, isSelected, onClick, isValidTarget = false, isInArc = false }: ShipProps) {
+// Get stroke color and width based on ship state
+function getStrokeStyle(
+  ship: ShipData,
+  isSelected: boolean,
+  isReady: boolean,
+  isValidTarget: boolean,
+  isInArc: boolean
+): { color: string; width: number; dashArray?: string } {
+  // Selection takes priority
+  if (isSelected) {
+    return { color: '#f4d03f', width: 4 }; // --selected-glow
+  }
+
+  // Ready state
+  if (isReady && !ship.struck) {
+    return { color: '#4a8f4a', width: 3 }; // --ready-green
+  }
+
+  // Struck ships have dashed border
+  if (ship.struck) {
+    return { color: '#6a6a6a', width: 2, dashArray: '4 4' }; // --struck-gray
+  }
+
+  // Fouled state
+  if (ship.fouled) {
+    return { color: '#d4874f', width: 3 }; // --fouled-orange
+  }
+
+  // Valid target
+  if (isValidTarget) {
+    return { color: '#4ade80', width: 4 }; // Green for valid targets
+  }
+
+  // In arc but not valid
+  if (isInArc) {
+    return { color: '#fbbf24', width: 3 }; // Yellow
+  }
+
+  // Default: darker shade of ship color
+  const baseColor = ship.side === 'P1' ? '#2a4887' : '#872a2a';
+  return { color: baseColor, width: 2 };
+}
+
+export function Ship({
+  ship,
+  layout,
+  isSelected,
+  onClick,
+  isValidTarget = false,
+  isInArc = false,
+  isReady = false,
+}: ShipProps) {
   const bowCenter = hexToPixel(ship.bow_hex, layout);
   const sternCenter = hexToPixel(ship.stern_hex, layout);
 
-  const shipColor = getShipColor(ship.side, isSelected, ship.struck);
-
-  // Determine stroke color and width based on targeting status
-  let strokeColor = shipColor;
-  let strokeWidth = 2;
-
-  if (isSelected) {
-    strokeColor = '#ffffff';
-    strokeWidth = 3;
-  } else if (isValidTarget) {
-    strokeColor = '#4ade80'; // Green for valid targets
-    strokeWidth = 4;
-  } else if (isInArc) {
-    strokeColor = '#fbbf24'; // Yellow for ships in arc but not valid targets
-    strokeWidth = 3;
-  }
+  const shipColor = getShipColor(ship.side, ship.struck);
+  const strokeStyle = getStrokeStyle(ship, isSelected, isReady, isValidTarget, isInArc);
 
   // Calculate midpoint for ship name
   const midX = (bowCenter.x + sternCenter.x) / 2;
   const midY = (bowCenter.y + sternCenter.y) / 2;
 
   const facingArrowPoints = getFacingArrowPoints(bowCenter, layout.hexSize, ship.facing);
+
+  // Opacity: struck ships are semi-transparent
+  const opacity = ship.struck ? 0.4 : 0.85;
 
   return (
     <g
@@ -95,16 +131,48 @@ export function Ship({ ship, layout, isSelected, onClick, isValidTarget = false,
       }}
       style={{ cursor: 'pointer' }}
     >
+      {/* Glow effect for selected ships */}
+      {isSelected && (
+        <>
+          <circle
+            cx={bowCenter.x}
+            cy={bowCenter.y}
+            r={layout.hexSize * 0.7}
+            fill="none"
+            stroke={strokeStyle.color}
+            strokeWidth={strokeStyle.width + 2}
+            opacity={0.3}
+            filter="blur(8px)"
+          />
+          <circle
+            cx={sternCenter.x}
+            cy={sternCenter.y}
+            r={layout.hexSize * 0.7}
+            fill="none"
+            stroke={strokeStyle.color}
+            strokeWidth={strokeStyle.width + 2}
+            opacity={0.3}
+            filter="blur(8px)"
+          />
+        </>
+      )}
+
       {/* Bow hex */}
       <circle
         cx={bowCenter.x}
         cy={bowCenter.y}
         r={layout.hexSize * 0.7}
         fill={shipColor}
-        stroke={strokeColor}
-        strokeWidth={strokeWidth}
-        opacity={0.9}
-      />
+        stroke={strokeStyle.color}
+        strokeWidth={strokeStyle.width}
+        strokeDasharray={strokeStyle.dashArray}
+        opacity={opacity}
+      >
+        {/* Pulsing animation for ready ships */}
+        {isReady && !ship.struck && (
+          <animate attributeName="opacity" values="0.85;1;0.85" dur="2s" repeatCount="indefinite" />
+        )}
+      </circle>
 
       {/* Stern hex */}
       <circle
@@ -112,10 +180,16 @@ export function Ship({ ship, layout, isSelected, onClick, isValidTarget = false,
         cy={sternCenter.y}
         r={layout.hexSize * 0.7}
         fill={shipColor}
-        stroke={strokeColor}
-        strokeWidth={strokeWidth}
-        opacity={0.9}
-      />
+        stroke={strokeStyle.color}
+        strokeWidth={strokeStyle.width}
+        strokeDasharray={strokeStyle.dashArray}
+        opacity={opacity}
+      >
+        {/* Pulsing animation for ready ships */}
+        {isReady && !ship.struck && (
+          <animate attributeName="opacity" values="0.85;1;0.85" dur="2s" repeatCount="indefinite" />
+        )}
+      </circle>
 
       {/* Connection line between bow and stern */}
       <line
@@ -123,9 +197,10 @@ export function Ship({ ship, layout, isSelected, onClick, isValidTarget = false,
         y1={bowCenter.y}
         x2={sternCenter.x}
         y2={sternCenter.y}
-        stroke={strokeColor}
-        strokeWidth={strokeWidth * 1.5}
-        opacity={0.9}
+        stroke={strokeStyle.color}
+        strokeWidth={strokeStyle.width * 1.5}
+        strokeDasharray={strokeStyle.dashArray}
+        opacity={opacity}
       />
 
       {/* Facing arrow on bow */}
@@ -155,50 +230,85 @@ export function Ship({ ship, layout, isSelected, onClick, isValidTarget = false,
         {ship.name}
       </text>
 
-      {/* Fouled indicator */}
-      {ship.fouled && (
+      {/* Ready badge - checkmark at stern */}
+      {isReady && !ship.struck && (
         <g>
           <circle
-            cx={bowCenter.x + layout.hexSize * 0.5}
-            cy={bowCenter.y - layout.hexSize * 0.5}
-            r={layout.hexSize * 0.2}
-            fill="#ff9800"
-            stroke="#000000"
-            strokeWidth={1}
+            cx={sternCenter.x}
+            cy={sternCenter.y - layout.hexSize * 0.8}
+            r={layout.hexSize * 0.25}
+            fill="#4a8f4a"
+            stroke="#ffffff"
+            strokeWidth={2}
+            opacity={0.95}
           />
-          <text
-            x={bowCenter.x + layout.hexSize * 0.5}
-            y={bowCenter.y - layout.hexSize * 0.5}
-            textAnchor="middle"
-            dominantBaseline="middle"
-            fill="#000000"
-            fontSize={layout.hexSize * 0.25}
-            fontWeight="bold"
-            style={{ pointerEvents: 'none', userSelect: 'none' }}
-          >
-            F
-          </text>
+          {/* Checkmark path */}
+          <path
+            d={`M ${sternCenter.x - layout.hexSize * 0.15} ${sternCenter.y - layout.hexSize * 0.8}
+                L ${sternCenter.x - layout.hexSize * 0.05} ${sternCenter.y - layout.hexSize * 0.7}
+                L ${sternCenter.x + layout.hexSize * 0.15} ${sternCenter.y - layout.hexSize * 0.9}`}
+            stroke="#ffffff"
+            strokeWidth={2.5}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            fill="none"
+          />
         </g>
       )}
 
-      {/* Struck indicator */}
+      {/* Struck overlay - X across both hexes */}
       {ship.struck && (
         <g>
+          {/* X overlay across ship */}
           <line
-            x1={bowCenter.x - layout.hexSize * 0.5}
-            y1={bowCenter.y - layout.hexSize * 0.5}
-            x2={bowCenter.x + layout.hexSize * 0.5}
-            y2={bowCenter.y + layout.hexSize * 0.5}
-            stroke="#ff0000"
+            x1={bowCenter.x - layout.hexSize * 0.6}
+            y1={bowCenter.y - layout.hexSize * 0.6}
+            x2={sternCenter.x + layout.hexSize * 0.6}
+            y2={sternCenter.y + layout.hexSize * 0.6}
+            stroke="#5a4a3a"
             strokeWidth={3}
+            opacity={0.6}
           />
           <line
-            x1={bowCenter.x + layout.hexSize * 0.5}
-            y1={bowCenter.y - layout.hexSize * 0.5}
-            x2={bowCenter.x - layout.hexSize * 0.5}
-            y2={bowCenter.y + layout.hexSize * 0.5}
-            stroke="#ff0000"
+            x1={bowCenter.x + layout.hexSize * 0.6}
+            y1={bowCenter.y - layout.hexSize * 0.6}
+            x2={sternCenter.x - layout.hexSize * 0.6}
+            y2={sternCenter.y + layout.hexSize * 0.6}
+            stroke="#5a4a3a"
             strokeWidth={3}
+            opacity={0.6}
+          />
+        </g>
+      )}
+
+      {/* Fouled badge - chain link icon */}
+      {ship.fouled && !ship.struck && (
+        <g>
+          <circle
+            cx={bowCenter.x + layout.hexSize * 0.7}
+            cy={bowCenter.y - layout.hexSize * 0.7}
+            r={layout.hexSize * 0.25}
+            fill="#d4874f"
+            stroke="#ffffff"
+            strokeWidth={2}
+            opacity={0.95}
+          />
+          {/* Chain link icon - two interlocking circles */}
+          <circle
+            cx={bowCenter.x + layout.hexSize * 0.65}
+            cy={bowCenter.y - layout.hexSize * 0.7}
+            r={layout.hexSize * 0.1}
+            fill="none"
+            stroke="#ffffff"
+            strokeWidth={2}
+          />
+          <circle
+            cx={bowCenter.x + layout.hexSize * 0.75}
+            cy={bowCenter.y - layout.hexSize * 0.7}
+            r={layout.hexSize * 0.1}
+            fill="none"
+            stroke="#ffffff"
+            strokeWidth={2}
           />
         </g>
       )}
