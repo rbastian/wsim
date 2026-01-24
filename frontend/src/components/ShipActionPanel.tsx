@@ -5,6 +5,7 @@ import { useEffect, useRef } from "react";
 import type { Ship, Game } from "../types/game";
 
 interface ShipActionPanelProps {
+  id?: string;
   isOpen: boolean;
   selectedShip: Ship | null;
   game: Game;
@@ -13,7 +14,7 @@ interface ShipActionPanelProps {
   isReady?: boolean;
 }
 
-export function ShipActionPanel({ isOpen, selectedShip, game, onClose, children, isReady = false }: ShipActionPanelProps) {
+export function ShipActionPanel({ id = "ship-action-panel", isOpen, selectedShip, game, onClose, children, isReady = false }: ShipActionPanelProps) {
   const panelRef = useRef<HTMLDivElement>(null);
 
   // Handle ESC key press
@@ -66,6 +67,7 @@ export function ShipActionPanel({ isOpen, selectedShip, game, onClose, children,
 
   return (
     <aside
+      id={id}
       ref={panelRef}
       role="complementary"
       aria-label="Ship actions panel"

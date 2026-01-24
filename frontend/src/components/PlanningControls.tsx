@@ -157,6 +157,7 @@ export function PlanningControls({ ship, game, onGameUpdate, onPreviewPath }: Pl
 
   return (
     <section
+      aria-labelledby="planning-heading"
       className="movement-section"
       style={{
         marginTop: "24px",
@@ -167,6 +168,7 @@ export function PlanningControls({ ship, game, onGameUpdate, onPreviewPath }: Pl
       }}
     >
       <h3
+        id="planning-heading"
         style={{
           margin: "0 0 16px 0",
           fontSize: "14px",
@@ -203,6 +205,9 @@ export function PlanningControls({ ship, game, onGameUpdate, onPreviewPath }: Pl
         onBlur={() => onPreviewPath && onPreviewPath(null, "")}
         disabled={isReady}
         placeholder="e.g., L1R1, 0, LLR2"
+        aria-label="Movement orders input"
+        aria-describedby="movement-help movement-validation"
+        aria-invalid={!!validationError}
         className={`movement-input ${isValid && movement ? "valid" : validationError ? "invalid" : ""}`}
         style={{
           width: "100%",
@@ -241,6 +246,9 @@ export function PlanningControls({ ship, game, onGameUpdate, onPreviewPath }: Pl
 
       {validationError && (
         <div
+          id="movement-validation"
+          role="alert"
+          aria-live="assertive"
           style={{
             marginTop: "8px",
             fontSize: "12px",
@@ -254,6 +262,7 @@ export function PlanningControls({ ship, game, onGameUpdate, onPreviewPath }: Pl
 
       {/* Help text */}
       <div
+        id="movement-help"
         style={{
           marginTop: "12px",
           fontSize: "11px",
@@ -292,6 +301,7 @@ export function PlanningControls({ ship, game, onGameUpdate, onPreviewPath }: Pl
           className="submit-button"
           onClick={handleSubmitOrders}
           disabled={!canSubmit}
+          aria-label={hasSubmittedOrders ? "Update movement orders" : "Submit movement orders"}
           style={{
             width: "100%",
             padding: "14px",
@@ -330,6 +340,8 @@ export function PlanningControls({ ship, game, onGameUpdate, onPreviewPath }: Pl
           className="ready-button"
           onClick={handleMarkReady}
           disabled={!canMarkReady}
+          aria-label={isReady ? "Orders marked as ready" : "Mark orders as ready"}
+          aria-pressed={isReady}
           style={{
             width: "100%",
             padding: "14px",

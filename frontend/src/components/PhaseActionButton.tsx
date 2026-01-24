@@ -144,6 +144,8 @@ export function PhaseActionButton({ game, onGameUpdate }: PhaseActionButtonProps
         className={`phase-action-button ${bothPlayersReady() ? 'ready-to-advance' : ''}`}
         onClick={handleClick}
         disabled={!isEnabled()}
+        aria-label={getButtonText()}
+        aria-disabled={!isEnabled()}
         style={{
           padding: '14px 32px',
           fontFamily: "'Cinzel', serif",
@@ -184,6 +186,8 @@ export function PhaseActionButton({ game, onGameUpdate }: PhaseActionButtonProps
       {/* Error display */}
       {error && (
         <div
+          role="alert"
+          aria-live="assertive"
           style={{
             padding: '8px 12px',
             backgroundColor: 'rgba(167, 74, 74, 0.1)',
