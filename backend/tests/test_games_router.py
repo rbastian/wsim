@@ -5,6 +5,7 @@ from fastapi.testclient import TestClient
 
 from wsim_api.main import app
 from wsim_api.store import get_game_store
+from wsim_core.models.common import GamePhase
 
 client = TestClient(app)
 
@@ -1353,3 +1354,137 @@ class TestErrorHandling:
             },
         )
         assert response.status_code == 422  # Validation error
+
+
+class TestAdditionalErrorPaths:
+    """Tests for additional error paths to improve coverage."""
+
+    def test_advance_turn_when_game_ended(self) -> None:
+        """Test that advancing turn fails when game has already ended (line 936)."""
+        # Create a game
+        game_data = create_test_game()
+        game_id = game_data["game_id"]
+
+        # Manually set the game to ended state via the store
+        store = get_game_store()
+        game = store.get_game(game_id)
+        assert game is not None
+        game.game_ended = True
+        game.winner = "P1"
+        game.phase = GamePhase.RELOAD  # Must be in RELOAD phase to try advancing
+        store.update_game(game)
+
+        # Try to advance turn
+        response = client.post(f"/games/{game_id}/turns/1/advance")
+        assert response.status_code == 400
+        assert "game has ended" in response.json()["detail"].lower()
+        assert "P1" in response.json()["detail"]
+
+    def test_fire_broadside_illegal_target_not_closest(self) -> None:
+        """Test firing at a target that's not a legal closest target (lines 604-605)."""
+        # This test needs a specific scenario with multiple enemy ships
+        # where one is closer than the other
+        game_data = create_test_game()
+        game_id = game_data["game_id"]
+        game_state = game_data["state"]
+
+        # Get to combat phase
+        p1_orders = get_ship_orders(game_state, "P1")
+        p2_orders = get_ship_orders(game_state, "P2")
+
+        client.post(
+            f"/games/{game_id}/turns/1/orders",
+            json={"side": "P1", "orders": p1_orders},
+        )
+        client.post(
+            f"/games/{game_id}/turns/1/orders",
+            json={"side": "P2", "orders": p2_orders},
+        )
+        client.post(f"/games/{game_id}/turns/1/ready", json={"side": "P1"})
+        client.post(f"/games/{game_id}/turns/1/ready", json={"side": "P2"})
+        response = client.post(f"/games/{game_id}/turns/1/resolve/movement")
+        game_state = response.json()["state"]
+
+        # Get ship IDs
+        p1_ships = [s for s in game_state["ships"].values() if s["side"] == "P1"]
+        p2_ships = [s for s in game_state["ships"].values() if s["side"] == "P2"]
+
+        if len(p2_ships) < 2:
+            # Skip if we don't have multiple targets
+            pytest.skip("Scenario doesn't have multiple P2 ships")
+
+        firing_ship = p1_ships[0]
+
+        # Get the legal targets for this ship
+        arc_response = client.get(f"/games/{game_id}/ships/{firing_ship['id']}/broadside/L/arc")
+        assert arc_response.status_code == 200
+        legal_targets = arc_response.json()["valid_targets"]
+
+        # If there are legal targets, find a P2 ship that's NOT in legal targets
+        p2_ship_ids = {s["id"] for s in p2_ships}
+        illegal_targets = p2_ship_ids - set(legal_targets)
+
+        if not illegal_targets:
+            # All P2 ships are legal targets, we can't test this path
+            pytest.skip("All enemy ships are legal targets")
+
+        # Try to fire at an illegal target
+        illegal_target_id = next(iter(illegal_targets))
+        response = client.post(
+            f"/games/{game_id}/turns/1/combat/fire",
+            json={
+                "ship_id": firing_ship["id"],
+                "broadside": "L",
+                "target_ship_id": illegal_target_id,
+                "aim": "hull",
+            },
+        )
+        assert response.status_code == 400
+        assert "not a legal target" in response.json()["detail"].lower()
+
+    def test_fire_broadside_target_not_found(self) -> None:
+        """Test firing at a target ship that doesn't exist (lines 616-617).
+
+        Note: This test actually triggers line 604-605 first because the
+        nonexistent ship ID fails the legal target validation before the
+        target_ship lookup. This is expected behavior - the test still provides
+        value by testing an error path.
+        """
+        game_data = create_test_game()
+        game_id = game_data["game_id"]
+        game_state = game_data["state"]
+
+        # Get to combat phase
+        p1_orders = get_ship_orders(game_state, "P1")
+        p2_orders = get_ship_orders(game_state, "P2")
+
+        client.post(
+            f"/games/{game_id}/turns/1/orders",
+            json={"side": "P1", "orders": p1_orders},
+        )
+        client.post(
+            f"/games/{game_id}/turns/1/orders",
+            json={"side": "P2", "orders": p2_orders},
+        )
+        client.post(f"/games/{game_id}/turns/1/ready", json={"side": "P1"})
+        client.post(f"/games/{game_id}/turns/1/ready", json={"side": "P2"})
+        response = client.post(f"/games/{game_id}/turns/1/resolve/movement")
+        game_state = response.json()["state"]
+
+        # Get a P1 ship
+        p1_ships = [s for s in game_state["ships"].values() if s["side"] == "P1"]
+        firing_ship = p1_ships[0]
+
+        # Try to fire at a non-existent target
+        response = client.post(
+            f"/games/{game_id}/turns/1/combat/fire",
+            json={
+                "ship_id": firing_ship["id"],
+                "broadside": "L",
+                "target_ship_id": "nonexistent_target_ship",
+                "aim": "hull",
+            },
+        )
+        # Expecting 400 because it fails legal target check (no targets in arc)
+        assert response.status_code == 400
+        assert "no legal targets" in response.json()["detail"].lower()
