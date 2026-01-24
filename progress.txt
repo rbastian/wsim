@@ -1,5 +1,116 @@
 # WSIM UX Redesign Progress
 
+## 2026-01-24: Enhanced Ship Hover and Selection Interactions (wsim-ocn)
+
+Implemented comprehensive hover effects, selection animations, and keyboard navigation for ships in the hex map, completing Phase 2 Bead 5 of the UX redesign.
+
+**Hover Effects:**
+- Ships now increase opacity from 0.85 to 1.0 when hovered (struck ships remain at 0.4)
+- Stroke width increases by 0.5px on hover for subtle emphasis
+- Smooth transitions (150ms ease-out) for all hover state changes
+- Cursor changes to pointer to indicate interactivity
+- All effects combine with existing state styles (ready, struck, fouled)
+
+**Selection Animation:**
+- Scale pulse animation on ship selection (1.0 → 1.1 → 1.0)
+- 300ms duration with ease-out timing
+- Applied via CSS keyframe animation (@keyframes select-ship)
+- Triggered by both mouse click and keyboard selection
+- Animation clears after completion (no lingering state)
+
+**Keyboard Navigation:**
+- Ships are now keyboard-focusable (tabIndex={0}, role="button")
+- Tab/Shift+Tab cycles through all ships on the map
+- Enter or Space key selects the focused ship
+- Arrow keys navigate between ships:
+  - Down/Right: next ship in array
+  - Up/Left: previous ship in array
+  - Wraps around at list boundaries
+- Keyboard selection triggers the same animation as mouse click
+
+**Accessibility Features:**
+- ARIA labels with ship details: name, side, hull value, ready state
+- role="button" indicates interactive element to screen readers
+- aria-pressed state reflects selection status (true/false)
+- Custom focus styles for keyboard navigation:
+  - Golden glow outline (#f4d03f, 3px solid)
+  - 4px outline offset for visibility
+  - Drop shadow (0 0 12px rgba(244, 208, 63, 0.8))
+- Focus styles visible only for keyboard navigation (:focus-visible)
+
+**HexGrid Component Updates:**
+- Added `readyShips?: Set<string>` prop for ready state tracking
+- Added `handleShipKeyDown` function for arrow key navigation
+- Ships now receive `isReady` prop from readyShips set lookup
+- Keyboard event handler passed to Ship component via `onKeyDown` prop
+- Arrow key navigation uses ship array index for cycling
+
+**Ship Component Updates:**
+- Added `onKeyDown?: (e: React.KeyboardEvent, shipId: string) => void` prop
+- useState hooks for hover state and selection animation state
+- `isHovered` state controls opacity and stroke width changes
+- `justSelected` state triggers 300ms animation
+- Event handlers:
+  - `handleClick`: stops propagation, calls onClick, triggers animation
+  - `handleKeyDown`: handles Enter/Space for selection, delegates arrow keys
+  - `onMouseEnter`/`onMouseLeave`: update hover state
+- All circle and line elements use hover-aware stroke width
+- Smooth transitions applied via inline styles (150ms ease-out)
+
+**CSS Animations:**
+Added to index.css:
+- @keyframes select-ship (scale pulse animation)
+- .ship-just-selected class applies animation
+- *:focus-visible custom focus styles (golden outline)
+- g[role="button"]:focus-visible for SVG elements
+
+**Technical Implementation:**
+- React useState for local component state (hover, animation)
+- CSS-based animations (no JavaScript animation libraries)
+- Transform-origin: center for proper scale animation
+- Event delegation: keyboard handler calls parent for arrow keys
+- Clean event handling: preventDefault for keyboard shortcuts
+- setTimeout cleanup for animation state (300ms duration)
+
+**Color Palette:**
+- Golden glow: #f4d03f (same as selection highlight)
+- Consistent with existing state colors from wsim-cd6
+
+**Technical Results:**
+- 386 backend tests pass ✅
+- TypeScript type checking: ✅ passes
+- ESLint: ✅ passes (2 pre-existing warnings in CombatPanel unchanged)
+- Ruff formatting: ✅ passes (2 files reformatted)
+- Type checker (ty): ✅ passes
+
+**What Works:**
+- Hover effects provide clear visual feedback without being distracting
+- Selection animation is snappy and satisfying (300ms feels right)
+- Keyboard navigation is intuitive and follows expected patterns
+- Arrow keys make it easy to quickly review all ships
+- Focus styles are highly visible for keyboard users
+- All accessibility features work correctly with screen readers
+- Hover effects respect ship state (struck ships behave differently)
+- Animation combines smoothly with existing state indicators
+
+**Integration Points:**
+This implementation builds on:
+- wsim-cd6: Ship visual state indicators (ready, struck, fouled badges)
+- Uses existing state priority system and color palette
+- Enhances but doesn't replace existing visual feedback
+
+Prepares for:
+- wsim-7pz: Planning panel will benefit from enhanced ship selection UX
+- wsim-toj: Combat panel targeting will use these interaction patterns
+- wsim-pkn: Further animations can build on this foundation
+
+**User Experience Notes:**
+The hover effects make ships feel responsive and alive. The scale pulse on selection provides satisfying tactile feedback. Keyboard navigation makes the interface fully accessible without a mouse. Arrow key navigation is particularly useful for reviewing the entire fleet quickly during planning phases. The focus indicators ensure keyboard users always know which ship they're about to select.
+
+The 150ms transition timing for hover strikes the right balance - fast enough to feel immediate, slow enough to be smooth. The 300ms selection animation is long enough to be noticeable but short enough not to delay interaction. These timings align with the UX redesign specifications and create a polished, professional feel.
+
+---
+
 ## 2026-01-24: Ship Visual State Indicators (wsim-cd6)
 
 Implemented comprehensive ship visual state system with state-based overlays, badges, and animations following the naval chart aesthetic from the UX redesign.
