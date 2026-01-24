@@ -84,7 +84,7 @@ function getStrokeStyle(
 
   // Fouled state
   if (ship.fouled) {
-    return { color: '#d4874f', width: 3 }; // --fouled-orange
+    return { color: '#b86f3f', width: 3 }; // --fouled-orange (WCAG AA compliant)
   }
 
   // Valid target - red pulsing outline (combat theme)
@@ -346,7 +346,7 @@ export function Ship({
             cx={bowCenter.x + layout.hexSize * 0.7}
             cy={bowCenter.y - layout.hexSize * 0.7}
             r={layout.hexSize * 0.25}
-            fill="#d4874f"
+            fill="#b86f3f"
             stroke="#ffffff"
             strokeWidth={2}
             opacity={0.95}

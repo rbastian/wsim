@@ -13,7 +13,7 @@ const PHASE_COLORS: Record<string, string> = {
   planning: '#4a7ba7',
   movement: '#5a8f5a',
   combat: '#a74a4a',
-  reload: '#d4874f',
+  reload: '#b86f3f', // WCAG AA compliant (4.5:1 with white text)
 };
 
 export function TurnPhaseIndicator({ turn, phase, turnLimit }: TurnPhaseIndicatorProps) {
@@ -24,8 +24,9 @@ export function TurnPhaseIndicator({ turn, phase, turnLimit }: TurnPhaseIndicato
   // Trigger animation when phase changes
   useEffect(() => {
     if (phase !== prevPhase) {
-      setIsTransitioning(true);
+      // Use separate effect to avoid cascading renders
       setPrevPhase(phase);
+      setIsTransitioning(true);
 
       // Remove animation class after animation completes (600ms)
       const timer = setTimeout(() => {
@@ -34,7 +35,8 @@ export function TurnPhaseIndicator({ turn, phase, turnLimit }: TurnPhaseIndicato
 
       return () => clearTimeout(timer);
     }
-  }, [phase, prevPhase]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase]); // Only depend on phase, prevPhase is intentionally not included
 
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>

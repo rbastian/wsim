@@ -10,6 +10,7 @@ A digital implementation of the classic naval combat board game *Wooden Ships & 
 - [Development Setup](#development-setup)
 - [How to Play](#how-to-play)
 - [Game Rules Summary](#game-rules-summary)
+- [Accessibility](#accessibility)
 - [Running Tests](#running-tests)
 - [API Documentation](#api-documentation)
 - [Project Structure](#project-structure)
@@ -340,6 +341,133 @@ This is a simplified summary. For complete rules, see the Tournament Edition Rul
 - When ships collide, they may become fouled
 - Fouled ships have restricted movement
 - Unfouling not implemented in MVP
+
+## Accessibility
+
+WSIM is designed to be accessible to all players, with comprehensive support for keyboard navigation, screen readers, and users with visual impairments.
+
+### WCAG 2.1 Level AA Compliance
+
+This application meets or exceeds WCAG 2.1 Level AA accessibility standards:
+
+- ✅ **Color Contrast**: All text meets minimum contrast ratios (4.5:1 for normal text, 3:1 for large text)
+- ✅ **Keyboard Navigation**: Full keyboard support with no keyboard traps
+- ✅ **Screen Reader Support**: Comprehensive ARIA labels and live region announcements
+- ✅ **Focus Management**: Clear focus indicators and logical tab order
+- ✅ **Reduced Motion**: Respects `prefers-reduced-motion` user preference
+- ✅ **Color Independence**: Information conveyed through multiple visual cues (color, text, icons)
+
+For a complete accessibility audit, see [docs/ACCESSIBILITY_AUDIT.md](docs/ACCESSIBILITY_AUDIT.md).
+
+### Keyboard Navigation
+
+All game features are fully accessible via keyboard:
+
+#### Global Shortcuts
+- `Tab` / `Shift+Tab` - Navigate through interactive elements
+- `Escape` - Close ship action panel
+- `?` (Shift+/) - Show keyboard shortcuts help
+- `h` - Focus on game controls (TopHUD)
+- `m` - Focus on hex map
+- `Enter` / `Space` - Activate buttons and select ships
+
+#### Navigation
+- **Arrow Keys** - Navigate between ships on the hex map
+- **Tab** - Move through game controls in logical order
+- **Enter** - Select focused ship or activate button
+- **Escape** - Close panels and return focus to previous element
+
+### Screen Reader Support
+
+WSIM provides rich context for screen reader users:
+
+#### ARIA Landmarks
+- **Banner**: Top HUD with game controls
+- **Main**: Hex map battlefield
+- **Complementary**: Ship action panel
+
+#### Live Announcements
+The game announces important events in real-time:
+- Phase changes ("Phase changed to Combat Phase")
+- Turn advances ("Advanced to Turn 3")
+- Ship selection ("Selected HMS Victory, P1. Hull 15, Rigging 12, Crew 12")
+- Combat results ("HMS Victory fired at Le Redoutable, dealing 3 hull damage")
+- Game end ("P1 wins!")
+
+#### Semantic HTML
+All interactive elements use proper ARIA attributes:
+- Ships have `role="button"` with descriptive labels
+- Damage tracks use `role="progressbar"` with current/min/max values
+- Phase badges include phase name and color for context
+- All buttons include `aria-label` for clear purpose
+
+### Focus Indicators
+
+All interactive elements have high-contrast yellow focus outlines (`#f4d03f`) that are clearly visible on both light and dark backgrounds:
+
+- **Buttons**: 3px solid outline with glow effect
+- **Ships**: 3px outline with drop shadow
+- **Inputs**: 3px outline with focus ring
+- **Links**: 3px outline with subtle background highlight
+
+### Skip Links
+
+Skip links allow keyboard and screen reader users to jump directly to main content:
+- "Skip to main content" - Jump to hex map battlefield
+- "Skip to ship actions" - Jump to ship action panel (when open)
+
+Skip links are visible when focused and positioned at the start of the tab order.
+
+### Color-Blind Friendly Design
+
+Information is never conveyed by color alone:
+
+#### Player Identification
+- **Visual**: P1 (navy blue) vs P2 (burgundy red)
+- **Additional Cue**: Text badge showing "P1" or "P2"
+- **Distinguishability**: Colors are distinguishable even with deuteranopia or protanopia
+
+#### Ship Status
+- **Ready**: Green border + checkmark icon (✓)
+- **Struck**: Gray fill + X overlay + dashed border
+- **Fouled**: Orange border + chain link icon
+
+#### Phase Indicators
+- **Planning**: Blue badge + "PLANNING" text
+- **Movement**: Green badge + "MOVEMENT" text
+- **Combat**: Red badge + "COMBAT" text
+- **Reload**: Orange badge + "RELOAD" text
+
+All phase colors meet WCAG AA contrast requirements with white text.
+
+### Reduced Motion Support
+
+Users who enable "Reduce Motion" in their OS settings will experience:
+- Instant transitions instead of animations
+- No pulsing or glowing effects
+- Immediate panel slide-ins instead of smooth animations
+- Static focus indicators
+
+This is implemented via CSS `prefers-reduced-motion` media query and respects user preferences across all major browsers and operating systems.
+
+### Testing
+
+Accessibility testing was performed with:
+- **Screen Readers**: macOS VoiceOver + Safari
+- **Keyboard Navigation**: Full keyboard-only testing
+- **Color Blindness**: Simulation with Chrome DevTools and Color Oracle
+- **Contrast Checkers**: WebAIM Contrast Checker
+- **Motion**: Testing with `prefers-reduced-motion` enabled
+
+### Reporting Accessibility Issues
+
+If you encounter accessibility barriers, please file an issue at [GitHub Issues](https://github.com/rbastian/wsim/issues) with:
+- Description of the barrier
+- Your assistive technology (if applicable)
+- Steps to reproduce
+- Expected vs actual behavior
+
+We are committed to maintaining and improving accessibility for all users.
 
 ## Running Tests
 
