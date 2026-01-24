@@ -1,0 +1,449 @@
+/* ============================================
+   TYPOGRAPHY - Naval Chart Theme
+   Per UX_REDESIGN.md Phase 7, Bead 14
+   ============================================ */
+
+/* ============================================
+   FONT FAMILY DEFINITIONS
+   ============================================ */
+
+:root {
+  /* Primary Display: IM Fell English (period naval documents) */
+  --font-display: 'IM Fell English', serif;
+
+  /* Body & UI: Cinzel (refined, classical) */
+  --font-body: 'Cinzel', serif;
+
+  /* Monospace: Courier Prime (typewriter, orders) */
+  --font-mono: 'Courier Prime', monospace;
+
+  /* Fallback stack */
+  --font-fallback-serif: Georgia, 'Times New Roman', Times, serif;
+  --font-fallback-mono: 'Courier New', Courier, monospace;
+}
+
+/* ============================================
+   BASE TYPOGRAPHY
+   ============================================ */
+
+body {
+  font-family: var(--font-body), var(--font-fallback-serif);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #2c1810; /* --ink-primary */
+  letter-spacing: 0.25px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ============================================
+   HEADING HIERARCHY
+   ============================================ */
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display), var(--font-fallback-serif);
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  line-height: 1.2;
+  color: #2c1810; /* --ink-primary */
+  margin: 0;
+}
+
+h1 {
+  font-size: 32px;
+  letter-spacing: 1px;
+}
+
+h2 {
+  font-size: 24px;
+  letter-spacing: 0.75px;
+}
+
+h3 {
+  font-size: 18px;
+  letter-spacing: 0.5px;
+}
+
+h4 {
+  font-size: 16px;
+  letter-spacing: 0.5px;
+}
+
+h5 {
+  font-size: 14px;
+  letter-spacing: 0.5px;
+}
+
+h6 {
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+/* ============================================
+   BODY TEXT & PARAGRAPHS
+   ============================================ */
+
+p {
+  font-family: var(--font-body), var(--font-fallback-serif);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.6;
+  margin: 0 0 1em 0;
+}
+
+/* Secondary text (labels, captions) */
+.text-secondary {
+  color: #5a4a3a; /* --ink-secondary */
+  font-size: 13px;
+}
+
+/* Faded text (help, hints) */
+.text-faded {
+  color: #8b7d6b; /* --ink-faded */
+  font-size: 12px;
+}
+
+/* ============================================
+   BUTTON TYPOGRAPHY
+   ============================================ */
+
+button {
+  font-family: var(--font-body), var(--font-fallback-serif);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+/* Large action buttons */
+button.large {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+/* Primary action buttons (fire, submit) */
+button.primary {
+  font-family: var(--font-display), var(--font-fallback-serif);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
+/* ============================================
+   INPUT & FORM TYPOGRAPHY
+   ============================================ */
+
+input, textarea, select {
+  font-family: var(--font-body), var(--font-fallback-serif);
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0.25px;
+}
+
+/* Movement input field (monospace) */
+.movement-input,
+.combat-notation,
+.monospace-input {
+  font-family: var(--font-mono), var(--font-fallback-mono);
+  font-size: 16px;
+  font-weight: 400;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+/* Labels */
+label {
+  font-family: var(--font-body), var(--font-fallback-serif);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: #5a4a3a; /* --ink-secondary */
+}
+
+/* ============================================
+   BADGE & INDICATOR TYPOGRAPHY
+   ============================================ */
+
+/* Phase badges (planning, combat, etc.) */
+.phase-badge {
+  font-family: var(--font-body), var(--font-fallback-serif);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+/* Player side badges (P1, P2) */
+.side-badge {
+  font-family: var(--font-body), var(--font-fallback-serif);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+/* Status badges (ready, struck, fouled) */
+.status-badge {
+  font-family: var(--font-body), var(--font-fallback-serif);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+/* ============================================
+   SHIP & GAME STATE TYPOGRAPHY
+   ============================================ */
+
+/* Ship names (large display) */
+.ship-name {
+  font-family: var(--font-display), var(--font-fallback-serif);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: #2c1810;
+}
+
+/* Turn number display */
+.turn-number {
+  font-family: var(--font-display), var(--font-fallback-serif);
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: #2c1810;
+}
+
+/* Stat values (hull, crew, rigging) */
+.stat-value {
+  font-family: var(--font-mono), var(--font-fallback-mono);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+/* Stat labels */
+.stat-label {
+  font-family: var(--font-body), var(--font-fallback-serif);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: #5a4a3a; /* --ink-secondary */
+}
+
+/* ============================================
+   COMPONENT-SPECIFIC TYPOGRAPHY
+   ============================================ */
+
+/* Top HUD */
+.top-hud {
+  font-family: var(--font-body), var(--font-fallback-serif);
+}
+
+/* Ship Action Panel */
+.ship-action-panel {
+  font-family: var(--font-body), var(--font-fallback-serif);
+}
+
+.ship-action-panel h2 {
+  /* Ship name in panel header */
+  font-family: var(--font-display), var(--font-fallback-serif);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.ship-action-panel h3 {
+  /* Section headers */
+  font-family: var(--font-body), var(--font-fallback-serif);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.ship-action-panel h4 {
+  /* Subsection headers */
+  font-family: var(--font-body), var(--font-fallback-serif);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.75px;
+  text-transform: uppercase;
+}
+
+/* Combat Controls */
+.broadside-button {
+  font-family: var(--font-body), var(--font-fallback-serif);
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.target-item {
+  font-family: var(--font-body), var(--font-fallback-serif);
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.aim-button {
+  font-family: var(--font-body), var(--font-fallback-serif);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.fire-button {
+  font-family: var(--font-display), var(--font-fallback-serif);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+/* Planning Controls */
+.planning-controls {
+  font-family: var(--font-body), var(--font-fallback-serif);
+}
+
+.movement-section h3 {
+  font-family: var(--font-body), var(--font-fallback-serif);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.submit-button,
+.ready-button {
+  font-family: var(--font-body), var(--font-fallback-serif);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+/* Phase Action Button */
+.phase-action-button {
+  font-family: var(--font-body), var(--font-fallback-serif);
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+/* ============================================
+   TEXT EFFECTS & SHADOWS
+   ============================================ */
+
+/* Emphasized display text (ship names, large headers) */
+.text-display-emphasis {
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Subtle shadow for legibility on busy backgrounds */
+.text-legible {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+}
+
+/* Strong contrast for critical information */
+.text-critical {
+  font-weight: 700;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* ============================================
+   RESPONSIVE TYPOGRAPHY
+   ============================================ */
+
+/* Tablet adjustments */
+@media (max-width: 1023px) {
+  body {
+    font-size: 13px;
+  }
+
+  h1 { font-size: 28px; }
+  h2 { font-size: 20px; }
+  h3 { font-size: 16px; }
+  h4 { font-size: 14px; }
+
+  .ship-name {
+    font-size: 20px;
+  }
+
+  .turn-number {
+    font-size: 20px;
+  }
+
+  .fire-button {
+    font-size: 16px;
+  }
+}
+
+/* Mobile adjustments */
+@media (max-width: 767px) {
+  body {
+    font-size: 12px;
+  }
+
+  h1 { font-size: 24px; }
+  h2 { font-size: 18px; }
+  h3 { font-size: 14px; }
+  h4 { font-size: 12px; }
+
+  .ship-name {
+    font-size: 18px;
+  }
+
+  .turn-number {
+    font-size: 16px;
+  }
+
+  .phase-badge {
+    font-size: 10px;
+    letter-spacing: 1px;
+  }
+
+  .fire-button {
+    font-size: 16px;
+  }
+
+  .movement-input {
+    font-size: 16px; /* Keep readable on mobile */
+  }
+}
+
+/* ============================================
+   FONT LOADING OPTIMIZATION
+   ============================================ */
+
+/* Font display strategy: swap to avoid FOIT (Flash of Invisible Text) */
+@font-face {
+  font-family: 'IM Fell English';
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Cinzel';
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Courier Prime';
+  font-display: swap;
+}
+
+/* Prevent layout shift during font load */
+.font-loading body {
+  font-family: Georgia, 'Times New Roman', Times, serif;
+}
+
+.font-loading .movement-input,
+.font-loading .combat-notation,
+.font-loading .monospace-input {
+  font-family: 'Courier New', Courier, monospace;
+}

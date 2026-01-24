@@ -1,57 +1,59 @@
+/* ============================================
+   CSS VARIABLES - Naval Chart Color Palette
+   Per UX_REDESIGN.md Section 5
+   ============================================ */
+
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+  /* Ocean & Background */
+  --ocean-deep: #0d2d3a;
+  --ocean-surface: #1a4d5c;
+  --ocean-highlight: #2a6d7c;
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  /* Parchment UI */
+  --parchment-base: #f2ebdc;
+  --parchment-dark: #d4c5a9;
+  --parchment-border: #8b7355;
 
+  /* Ink & Typography */
+  --ink-primary: #2c1810;
+  --ink-secondary: #5a4a3a;
+  --ink-faded: #8b7d6b;
+
+  /* Phase Colors */
+  --phase-planning: #4a7ba7;
+  --phase-movement: #5a8f5a;
+  --phase-combat: #a74a4a;
+  --phase-reload: #d4874f;
+
+  /* Player Sides */
+  --player-1: #3a5ba7;
+  --player-2: #a73a3a;
+
+  /* Status Indicators */
+  --ready-green: #4a8f4a;
+  --struck-gray: #6a6a6a;
+  --fouled-orange: #d4874f;
+  --selected-glow: #f4d03f;
+
+  /* Functional */
+  --success: #5a9a5a;
+  --warning: #d4a74f;
+  --error: #a74a4a;
+
+  /* Rendering */
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
-
+/* Base body styles - typography defined in typography.css */
 body {
   margin: 0;
   display: flex;
   place-items: center;
   min-width: 320px;
   min-height: 100vh;
-}
-
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
-
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
 }
 
 /* ============================================
@@ -262,17 +264,4 @@ aside:focus-visible {
 .skip-link:focus {
   outline: 3px solid #f4d03f;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
 }
