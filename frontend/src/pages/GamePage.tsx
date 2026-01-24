@@ -6,6 +6,7 @@ import { HexGrid } from "../components/HexGrid";
 import { TopHUD } from "../components/TopHUD";
 import { ShipActionPanel } from "../components/ShipActionPanel";
 import { PlanningControls } from "../components/PlanningControls";
+import { CombatControls } from "../components/CombatControls";
 import { ShipLogPanel } from "../components/ShipLogPanel";
 import { OrdersPanel } from "../components/OrdersPanel";
 import { CombatPanel } from "../components/CombatPanel";
@@ -247,6 +248,17 @@ export function GamePage() {
             game={game}
             onGameUpdate={handleGameUpdate}
             onPreviewPath={handlePreviewPath}
+          />
+        )}
+
+        {game.phase === 'combat' && selectedShip && (
+          <CombatControls
+            ship={selectedShip}
+            game={game}
+            onGameUpdate={handleGameUpdate}
+            onBroadsideSelected={handleBroadsideSelected}
+            onClearArc={handleClearArc}
+            arcData={arcData}
           />
         )}
 
