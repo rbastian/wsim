@@ -8,9 +8,22 @@ import type { Game } from "../types/game";
 interface TopHUDProps {
   game: Game;
   onGameUpdate: (game: Game) => void;
+  shipReadyState: Map<string, boolean>;
 }
 
-export function TopHUD({ game, onGameUpdate }: TopHUDProps) {
+export function TopHUD({ game, onGameUpdate, shipReadyState }: TopHUDProps) {
+  // Calculate ready count for planning phase
+  const getReadyStats = () => {
+    if (game.phase !== 'planning') return null;
+
+    const allShips = Object.values(game.ships).filter(ship => !ship.struck);
+    const readyCount = allShips.filter(ship => shipReadyState.get(ship.id) || false).length;
+    const totalCount = allShips.length;
+
+    return { ready: readyCount, total: totalCount };
+  };
+
+  const readyStats = getReadyStats();
   return (
     <div
       style={{
@@ -52,6 +65,29 @@ export function TopHUD({ game, onGameUpdate }: TopHUDProps) {
           turnLimit={game.turn_limit}
         />
       </div>
+
+      {/* Ready Count Indicator (Planning Phase Only) */}
+      {readyStats && (
+        <div
+          style={{
+            flex: '0 0 auto',
+            display: 'flex',
+            alignItems: 'center',
+            padding: '8px 16px',
+            background: 'rgba(74, 123, 167, 0.1)',
+            border: '2px solid #4a7ba7',
+            borderRadius: '6px',
+            fontFamily: "'Cinzel', serif",
+            fontSize: '14px',
+            fontWeight: 600,
+            color: '#2c1810',
+            letterSpacing: '0.5px',
+          }}
+        >
+          <span style={{ marginRight: '8px' }}>⚓</span>
+          <span>Ships Ready: {readyStats.ready}/{readyStats.total}</span>
+        </div>
+      )}
 
       {/* Right: Phase Action Button */}
       <div style={{ flex: '0 0 auto' }}>

@@ -10,9 +10,10 @@ interface ShipActionPanelProps {
   game: Game;
   onClose: () => void;
   children?: React.ReactNode;
+  isReady?: boolean;
 }
 
-export function ShipActionPanel({ isOpen, selectedShip, onClose, children }: ShipActionPanelProps) {
+export function ShipActionPanel({ isOpen, selectedShip, game, onClose, children, isReady = false }: ShipActionPanelProps) {
   const panelRef = useRef<HTMLDivElement>(null);
 
   // Handle ESC key press
@@ -125,6 +126,23 @@ export function ShipActionPanel({ isOpen, selectedShip, onClose, children }: Shi
           >
             {selectedShip.side}
           </span>
+          {isReady && game.phase === 'planning' && (
+            <span
+              style={{
+                display: "inline-block",
+                padding: "4px 12px",
+                borderRadius: "4px",
+                fontSize: "12px",
+                fontWeight: 600,
+                backgroundColor: "#4a8f4a",
+                color: "white",
+                border: "2px solid #2c1810",
+              }}
+              title="Ship orders submitted and marked ready"
+            >
+              ✓ Ready
+            </span>
+          )}
         </div>
         <button
           onClick={onClose}

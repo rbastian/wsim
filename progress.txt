@@ -1,5 +1,117 @@
 # WSIM UX Redesign Progress
 
+## 2026-01-24: Ready State Tracking and Visualization (wsim-4l5)
+
+Implemented comprehensive ready state tracking system that visualizes which ships have submitted orders and marked ready during the planning phase, providing clear visual feedback about turn advancement readiness.
+
+**Client-Side State Management:**
+- Added `shipReadyState: Map<string, boolean>` to GamePage state
+- Automatically syncs from server TurnOrders data (p1_orders.ready, p2_orders.ready)
+- Updates via useEffect when game state changes
+- Maps ship IDs to ready boolean based on orders.ready flag
+
+**TopHUD Ready Count Display:**
+- Added "Ships Ready: X/Y" indicator during planning phase
+- Shows count of ready ships vs total non-struck ships
+- Naval styling: Cinzel font, planning blue theme (#4a7ba7)
+- Anchor icon (⚓) for thematic consistency
+- Only visible during planning phase
+- Positioned between turn indicator and phase action button
+
+**ShipActionPanel Ready Badge:**
+- Added green "✓ Ready" badge in panel header
+- Appears next to side badge (P1/P2) when ship is ready
+- Success green theme (#4a8f4a) with dark border
+- Only visible during planning phase
+- Tooltip: "Ship orders submitted and marked ready"
+
+**HexGrid Ship Ready Indicators:**
+- Ships with ready state show:
+  - Green checkmark badge at stern (existing from wsim-cd6)
+  - Green pulsing border (3px width, 2s pulse cycle)
+  - Checkmark circle with white stroke and checkmark path
+- Ready state passed via `readyShips` Set prop to HexGrid
+- Ship component already had isReady support from previous bead
+- Visual priority: Selection > Ready > Struck > Fouled > Default
+
+**PhaseActionButton Enhancement:**
+- Updated `canResolveMovement()` to require both players ready
+- Added `bothPlayersReady()` helper function
+- Pulsing glow animation when ready to advance:
+  - @keyframes pulse-glow with box-shadow animation
+  - Blue glow (#4a7ba7) with varying intensity
+  - 2-second cycle (0%, 50%, 100%)
+  - Applied via .ready-to-advance CSS class
+- Button only enables when: planning phase + p1_orders.ready + p2_orders.ready
+
+**Technical Implementation:**
+- GamePage.tsx: shipReadyState Map with useEffect sync
+- TopHUD.tsx: getReadyStats() helper, conditional rendering
+- ShipActionPanel.tsx: isReady prop from shipReadyState lookup
+- PhaseActionButton.tsx: bothPlayersReady() check, pulse animation
+- HexGrid.tsx: readyShips Set converted from Map
+- No changes to Ship.tsx (already supported isReady prop)
+
+**Visual Design:**
+- Ready count indicator:
+  - Background: rgba(74, 123, 167, 0.1) planning blue tint
+  - Border: 2px solid #4a7ba7
+  - Font: Cinzel 14px 600 weight
+  - Padding: 8px 16px, 6px border-radius
+- Ready badge in panel:
+  - Background: #4a8f4a success green
+  - Border: 2px solid #2c1810
+  - Font: 12px 600 weight, white text
+  - Inline-block display with side badge
+- Glow animation:
+  - Box-shadow: 20-30px blur, 40-60px spread
+  - Color: rgba(74, 123, 167, 0.6-0.8)
+  - Smooth ease-in-out timing
+
+**Technical Results:**
+- TypeScript type checking: ✅ passes
+- 386 backend tests: ✅ pass
+- Ruff formatting: ✅ passes (64 files unchanged)
+- Ruff linting: ✅ passes (all checks passed)
+- Build: ✅ succeeds
+- No breaking changes to existing components
+
+**What Works:**
+- Ready count updates immediately when orders marked ready
+- Ships show checkmark badge when player marks ready
+- Green border pulses smoothly on ready ships
+- Panel badge appears/disappears correctly with ready state
+- Phase action button glows when both players ready
+- Button only enables when both sides have marked ready
+- All indicators clear when turn advances (ready state resets)
+- Visual feedback consistent across all UI layers
+
+**User Experience:**
+The ready state visualization provides clear feedback about turn progression. Players can see at a glance:
+1. How many ships are ready (TopHUD counter)
+2. Which specific ships are ready (green badges on map)
+3. Whether they're viewing a ready ship (panel badge)
+4. When the turn can advance (pulsing button)
+
+The multi-layered approach ensures players never lose track of ready state - it's visible in the HUD, on the map, and in the panel. The pulsing glow on the "Resolve Movement" button creates urgency when both players are ready, naturally drawing attention to the next action.
+
+**Integration Points:**
+This implementation:
+- Builds on wsim-cd6: Uses existing Ship isReady visual indicators
+- Builds on wsim-7pz: PlanningControls mark ready functionality
+- Builds on wsim-xr1: ShipActionPanel structure and props
+- Completes Phase 3: Ready state tracking and visualization
+
+**Next Steps:**
+Phase 3 is complete. The following beads are now unblocked:
+- wsim-toj: Build Combat phase panel content (P1)
+- wsim-pkn: Add animations and micro-interactions (P2)
+- wsim-93f: Import custom fonts and finalize typography (P2)
+
+The ready state system ensures players always know when the turn is ready to advance. This prevents confusion about game state and provides clear visual feedback throughout the planning phase workflow.
+
+---
+
 ## 2026-01-24: Planning Phase Panel Content (wsim-7pz)
 
 Implemented complete planning phase controls within the ShipActionPanel, moving OrdersPanel functionality into the immersive side drawer interface per the UX redesign specifications.
