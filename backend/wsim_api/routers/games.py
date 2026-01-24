@@ -330,12 +330,15 @@ async def mark_ready(game_id: str, turn: int, request: MarkReadyRequest) -> Mark
             detail=f"Player {request.side} has not submitted orders",
         )
 
-    # Check if both players are ready (both have submitted orders)
+    # Mark the player's orders as ready
+    player_orders.ready = True
+
+    # Check if both players are ready
     both_ready = (
         game.p1_orders is not None
-        and game.p1_orders.submitted
+        and game.p1_orders.ready
         and game.p2_orders is not None
-        and game.p2_orders.submitted
+        and game.p2_orders.ready
     )
 
     # Update game in store

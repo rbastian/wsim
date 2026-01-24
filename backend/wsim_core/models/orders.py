@@ -20,3 +20,4 @@ class TurnOrders(BaseModel):
     side: str = Field(description="Player side (P1 or P2)")
     orders: list[ShipOrders] = Field(description="Orders for each ship")
     submitted: bool = Field(default=False, description="Player has submitted orders")
+    ready: bool = Field(default=False, description="Player has marked orders as ready")

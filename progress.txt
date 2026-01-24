@@ -1,5 +1,26 @@
 # WSIM UX Redesign Progress
 
+## 2026-01-24: Fix Mark Ready Button Bug (wsim-9kz)
+
+Fixed the mark ready button on the ship panel that was not functioning correctly.
+
+**Root Cause:**
+The `TurnOrders` model in the backend only had a `submitted` field but lacked a `ready` field. When players clicked "Mark Ready" in the UI, the backend endpoint wasn't persisting the ready state, causing the frontend to never recognize ships as ready.
+
+**Changes Made:**
+1. Added `ready: bool` field to `TurnOrders` model in `backend/wsim_core/models/orders.py`
+2. Updated `mark_ready` endpoint in `backend/wsim_api/routers/games.py` to:
+   - Set `player_orders.ready = True` when a player marks ready
+   - Check both players' `ready` flags (not just `submitted`) for `both_ready` status
+3. Fixed test in `test_games_router.py` that incorrectly assumed submitting orders auto-marked ready
+
+**Testing:**
+- All 483 backend tests pass
+- Verified ruff formatting and linting
+- Type checking passes with ty
+
+The mark ready button now correctly persists the ready state, allowing the game to proceed when both players have marked their orders as ready.
+
 ## 2026-01-24: Test Coverage for Remaining Low-Coverage Modules (wsim-vn9)
 
 Improved test coverage for modules that were below 90%, achieving overall project coverage of 95.54% (exceeds >95% target).
