@@ -59,7 +59,9 @@ export function PhaseActionButton({ game, onGameUpdate }: PhaseActionButtonProps
     return (
       game.phase === "planning" &&
       game.p1_orders !== null &&
-      game.p2_orders !== null
+      game.p2_orders !== null &&
+      game.p1_orders.ready &&
+      game.p2_orders.ready
     );
   };
 
@@ -128,8 +130,12 @@ export function PhaseActionButton({ game, onGameUpdate }: PhaseActionButtonProps
     }
   };
 
-  const isReadyToAdvance = () => {
-    return isEnabled() && !loading;
+  const bothPlayersReady = () => {
+    return (
+      game.phase === "planning" &&
+      game.p1_orders?.ready &&
+      game.p2_orders?.ready
+    );
   };
 
   return (
@@ -137,7 +143,7 @@ export function PhaseActionButton({ game, onGameUpdate }: PhaseActionButtonProps
       <button
         onClick={handleClick}
         disabled={!isEnabled()}
-        className={isReadyToAdvance() ? 'ready-to-advance' : ''}
+        className={bothPlayersReady() ? 'ready-to-advance' : ''}
         style={{
           padding: '14px 32px',
           fontFamily: "'Cinzel', serif",
@@ -192,6 +198,22 @@ export function PhaseActionButton({ game, onGameUpdate }: PhaseActionButtonProps
           {error}
         </div>
       )}
+
+      {/* Add pulse/glow animation for ready-to-advance state */}
+      <style>{`
+        @keyframes pulse-glow {
+          0%, 100% {
+            box-shadow: 0 0 20px rgba(74, 123, 167, 0.6), 0 0 40px rgba(74, 123, 167, 0.4);
+          }
+          50% {
+            box-shadow: 0 0 30px rgba(74, 123, 167, 0.8), 0 0 60px rgba(74, 123, 167, 0.6);
+          }
+        }
+
+        .ready-to-advance {
+          animation: pulse-glow 2s ease-in-out infinite;
+        }
+      `}</style>
     </div>
   );
 }

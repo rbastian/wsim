@@ -24,6 +24,8 @@ export function GamePage() {
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [arcData, setArcData] = useState<BroadsideArcResponse | null>(null);
   const [pathPreviewHexes, setPathPreviewHexes] = useState<[number, number][]>([]);
+  // Track which ships have submitted orders and marked ready
+  const [shipReadyState, setShipReadyState] = useState<Map<string, boolean>>(new Map());
 
   // Fetch game state on mount
   useEffect(() => {
@@ -49,6 +51,29 @@ export function GamePage() {
 
     fetchGame();
   }, [gameId]);
+
+  // Update ship ready state when game state changes
+  useEffect(() => {
+    if (!game) return;
+
+    const newReadyState = new Map<string, boolean>();
+
+    // Check P1 ships
+    if (game.p1_orders && game.p1_orders.ready) {
+      game.p1_orders.orders.forEach(order => {
+        newReadyState.set(order.ship_id, true);
+      });
+    }
+
+    // Check P2 ships
+    if (game.p2_orders && game.p2_orders.ready) {
+      game.p2_orders.orders.forEach(order => {
+        newReadyState.set(order.ship_id, true);
+      });
+    }
+
+    setShipReadyState(newReadyState);
+  }, [game]);
 
   const handleHexClick = () => {
     // Hex click handling can be implemented later if needed
@@ -134,7 +159,7 @@ export function GamePage() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>
       {/* Top HUD with wind rose, turn/phase indicator, and phase action button */}
-      <TopHUD game={game} onGameUpdate={handleGameUpdate} />
+      <TopHUD game={game} onGameUpdate={handleGameUpdate} shipReadyState={shipReadyState} />
 
       {/* Victory Banner */}
       {game.game_ended && (
@@ -202,6 +227,7 @@ export function GamePage() {
             shipsInArc={arcData?.ships_in_arc}
             validTargets={arcData?.valid_targets}
             pathPreviewHexes={pathPreviewHexes}
+            readyShips={new Set(Array.from(shipReadyState.keys()).filter(id => shipReadyState.get(id)))}
           />
         </div>
       </div>
@@ -212,6 +238,7 @@ export function GamePage() {
         selectedShip={selectedShip}
         game={game}
         onClose={handlePanelClose}
+        isReady={selectedShip ? shipReadyState.get(selectedShip.id) || false : false}
       >
         {/* Phase-specific controls */}
         {game.phase === 'planning' && selectedShip && (
