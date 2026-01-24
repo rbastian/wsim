@@ -1,5 +1,80 @@
 # WSIM UX Redesign Progress
 
+## 2026-01-24: Test Coverage for Remaining Low-Coverage Modules (wsim-vn9)
+
+Improved test coverage for modules that were below 90%, achieving overall project coverage of 95.54% (exceeds >95% target).
+
+**New Test Files:**
+- `tests/test_store.py` - Comprehensive tests for in-memory game store
+
+**Test Additions by Module:**
+
+1. **wsim_api/persistent_store.py** (89.36% → 100%):
+   - Added test for `get_persistent_game_store()` singleton pattern
+   - Tests both first-time creation and subsequent calls returning same instance
+   - Verifies singleton behavior with proper cleanup
+
+2. **wsim_api/store.py** (81.82% → 100%):
+   - Created new test file with GameStore fixtures
+   - Added tests for duplicate game creation error (ValueError line 30)
+   - Added tests for updating non-existent game error (ValueError line 54)
+   - Added tests for `get_game_store()` with WSIM_ENABLE_PERSISTENCE environment variable:
+     - Test persistence mode: creates PersistentGameStore instance
+     - Test non-persistence mode: creates regular GameStore instance
+   - Uses monkeypatch fixture for environment variable testing
+   - Tests cover lines 105-108 (import and instantiation logic)
+
+3. **wsim_core/engine/movement_parser.py** (88.89% → 97.22%):
+   - Added tests for `__repr__` methods on MovementAction
+   - Tests forward movement repr: "MovementAction(MOVE_FORWARD, 5)"
+   - Tests turn action repr: "MovementAction(TURN_LEFT)"
+   - Added test for ParsedMovement `__repr__` method
+   - Covers lines 29-31 and 43 (repr formatting logic)
+   - Line 125 remains uncovered (defensive error that shouldn't be reachable)
+
+4. **wsim_core/models/hex.py** (85.71% → 100%):
+   - Added `test_hex_coord_equality_with_non_hex()` test
+   - Tests HexCoord equality comparison with non-HexCoord objects
+   - Verifies `NotImplemented` return value (line 19)
+   - Tests comparison with string, tuple, and int types
+   - Ensures proper Python comparison protocol implementation
+
+5. **wsim_core/serialization/scenario_loader.py** (86.89% → 90.16%):
+   - Added `test_load_scenario_from_directory()` test
+   - Tests error handling when path exists but is a directory, not a file
+   - Uses combined `with` statement for cleaner syntax (ruff SIM117)
+   - Covers line 38 (is_file check error path)
+   - Lines 45-46, 50-51, 57-58 remain uncovered (exception handlers for edge cases)
+
+**Overall Coverage Improvements:**
+- Total statements: 1618
+- Missed statements: 59 (down from 103)
+- Overall coverage: **95.54%** (up from 91.73%, +3.81%)
+- All 475 tests pass
+
+**Key Achievements:**
+- ✅ Exceeded >95% overall coverage target
+- ✅ Five modules improved to ≥90% coverage
+- ✅ Three modules achieved 100% coverage (persistent_store, store, hex)
+- ✅ Added 176 new lines of test code
+- ✅ All quality checks pass (ruff format, ruff check, ty type checker)
+
+**Testing Quality:**
+- All new tests follow existing test patterns and conventions
+- Used pytest fixtures for proper test isolation
+- Used monkeypatch for environment variable testing
+- Used tempfile for file system testing
+- Proper error assertions with pytest.raises and match patterns
+- No test interdependencies or global state pollution
+
+**What's Next:**
+The test coverage goal is complete. The remaining uncovered lines are primarily:
+- Defensive error handling that's difficult to trigger
+- Exception handlers for rare edge cases
+- Some complex branching in the games router
+
+All critical code paths now have comprehensive test coverage, ensuring robust behavior and validation across the codebase.
+
 ## 2026-01-24: Games Router Test Coverage (wsim-zki)
 
 Significantly improved test coverage for the games router, bringing it from 73.73% to 86.75% coverage.
