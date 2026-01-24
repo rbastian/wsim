@@ -1,5 +1,56 @@
 # WSIM UX Redesign Progress
 
+## 2026-01-24: Games Router Test Coverage (wsim-zki)
+
+Significantly improved test coverage for the games router, bringing it from 73.73% to 86.75% coverage.
+
+**Games Router Tests (tests/test_games_router.py):**
+
+Added 34 comprehensive tests covering all major endpoints:
+
+- **Submit Orders Endpoint:**
+  - Successful order submission
+  - Game not found errors
+  - Turn mismatch errors
+  - Invalid phase errors
+  - Invalid ship ID validation
+  - Missing ship orders validation
+
+- **Mark Ready Endpoint:**
+  - Single player ready
+  - Both players ready
+  - Error paths (game not found, turn mismatch, invalid phase)
+  - Ready without orders submission error
+
+- **Resolve Movement Endpoint:**
+  - Successful movement resolution
+  - Missing P1/P2 orders errors
+  - Invalid movement string validation
+  - Error paths
+
+- **Fire Broadside Endpoint:**
+  - Error path testing (game not found, turn mismatch, invalid phase)
+
+- **Resolve Reload Endpoint:**
+  - Successful reload resolution
+  - Error paths (game not found, turn mismatch, invalid phase)
+
+- **Advance Turn Endpoint:**
+  - Successful turn advancement
+  - Phase transition validation
+  - Error paths
+
+- **Get Broadside Arc Endpoint:**
+  - Successful arc information retrieval
+  - Ship not found errors
+  - Game not found errors
+
+**Coverage Improvements:**
+- wsim_api/routers/games.py: 73.73% → 86.75% (+13.02%)
+- All 465 tests pass with proper formatting, linting, and type checking
+
+The comprehensive test suite covers both happy paths and error conditions, ensuring robust API behavior and validation across all game phases and operations.
+
 ## 2026-01-24: Comprehensive Test Coverage for Persistence & Victory (wsim-c1n)
 
 Significantly improved test coverage for low-coverage modules, achieving the project goal of >90% overall coverage.
