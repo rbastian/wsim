@@ -814,6 +814,105 @@ class TestFireBroadsideErrorHandling:
         # The key is we're testing the 400 error paths
         assert "target" in detail or "fire" in detail
 
+    def test_fire_broadside_struck_ship_cannot_fire(self) -> None:
+        """Test that a struck ship cannot fire its broadsides."""
+        game_id, game_state = self.setup_combat_phase()
+
+        # Get a ship and mark it as struck
+        ships = list(game_state["ships"].values())
+        ship = ships[0]
+        target = ships[1]
+
+        # Access the game store directly to modify ship state
+        store = get_game_store()
+        game = store.get_game(game_id)
+        assert game is not None
+        game.ships[ship["id"]].struck = True
+        store.update_game(game)
+
+        # Try to fire with the struck ship
+        response = client.post(
+            f"/games/{game_id}/turns/1/combat/fire",
+            json={
+                "ship_id": ship["id"],
+                "broadside": "L",
+                "target_ship_id": target["id"],
+                "aim": "hull",
+            },
+        )
+
+        assert response.status_code == 400
+        detail = response.json()["detail"].lower()
+        assert "cannot fire" in detail
+        assert "struck" in detail
+
+    def test_fire_broadside_empty_broadside_cannot_fire(self) -> None:
+        """Test that an empty (unloaded) broadside cannot fire."""
+        from wsim_core.models.common import LoadState
+
+        game_id, game_state = self.setup_combat_phase()
+
+        # Get ships
+        ships = list(game_state["ships"].values())
+        ship = ships[0]
+        target = ships[1]
+
+        # Access the game store directly to set broadside to empty
+        store = get_game_store()
+        game = store.get_game(game_id)
+        assert game is not None
+        game.ships[ship["id"]].load_L = LoadState.EMPTY
+        store.update_game(game)
+
+        # Try to fire with the empty broadside
+        response = client.post(
+            f"/games/{game_id}/turns/1/combat/fire",
+            json={
+                "ship_id": ship["id"],
+                "broadside": "L",
+                "target_ship_id": target["id"],
+                "aim": "hull",
+            },
+        )
+
+        assert response.status_code == 400
+        detail = response.json()["detail"].lower()
+        assert "cannot fire" in detail
+        assert "not loaded" in detail
+
+    def test_fire_broadside_no_guns_on_broadside(self) -> None:
+        """Test that a broadside with no guns cannot fire."""
+        game_id, game_state = self.setup_combat_phase()
+
+        # Get ships
+        ships = list(game_state["ships"].values())
+        ship = ships[0]
+        target = ships[1]
+
+        # Access the game store directly to set guns to 0
+        store = get_game_store()
+        game = store.get_game(game_id)
+        assert game is not None
+        game.ships[ship["id"]].guns_L = 0
+        game.ships[ship["id"]].carronades_L = 0
+        store.update_game(game)
+
+        # Try to fire with the broadside that has no guns
+        response = client.post(
+            f"/games/{game_id}/turns/1/combat/fire",
+            json={
+                "ship_id": ship["id"],
+                "broadside": "L",
+                "target_ship_id": target["id"],
+                "aim": "hull",
+            },
+        )
+
+        assert response.status_code == 400
+        detail = response.json()["detail"].lower()
+        assert "cannot fire" in detail
+        assert "no guns" in detail
+
 
 class TestScenarioListErrorHandling:
     """Tests for scenario listing error handling."""

@@ -1,3 +1,37 @@
+## 2026-01-24
+
+### Combat Firing Error Path Tests (wsim-dk6) - COMPLETED
+Added comprehensive tests for combat firing error paths to improve test coverage and ensure robust error handling:
+
+**New Tests Added:**
+- `test_fire_broadside_struck_ship_cannot_fire`: Validates that struck ships cannot fire their broadsides with appropriate error message
+- `test_fire_broadside_empty_broadside_cannot_fire`: Validates that unloaded (EMPTY) broadsides cannot fire with appropriate error message
+- `test_fire_broadside_no_guns_on_broadside`: Validates that broadsides with 0 guns cannot fire with appropriate error message
+
+**Implementation Details:**
+- Added tests to `TestFireBroadsideErrorHandling` class in `tests/test_games_router.py`
+- Tests manipulate game state directly via GameStore to create error conditions
+- Each test verifies both HTTP 400 status code and specific error message content
+- Tests use the existing `setup_combat_phase()` helper for consistent test setup
+
+**Coverage Improvements:**
+- Overall backend coverage: 95.75% → 96.59% (+0.84%)
+- `wsim_api/routers/games.py`: 87.74% → 91.83% (+4.09%)
+- Specifically covers lines 577-587 (error message generation in `can_fire_broadside` validation)
+
+**Quality Assurance:**
+- All 486 tests pass (3 new tests added)
+- Ruff formatting: all checks passed
+- Ruff linting: all checks passed
+- Ty type checking: all checks passed
+
+**Testing Strategy:**
+These tests cover edge cases that are difficult to trigger through normal gameplay but important for robustness:
+- Ships that have struck colors but are still in combat phase
+- Broadsides that have been fully discharged (EMPTY state)
+- Ships with damaged gun positions (0 guns remaining)
+
+The tests ensure users receive clear, actionable error messages when attempting invalid combat actions.
 
 ## 2026-01-19
 
