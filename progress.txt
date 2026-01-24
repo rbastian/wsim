@@ -1,5 +1,91 @@
 # WSIM UX Redesign Progress
 
+## 2026-01-24: Keyboard Navigation & ARIA Accessibility (wsim-hvq)
+
+Implemented comprehensive keyboard navigation and ARIA attributes, completing Phase 6, Bead 12 of the UX redesign. The game interface is now fully accessible to keyboard-only users and screen reader users.
+
+**Keyboard Navigation:**
+
+1. **Global Keyboard Shortcuts**
+   - Created `useKeyboardShortcuts` hook for centralized shortcut management
+   - ESC: Close ship action panel
+   - ? (Shift+/): Show keyboard shortcuts help via screen reader
+   - h: Focus on TopHUD controls
+   - m: Focus on hex map (first ship)
+   - Tab: Navigate through interactive elements
+   - Enter/Space: Select ships and activate buttons
+   - Arrow keys: Navigate between ships on the map
+
+2. **Ship Navigation**
+   - Ships accept focus with tabIndex={0}
+   - Arrow keys (Up/Down/Left/Right) cycle through ships
+   - Enter or Space activates ship selection
+   - Visual focus indicators with golden glow
+
+**ARIA Attributes & Screen Readers:**
+
+1. **Live Regions & Announcements**
+   - Created `useScreenReader` hook for managing announcements
+   - Created `ScreenReaderLiveRegion` component with two live regions:
+     - Polite announcements (role="status", aria-live="polite")
+     - Assertive announcements (role="alert", aria-live="assertive")
+   - Announcements for:
+     - Ship selection (name, side, stats)
+     - Phase changes (Planning → Movement → Combat → Reload)
+     - Turn advances
+     - Game end (winner or draw)
+
+2. **Semantic Structure**
+   - Proper HTML5 landmarks: `<main>`, `<aside role="complementary">`
+   - Skip links for quick navigation to main content and ship actions
+   - Heading hierarchy with IDs for aria-labelledby references
+   - Form controls with aria-describedby linking to help text
+
+3. **Interactive Elements**
+   - All buttons have descriptive aria-labels
+   - Radio groups (broadsides, aim points) with role="radiogroup" and aria-checked
+   - Form inputs with aria-invalid and aria-describedby
+   - Progress bars with aria-valuenow, aria-valuemin, aria-valuemax
+   - Panels with aria-hidden when closed
+   - Error messages with role="alert" and aria-live="assertive"
+
+**Focus Management:**
+
+1. **Skip Links**
+   - Created `SkipLinks` component with keyboard-accessible navigation
+   - Links are visually hidden until focused
+   - Skip to main content (#main-content)
+   - Skip to ship actions (#ship-actions)
+   - Golden focus outline with shadow on activation
+
+2. **Enhanced Focus Styles**
+   - Custom focus-visible styles (hides outline for mouse, shows for keyboard)
+   - Golden outline (#f4d03f) with 3px width for all interactive elements
+   - Different focus styles for different element types:
+     - Buttons: 3px offset with subtle box-shadow
+     - Inputs: Blue outline (#4a7ba7) with subtle box-shadow
+     - Links: Golden outline with background tint
+     - SVG ships: Golden outline with drop-shadow filter
+   - Smooth transitions on focus state changes
+
+**Implementation Details:**
+
+- All new hooks and components use TypeScript with proper typing
+- Screen reader announcements use debounced updates (100ms delay)
+- Focus management respects panel open/close animations
+- Keyboard shortcuts only active during gameplay (disabled on game end)
+- All focus indicators use CSS outline instead of border for proper accessibility
+- Skip links positioned absolutely and revealed on focus
+
+**Quality Assurance:**
+- TypeScript type checking: ✅ Passed
+- Frontend build: ✅ Passed
+- Backend tests: ✅ All 386 tests passed
+- Ruff formatting: ✅ Passed
+- Ruff linting: ✅ Passed
+
+The game is now fully compliant with WCAG 2.1 Level AA keyboard accessibility requirements and provides excellent screen reader support.
+
 ## 2026-01-24: Combat Targeting Visualization (wsim-3vl)
 
 Implemented complete combat targeting visualization with pulsing red outlines for valid targets and golden crosshairs on the selected target ship, completing Phase 4, Bead 9 of the UX redesign.
