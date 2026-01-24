@@ -78,19 +78,19 @@ export function ShipActionPanel({ id = "ship-action-panel", isOpen, selectedShip
         position: "fixed",
         right: 0,
         top: "80px",
-        width: "380px",
+        width: "360px",
         height: "calc(100vh - 80px)",
-        background: "linear-gradient(180deg, #f2ebdc 0%, #e8ddc8 100%)",
+        background: "#f2ebdc",
         borderLeft: "3px solid #8b7355",
         boxShadow: "-4px 0 16px rgba(0, 0, 0, 0.3)",
         overflowY: "auto",
-        padding: "24px",
+        padding: "18px",
         transform: isOpen ? "translateX(0)" : "translateX(100%)",
         transition: "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
         zIndex: 999,
         outline: "none",
         // Paper texture overlay
-        backgroundImage: `url("data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' /%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.05'/%3E%3C/svg%3E")`,
+        backgroundImage: `url("data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' /%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E")`,
       }}
     >
       {/* Panel Header */}
@@ -100,8 +100,8 @@ export function ShipActionPanel({ id = "ship-action-panel", isOpen, selectedShip
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          marginBottom: "20px",
-          paddingBottom: "16px",
+          marginBottom: "16px",
+          paddingBottom: "12px",
           borderBottom: "2px solid #8b7355",
         }}
       >
@@ -176,7 +176,7 @@ export function ShipActionPanel({ id = "ship-action-panel", isOpen, selectedShip
 
       {/* Status badges */}
       {(selectedShip.struck || selectedShip.fouled) && (
-        <div style={{ display: "flex", gap: "8px", marginBottom: "16px" }}>
+        <div style={{ display: "flex", gap: "8px", marginBottom: "12px" }}>
           {selectedShip.struck && (
             <span
               style={{
@@ -209,7 +209,7 @@ export function ShipActionPanel({ id = "ship-action-panel", isOpen, selectedShip
       )}
 
       {/* Ship Status Section */}
-      <section aria-labelledby="status-heading" style={{ marginBottom: "24px" }}>
+      <section aria-labelledby="status-heading" style={{ marginBottom: "18px" }}>
         <h3
           id="status-heading"
           className="ship-status-heading"
@@ -368,7 +368,7 @@ export function ShipActionPanel({ id = "ship-action-panel", isOpen, selectedShip
         </div>
 
         {/* Load Status */}
-        <div className="armament-section" style={{ marginTop: "16px" }}>
+        <div className="armament-section" style={{ marginTop: "12px" }}>
           <h4
             style={{
               margin: "0 0 8px 0",
