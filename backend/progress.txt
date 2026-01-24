@@ -1,5 +1,28 @@
 ## 2026-01-24
 
+### Scenario Loader OSError Test (wsim-e8z) - COMPLETED
+Added test for OSError exception handling in scenario loader to improve coverage of file system error paths:
+
+**New Test Added:**
+- `test_load_scenario_oserror_on_read`: Tests that OSError exceptions (e.g., permission denied) during file reading are properly caught and wrapped in ScenarioLoadError
+
+**Implementation:**
+- Uses `unittest.mock.patch` to mock `builtins.open` and simulate OSError
+- Verifies proper error message formatting in exception
+- Ensures robust error handling for file system issues
+
+**Coverage Improvements:**
+- `wsim_core/serialization/scenario_loader.py`: 90.16% → 93.44% (+3.28%)
+- Overall backend coverage: 96.59% → 96.69% (+0.10%)
+
+**Quality Assurance:**
+- All 487 tests pass (1 new test added)
+- Ruff formatting: all checks passed
+- Ruff linting: all checks passed
+- Ty type checking: all checks passed
+
+This test ensures that file system errors (permission issues, disk full, etc.) are handled gracefully with clear error messages.
+
 ### Combat Firing Error Path Tests (wsim-dk6) - COMPLETED
 Added comprehensive tests for combat firing error paths to improve test coverage and ensure robust error handling:
 
