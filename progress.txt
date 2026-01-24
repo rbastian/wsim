@@ -948,3 +948,104 @@ The combat phase panel content is complete. Next unblocked beads:
 - wsim-pkn: Add animations and micro-interactions (P2) - pulse, slide, shake, glow effects
 
 This completes the combat controls migration from the old CombatPanel to the new ShipActionPanel system, maintaining all functionality while applying the naval chart aesthetic.
+## 2026-01-24: Responsive Breakpoints and Mobile Layout (wsim-xl1)
+
+**Goal:** Implement responsive design for tablet and mobile devices with bottom drawer panel on mobile.
+
+**Implementation:**
+
+Created comprehensive responsive CSS system (`frontend/src/responsive.css`) with three breakpoints:
+
+1. **Desktop (1024-1439px):**
+   - Slightly narrower ship action panel (340px vs 380px)
+   - Reduced HUD padding (24px vs 32px)
+   - All other desktop features maintained
+
+2. **Tablet (768-1023px):**
+   - Full-width panel with 400px max-width
+   - Compact HUD (70px height)
+   - Smaller wind rose (50px), turn number (20px), phase badge (12px)
+   - Reduced button padding and font sizes (14-16px → 12-14px)
+
+3. **Mobile (<768px) - Major Transformation:**
+   - **Bottom Drawer Panel:** Ship action panel slides up from bottom (50vh height)
+   - Transform changes from `translateX(100%)` to `translateY(100%)`
+   - Top border replaces left border
+   - **Ultra-Compact HUD:** 60px height with minimal spacing
+   - Wind rose: 40px, phase badge: 10px, buttons: 12px font
+   - **Simplified Damage Tracks:** 20px height (vs 24px desktop)
+   - **Touch Optimizations:**
+     - Minimum 44px touch targets for all buttons
+     - 48px for combat controls (broadside, aim, targets)
+     - `touch-action: manipulation` to prevent double-tap zoom
+   - **Responsive Content:**
+     - Reduced panel padding (16px vs 24px)
+     - Smaller typography across all components
+     - Hidden anchor icon in ready count on mobile
+     - Compact armament boxes
+
+4. **Landscape Mobile (max-height optimization):**
+   - Taller drawer (60vh) for better content visibility
+   - Even more compact HUD (50px)
+   - Smallest wind rose (35px) and badges (9px)
+
+**Component Updates (added CSS classes):**
+
+- **TopHUD:** `.top-hud`, `.wind-rose-container`, `.turn-phase-indicator`, `.ready-count-indicator`
+- **ShipActionPanel:** `.ship-action-panel`, `.open`, `.panel-header`, `.side-badge`, `.ship-status-heading`, `.damage-track-bar`, `.damage-track-label`, `.armament-section`, `.armament-box`
+- **CombatControls:** `.broadside-button`, `.target-item`, `.aim-button`, `.fire-button`
+- **PlanningControls:** `.movement-section`, `.movement-input`, `.submit-button`, `.ready-button`
+- **PhaseActionButton:** `.phase-action-button`
+- **TurnPhaseIndicator:** `.turn-number`, `.phase-badge`
+- **GamePage:** `.hex-map-container`
+
+**Key Responsive Patterns:**
+
+1. **Progressive Enhancement:**
+   - Desktop-first design with mobile overrides
+   - All features available on all devices
+   - UI adapts naturally to screen size
+
+2. **Mobile-Specific Behaviors:**
+   - Side panel → bottom drawer paradigm
+   - Swipe-friendly with clear dismiss affordances
+   - Large touch targets for finger interaction
+   - Simplified information density
+
+3. **Performance:**
+   - CSS-only responsiveness (no JS viewport queries)
+   - Media queries apply instantly on resize
+   - Smooth transitions maintained across breakpoints
+
+**Testing:**
+- ✅ All 386 backend tests pass (0.68s)
+- ✅ Frontend builds successfully (307.02 KB bundle)
+- ✅ TypeScript: no errors
+- ✅ Ruff format/check: clean
+- ✅ Ty type checking: clean
+
+**User Experience Improvements:**
+
+1. **Tablet Users:**
+   - Full-width panel maximizes content visibility
+   - Slightly smaller UI elements remain readable
+   - Touch targets appropriately sized (44px minimum)
+
+2. **Mobile Users:**
+   - Bottom drawer feels native to mobile UX
+   - More screen space for hex map battlefield
+   - Thumb-friendly control positioning
+   - Landscape mode optimized for better content fit
+
+3. **Desktop Users:**
+   - No changes to large screen experience
+   - Slight optimization for mid-size desktops (1024-1439px)
+
+**What's Next:**
+
+The responsive implementation is complete per UX_REDESIGN.md Phase 5, Bead 11. Next available beads:
+- wsim-93f: Import custom fonts and finalize typography (P2)
+- wsim-hvq: Add keyboard navigation and ARIA attributes (P2)
+
+This implementation ensures WSIM provides an excellent experience across all device sizes, from large desktop monitors to small mobile phones. The bottom drawer pattern on mobile is particularly effective for tactical games where map visibility is crucial.
+

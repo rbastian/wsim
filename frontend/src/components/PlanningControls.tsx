@@ -157,6 +157,7 @@ export function PlanningControls({ ship, game, onGameUpdate, onPreviewPath }: Pl
 
   return (
     <section
+      className="movement-section"
       style={{
         marginTop: "24px",
         padding: "20px",
@@ -202,7 +203,7 @@ export function PlanningControls({ ship, game, onGameUpdate, onPreviewPath }: Pl
         onBlur={() => onPreviewPath && onPreviewPath(null, "")}
         disabled={isReady}
         placeholder="e.g., L1R1, 0, LLR2"
-        className={isValid && movement ? "valid" : validationError ? "invalid" : ""}
+        className={`movement-input ${isValid && movement ? "valid" : validationError ? "invalid" : ""}`}
         style={{
           width: "100%",
           padding: "12px",
@@ -288,6 +289,7 @@ export function PlanningControls({ ship, game, onGameUpdate, onPreviewPath }: Pl
       {/* Action buttons */}
       <div style={{ marginTop: "16px", display: "flex", flexDirection: "column", gap: "8px" }}>
         <button
+          className="submit-button"
           onClick={handleSubmitOrders}
           disabled={!canSubmit}
           style={{
@@ -325,6 +327,7 @@ export function PlanningControls({ ship, game, onGameUpdate, onPreviewPath }: Pl
         </button>
 
         <button
+          className="ready-button"
           onClick={handleMarkReady}
           disabled={!canMarkReady}
           style={{

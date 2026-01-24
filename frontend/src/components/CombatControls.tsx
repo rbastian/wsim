@@ -183,6 +183,7 @@ export function CombatControls({
       >
         {/* Port (L) */}
         <button
+          className="broadside-button"
           role="radio"
           aria-checked={selectedBroadside === "L"}
           aria-label={`Port broadside, ${ship.guns_L} guns, ${
@@ -270,6 +271,7 @@ export function CombatControls({
 
         {/* Starboard (R) */}
         <button
+          className="broadside-button"
           role="radio"
           aria-checked={selectedBroadside === "R"}
           aria-label={`Starboard broadside, ${ship.guns_R} guns, ${
@@ -402,6 +404,7 @@ export function CombatControls({
             >
               {targetShips.map(({ ship: targetShip, distance, isValid }) => (
                 <button
+                  className="target-item"
                   key={targetShip.id}
                   onClick={() => isValid && setSelectedTarget(targetShip.id)}
                   disabled={!isValid}
@@ -509,6 +512,7 @@ export function CombatControls({
           </h4>
           <div style={{ display: "flex", gap: "12px" }}>
             <button
+              className="aim-button"
               onClick={() => setSelectedAim("hull")}
               style={{
                 flex: 1,
@@ -531,6 +535,7 @@ export function CombatControls({
               Hull
             </button>
             <button
+              className="aim-button"
               onClick={() => setSelectedAim("rigging")}
               style={{
                 flex: 1,
@@ -580,7 +585,7 @@ export function CombatControls({
         <button
           onClick={handleFire}
           disabled={firing}
-          className="fire-broadside-button"
+          className="fire-button"
           style={{
             width: "100%",
             padding: "18px",

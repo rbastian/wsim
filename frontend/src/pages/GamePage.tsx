@@ -211,7 +211,7 @@ export function GamePage() {
         }} />
 
         {/* Hex grid - fills remaining space */}
-        <div style={{
+        <div className="hex-map-container" style={{
           width: '100%',
           height: '100%',
           display: 'flex',

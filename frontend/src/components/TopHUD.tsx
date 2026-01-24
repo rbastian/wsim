@@ -26,6 +26,7 @@ export function TopHUD({ game, onGameUpdate, shipReadyState }: TopHUDProps) {
   const readyStats = getReadyStats();
   return (
     <div
+      className="top-hud"
       style={{
         height: '80px',
         flexShrink: 0,
@@ -53,12 +54,12 @@ export function TopHUD({ game, onGameUpdate, shipReadyState }: TopHUDProps) {
       />
 
       {/* Left: Wind Rose */}
-      <div style={{ flex: '0 0 auto' }}>
+      <div className="wind-rose-container" style={{ flex: '0 0 auto' }}>
         <WindRose direction={game.wind_direction} size={60} />
       </div>
 
       {/* Center: Turn and Phase Indicator */}
-      <div style={{ flex: '0 0 auto' }}>
+      <div className="turn-phase-indicator" style={{ flex: '0 0 auto' }}>
         <TurnPhaseIndicator
           turn={game.turn_number}
           phase={game.phase}
@@ -69,6 +70,7 @@ export function TopHUD({ game, onGameUpdate, shipReadyState }: TopHUDProps) {
       {/* Ready Count Indicator (Planning Phase Only) */}
       {readyStats && (
         <div
+          className="ready-count-indicator"
           style={{
             flex: '0 0 auto',
             display: 'flex',
