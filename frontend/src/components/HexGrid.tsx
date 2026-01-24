@@ -131,8 +131,7 @@ export function HexGrid({
       height="100%"
       viewBox={`0 0 ${svgWidth} ${svgHeight}`}
       style={{
-        border: '1px solid #333',
-        backgroundColor: '#0a1929',
+        backgroundColor: 'transparent',
         maxWidth: '100%',
         height: 'auto',
       }}
@@ -144,17 +143,20 @@ export function HexGrid({
 
         // Path preview takes precedence over arc visualization
         let hexFill = 'transparent';
-        let hexStroke = '#1e3a5f';
-        let hexStrokeWidth = '1.5';
+        let hexStroke = '#d4c5a9';  // Cream/tan nautical color
+        let hexStrokeWidth = '1';
+        let hexOpacity = 0.3;
 
         if (inPathPreview) {
-          hexFill = '#4a90e255';  // Blue semi-transparent for path preview
-          hexStroke = '#4a90e2';  // Blue border
+          hexFill = 'rgba(74, 123, 167, 0.3)';  // Planning blue semi-transparent
+          hexStroke = '#4a7ba7';  // Planning blue border
           hexStrokeWidth = '2';
+          hexOpacity = 1;
         } else if (inArc) {
-          hexFill = '#ff990055';  // Orange semi-transparent for arc
-          hexStroke = '#ff9900';  // Orange border
+          hexFill = 'rgba(167, 74, 74, 0.2)';  // Combat red semi-transparent for arc
+          hexStroke = '#a74a4a';  // Combat red border
           hexStrokeWidth = '2';
+          hexOpacity = 1;
         }
 
         return (
@@ -164,19 +166,20 @@ export function HexGrid({
               fill={hexFill}
               stroke={hexStroke}
               strokeWidth={hexStrokeWidth}
+              opacity={hexOpacity}
               style={{
                 cursor: onHexClick ? 'pointer' : 'default',
-                transition: 'fill 0.2s, stroke 0.2s',
+                transition: 'fill 0.2s, stroke 0.2s, opacity 0.2s',
               }}
               onClick={() => handleHexClick(hex.coord)}
               onMouseEnter={(e) => {
                 if (onHexClick && !inArc && !inPathPreview) {
-                  e.currentTarget.setAttribute('fill', '#1e3a5f33');
+                  e.currentTarget.setAttribute('opacity', '0.6');
                 }
               }}
               onMouseLeave={(e) => {
                 if (!inArc && !inPathPreview) {
-                  e.currentTarget.setAttribute('fill', 'transparent');
+                  e.currentTarget.setAttribute('opacity', '0.3');
                 }
               }}
             />
@@ -185,7 +188,8 @@ export function HexGrid({
               y={hex.center.y}
               textAnchor="middle"
               dominantBaseline="middle"
-              fill="#4a5f7f"
+              fill="#8b7d6b"
+              opacity="0.5"
               fontSize={hexSize * 0.3}
               style={{ pointerEvents: 'none', userSelect: 'none' }}
             >
