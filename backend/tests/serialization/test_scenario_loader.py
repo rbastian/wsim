@@ -239,8 +239,9 @@ def test_load_scenario_from_nonexistent_file():
 
 def test_load_scenario_from_directory():
     """Test that loading fails when path is a directory, not a file."""
-    with tempfile.TemporaryDirectory() as tmpdir, pytest.raises(
-        ScenarioLoadError, match="not a file"
+    with (
+        tempfile.TemporaryDirectory() as tmpdir,
+        pytest.raises(ScenarioLoadError, match="not a file"),
     ):
         load_scenario_from_file(tmpdir)
 

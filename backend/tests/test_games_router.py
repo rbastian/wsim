@@ -207,7 +207,13 @@ class TestMarkReady:
                 json={"side": side, "orders": orders},
             )
 
-        # Mark P2 as ready (P1 already ready from submit)
+        # Mark P1 as ready
+        client.post(
+            f"/games/{game_id}/turns/1/ready",
+            json={"side": "P1"},
+        )
+
+        # Mark P2 as ready
         response = client.post(
             f"/games/{game_id}/turns/1/ready",
             json={"side": "P2"},
