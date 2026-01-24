@@ -1,5 +1,132 @@
 # WSIM UX Redesign Progress
 
+## 2026-01-24: Combat Targeting Visualization (wsim-3vl)
+
+Implemented complete combat targeting visualization with pulsing red outlines for valid targets and golden crosshairs on the selected target ship, completing Phase 4, Bead 9 of the UX redesign.
+
+**Combat Visualization Features:**
+
+1. **Valid Target Highlighting** (pulsing red outline)
+   - Ships in arc that are valid targets show red pulsing border (#a74a4a, 4px width)
+   - Pulsing animation on all three ship elements (bow hex, stern hex, connection line)
+   - Stroke width animates: base → base+2 → base over 1.5s cycle
+   - Animation uses SVG `<animate>` elements for smooth performance
+   - Only targets that pass closest-target rule are highlighted
+
+2. **Selected Target Crosshairs** (golden targeting reticle)
+   - Crosshairs appear on both bow and stern when target selected
+   - Golden color (#f4d03f) matches selection theme
+   - Crosshair design:
+     - Horizontal and vertical lines (3px stroke, 90% opacity)
+     - Center circle (0.15 * hexSize radius)
+     - Pulsing outer ring (0.3-0.6 * hexSize radius)
+     - Ring animates size and opacity over 2s cycle
+   - Applied to selected target only (not all valid targets)
+   - Clears when target deselected or after firing
+
+3. **Arc Visualization** (existing, enhanced)
+   - Red translucent overlay on arc hexes (#a74a4a, 20% fill)
+   - Already functional from wsim-toj
+   - Works in conjunction with ship highlighting
+   - Clears when broadside deselected or panel closed
+
+**Data Flow Implementation:**
+
+1. **GamePage State Management:**
+   - Added `selectedTargetId: string | null` state
+   - Added `handleTargetSelected(targetId)` callback
+   - Added `handleClearArc()` now also clears selectedTargetId
+   - Passes selectedTargetId to HexGrid component
+
+2. **CombatControls Updates:**
+   - Added `onTargetSelected?: (targetId: string | null) => void` prop
+   - useEffect notifies parent when selectedTarget changes
+   - Resets target to null when ship/broadside changes
+   - Callback triggers on every target selection/deselection
+
+3. **HexGrid Component:**
+   - Added `selectedTargetId?: string | null` prop
+   - Calculates `isSelectedTarget` for each ship
+   - Passes `isSelectedTarget` prop to Ship component
+
+4. **Ship Component:**
+   - Added `isSelectedTarget?: boolean` prop to ShipProps
+   - Changed valid target color from green to combat red (#a74a4a)
+   - Added pulsing stroke-width animation for valid targets (SVG animate)
+   - Added crosshairs rendering group when isSelectedTarget is true
+   - Crosshairs include horizontal/vertical lines, center circle, pulsing ring
+
+**Visual Design Specifications:**
+
+Colors:
+- Valid target border: #a74a4a (combat red)
+- Crosshairs: #f4d03f (golden glow)
+- Arc hexes: rgba(167, 74, 74, 0.2) (red 20% opacity)
+
+Animations:
+- Valid target pulse: 1.5s infinite cycle
+- Crosshair ring pulse: 2s infinite cycle
+- Smooth easing for all animations
+
+Sizing:
+- Crosshair lines: 0.6 * hexSize length, 3px stroke
+- Center circle: 0.15 * hexSize radius, 3px stroke
+- Pulsing ring: 0.3-0.6 * hexSize radius, 2px stroke
+
+**Technical Implementation:**
+
+- Pure SVG rendering (no CSS animations needed)
+- Uses SVG `<animate>` elements for performance
+- All measurements relative to hexSize for scalability
+- Crosshairs rendered in separate group for layering
+- Pulsing animations synchronized across bow/stern
+
+**Testing Results:**
+- TypeScript type checking: ✅ passes (npx tsc --noEmit)
+- Backend tests: ✅ 386 passed in 0.76s
+- Ruff formatting: ✅ 64 files unchanged
+- Ruff linting: ✅ all checks passed
+- No breaking changes to existing functionality
+
+**What Works:**
+- Broadside selection triggers arc and valid target highlighting
+- Valid targets pulse with red border immediately
+- Target selection shows golden crosshairs on both hexes
+- Pulsing ring creates clear "locked on" effect
+- Crosshairs disappear after firing completes
+- All visualizations clear when panel closed or ship changed
+- Arc hexes, ship outlines, and crosshairs work together seamlessly
+- Real-time updates as user makes selections
+
+**User Experience:**
+The combat targeting system provides immediate visual feedback at every step:
+1. Select broadside → arc hexes highlight in red
+2. See valid targets → red pulsing borders identify closest targets
+3. Select target → golden crosshairs lock on with pulsing ring
+4. Fire → all visualizations clear, ready for next shot
+
+The pulsing animations create a sense of active targeting without being distracting. The red-to-gold progression (arc → targets → selected) guides the user's attention through the combat workflow. The crosshairs design feels tactical and period-appropriate for naval combat.
+
+**Integration Points:**
+Builds on:
+- wsim-toj: CombatControls component and combat workflow
+- wsim-cd6: Ship visual state system and stroke styling
+- wsim-ocn: Ship hover and selection interactions
+
+Completes:
+- Phase 4: Combat phase panel content (Beads 8-9)
+- All combat targeting visualization requirements from UX_REDESIGN.md
+
+**Next Steps:**
+Phase 4 is complete. The following beads are now unblocked:
+- wsim-pkn: Add animations and micro-interactions (P2)
+- wsim-93f: Import custom fonts and finalize typography (P2)
+- Phase 5: Polish & responsive design
+
+The combat phase now provides comprehensive visual feedback that makes targeting intuitive and engaging. The combination of arc highlighting, pulsing targets, and golden crosshairs creates a polished, professional combat interface that reinforces the naval chart aesthetic.
+
+---
+
 ## 2026-01-24: Ready State Tracking and Visualization (wsim-4l5)
 
 Implemented comprehensive ready state tracking system that visualizes which ships have submitted orders and marked ready during the planning phase, providing clear visual feedback about turn advancement readiness.

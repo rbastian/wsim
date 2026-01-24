@@ -13,6 +13,7 @@ interface ShipProps {
   isValidTarget?: boolean;
   isInArc?: boolean;
   isReady?: boolean;
+  isSelectedTarget?: boolean;
   onKeyDown?: (e: React.KeyboardEvent, shipId: string) => void;
 }
 
@@ -86,9 +87,9 @@ function getStrokeStyle(
     return { color: '#d4874f', width: 3 }; // --fouled-orange
   }
 
-  // Valid target
+  // Valid target - red pulsing outline (combat theme)
   if (isValidTarget) {
-    return { color: '#4ade80', width: 4 }; // Green for valid targets
+    return { color: '#a74a4a', width: 4 }; // Combat red for valid targets
   }
 
   // In arc but not valid
@@ -109,6 +110,7 @@ export function Ship({
   isValidTarget = false,
   isInArc = false,
   isReady = false,
+  isSelectedTarget = false,
   onKeyDown,
 }: ShipProps) {
   const bowCenter = hexToPixel(ship.bow_hex, layout);
@@ -213,6 +215,10 @@ export function Ship({
         {isReady && !ship.struck && (
           <animate attributeName="opacity" values="0.85;1;0.85" dur="2s" repeatCount="indefinite" />
         )}
+        {/* Pulsing animation for valid combat targets */}
+        {isValidTarget && (
+          <animate attributeName="stroke-width" values={`${hoverStrokeWidth};${hoverStrokeWidth + 2};${hoverStrokeWidth}`} dur="1.5s" repeatCount="indefinite" />
+        )}
       </circle>
 
       {/* Stern hex */}
@@ -231,6 +237,10 @@ export function Ship({
         {isReady && !ship.struck && (
           <animate attributeName="opacity" values="0.85;1;0.85" dur="2s" repeatCount="indefinite" />
         )}
+        {/* Pulsing animation for valid combat targets */}
+        {isValidTarget && (
+          <animate attributeName="stroke-width" values={`${hoverStrokeWidth};${hoverStrokeWidth + 2};${hoverStrokeWidth}`} dur="1.5s" repeatCount="indefinite" />
+        )}
       </circle>
 
       {/* Connection line between bow and stern */}
@@ -244,7 +254,12 @@ export function Ship({
         strokeDasharray={strokeStyle.dashArray}
         opacity={opacity}
         style={{ transition: 'stroke-width 0.15s ease-out, opacity 0.15s ease-out' }}
-      />
+      >
+        {/* Pulsing animation for valid combat targets */}
+        {isValidTarget && (
+          <animate attributeName="stroke-width" values={`${hoverStrokeWidth * 1.5};${(hoverStrokeWidth + 2) * 1.5};${hoverStrokeWidth * 1.5}`} dur="1.5s" repeatCount="indefinite" />
+        )}
+      </line>
 
       {/* Facing arrow on bow */}
       <polygon
@@ -356,30 +371,124 @@ export function Ship({
         </g>
       )}
 
-      {/* Valid target indicator */}
-      {isValidTarget && (
+      {/* Valid target indicator - removed as pulsing red outline is sufficient */}
+
+      {/* Selected target crosshairs */}
+      {isSelectedTarget && (
         <g>
-          <circle
-            cx={bowCenter.x - layout.hexSize * 0.6}
-            cy={bowCenter.y - layout.hexSize * 0.6}
-            r={layout.hexSize * 0.25}
-            fill="#4ade80"
-            stroke="#000000"
-            strokeWidth={1}
-            opacity={0.9}
-          />
-          <text
-            x={bowCenter.x - layout.hexSize * 0.6}
-            y={bowCenter.y - layout.hexSize * 0.6}
-            textAnchor="middle"
-            dominantBaseline="middle"
-            fill="#000000"
-            fontSize={layout.hexSize * 0.3}
-            fontWeight="bold"
-            style={{ pointerEvents: 'none', userSelect: 'none' }}
-          >
-            ✓
-          </text>
+          {/* Crosshairs on bow */}
+          <g>
+            {/* Horizontal line */}
+            <line
+              x1={bowCenter.x - layout.hexSize * 0.6}
+              y1={bowCenter.y}
+              x2={bowCenter.x + layout.hexSize * 0.6}
+              y2={bowCenter.y}
+              stroke="#f4d03f"
+              strokeWidth={3}
+              opacity={0.9}
+            />
+            {/* Vertical line */}
+            <line
+              x1={bowCenter.x}
+              y1={bowCenter.y - layout.hexSize * 0.6}
+              x2={bowCenter.x}
+              y2={bowCenter.y + layout.hexSize * 0.6}
+              stroke="#f4d03f"
+              strokeWidth={3}
+              opacity={0.9}
+            />
+            {/* Center circle */}
+            <circle
+              cx={bowCenter.x}
+              cy={bowCenter.y}
+              r={layout.hexSize * 0.15}
+              fill="none"
+              stroke="#f4d03f"
+              strokeWidth={3}
+              opacity={0.9}
+            />
+            {/* Pulsing animation */}
+            <circle
+              cx={bowCenter.x}
+              cy={bowCenter.y}
+              r={layout.hexSize * 0.5}
+              fill="none"
+              stroke="#f4d03f"
+              strokeWidth={2}
+              opacity={0.6}
+            >
+              <animate
+                attributeName="r"
+                values={`${layout.hexSize * 0.3};${layout.hexSize * 0.6};${layout.hexSize * 0.3}`}
+                dur="2s"
+                repeatCount="indefinite"
+              />
+              <animate
+                attributeName="opacity"
+                values="0.6;0.1;0.6"
+                dur="2s"
+                repeatCount="indefinite"
+              />
+            </circle>
+          </g>
+
+          {/* Crosshairs on stern */}
+          <g>
+            {/* Horizontal line */}
+            <line
+              x1={sternCenter.x - layout.hexSize * 0.6}
+              y1={sternCenter.y}
+              x2={sternCenter.x + layout.hexSize * 0.6}
+              y2={sternCenter.y}
+              stroke="#f4d03f"
+              strokeWidth={3}
+              opacity={0.9}
+            />
+            {/* Vertical line */}
+            <line
+              x1={sternCenter.x}
+              y1={sternCenter.y - layout.hexSize * 0.6}
+              x2={sternCenter.x}
+              y2={sternCenter.y + layout.hexSize * 0.6}
+              stroke="#f4d03f"
+              strokeWidth={3}
+              opacity={0.9}
+            />
+            {/* Center circle */}
+            <circle
+              cx={sternCenter.x}
+              cy={sternCenter.y}
+              r={layout.hexSize * 0.15}
+              fill="none"
+              stroke="#f4d03f"
+              strokeWidth={3}
+              opacity={0.9}
+            />
+            {/* Pulsing animation */}
+            <circle
+              cx={sternCenter.x}
+              cy={sternCenter.y}
+              r={layout.hexSize * 0.5}
+              fill="none"
+              stroke="#f4d03f"
+              strokeWidth={2}
+              opacity={0.6}
+            >
+              <animate
+                attributeName="r"
+                values={`${layout.hexSize * 0.3};${layout.hexSize * 0.6};${layout.hexSize * 0.3}`}
+                dur="2s"
+                repeatCount="indefinite"
+              />
+              <animate
+                attributeName="opacity"
+                values="0.6;0.1;0.6"
+                dur="2s"
+                repeatCount="indefinite"
+              />
+            </circle>
+          </g>
         </g>
       )}
     </g>

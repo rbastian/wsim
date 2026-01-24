@@ -25,6 +25,7 @@ export function GamePage() {
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [arcData, setArcData] = useState<BroadsideArcResponse | null>(null);
   const [pathPreviewHexes, setPathPreviewHexes] = useState<[number, number][]>([]);
+  const [selectedTargetId, setSelectedTargetId] = useState<string | null>(null);
   // Track which ships have submitted orders and marked ready
   const [shipReadyState, setShipReadyState] = useState<Map<string, boolean>>(new Map());
 
@@ -114,6 +115,11 @@ export function GamePage() {
 
   const handleClearArc = useCallback(() => {
     setArcData(null);
+    setSelectedTargetId(null);
+  }, []);
+
+  const handleTargetSelected = useCallback((targetId: string | null) => {
+    setSelectedTargetId(targetId);
   }, []);
 
   const handlePreviewPath = (shipId: string | null, movement: string) => {
@@ -227,6 +233,7 @@ export function GamePage() {
             arcHexes={arcData?.arc_hexes}
             shipsInArc={arcData?.ships_in_arc}
             validTargets={arcData?.valid_targets}
+            selectedTargetId={selectedTargetId}
             pathPreviewHexes={pathPreviewHexes}
             readyShips={new Set(Array.from(shipReadyState.keys()).filter(id => shipReadyState.get(id)))}
           />
@@ -258,6 +265,7 @@ export function GamePage() {
             onGameUpdate={handleGameUpdate}
             onBroadsideSelected={handleBroadsideSelected}
             onClearArc={handleClearArc}
+            onTargetSelected={handleTargetSelected}
             arcData={arcData}
           />
         )}
