@@ -1,5 +1,26 @@
 # WSIM UX Redesign Progress
 
+## 2026-01-24: Fix Movement Validation Error Messages (wsim-jdg)
+
+Fixed the generic 'API error: Bad Request' message to display detailed validation errors when movement orders are invalid.
+
+**Root Cause:**
+The frontend API client (`client.ts`) was only showing the HTTP status text ('Bad Request') instead of extracting the detailed error message from the FastAPI response. The backend was already returning detailed validation errors in the 'detail' field (e.g., "Movement notation '4' requires 4 hexes but ship only has 3 movement allowance"), but the frontend wasn't displaying them.
+
+**Changes Made:**
+1. Updated `fetchJson` function in `frontend/src/api/client.ts`:
+   - Extract the 'detail' field from FastAPI error responses
+   - Fall back to statusText if detail is not available
+   - Users now see specific validation errors instead of generic messages
+
+**Testing:**
+- All 483 backend tests pass (including existing test for invalid movement validation)
+- TypeScript type checking passes for both frontend and backend
+- Backend ruff formatting and linting passes
+- Backend ty type checking passes
+
+Users now receive clear, actionable error messages when their movement orders exceed ship capabilities, improving the gameplay experience and reducing confusion.
+
 ## 2026-01-24: Improve Wind Direction Clarity (wsim-oyz)
 
 Enhanced the wind rose visualization to make wind direction clearer for players making strategic sailing decisions.
