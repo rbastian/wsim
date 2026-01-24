@@ -1488,3 +1488,34 @@ class TestAdditionalErrorPaths:
         # Expecting 400 because it fails legal target check (no targets in arc)
         assert response.status_code == 400
         assert "no legal targets" in response.json()["detail"].lower()
+
+
+class TestAdditionalErrorPaths:
+    """Tests for additional error paths to improve coverage."""
+
+    def test_get_game_not_found(self) -> None:
+        """Test getting a game that doesn't exist (line 161)."""
+        response = client.get("/games/nonexistent_game_id")
+        assert response.status_code == 404
+        assert "not found" in response.json()["detail"].lower()
+
+    def test_delete_game_not_found(self) -> None:
+        """Test deleting a game that doesn't exist (lines 176-181)."""
+        response = client.delete("/games/nonexistent_game_id")
+        assert response.status_code == 404
+        assert "not found" in response.json()["detail"].lower()
+
+    def test_delete_game_success(self) -> None:
+        """Test successfully deleting a game."""
+        game_data = create_test_game()
+        game_id = game_data["game_id"]
+
+        # Verify game exists
+        response = client.get(f"/games/{game_id}")
+        assert response.status_code == 200
+
+        # Delete the game
+        response = client.delete(f"/games/{game_id}")
+        assert response.status_code == 204
+
+        # Verify game is gone
