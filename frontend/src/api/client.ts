@@ -48,8 +48,10 @@ async function fetchJson<T>(
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
+      // Extract the detailed error message from FastAPI's error response
+      const errorMessage = (errorData as { detail?: string }).detail || response.statusText;
       throw new ApiError(
-        `API error: ${response.statusText}`,
+        errorMessage,
         response.status,
         errorData
       );
