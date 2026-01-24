@@ -54,6 +54,11 @@ button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
+/* ============================================
+   ANIMATION KEYFRAMES
+   Per UX_REDESIGN.md Phase 5, Bead 10
+   ============================================ */
+
 /* Ship selection animation */
 @keyframes select-ship {
   0% {
@@ -70,6 +75,134 @@ button:focus-visible {
 .ship-just-selected {
   animation: select-ship 0.3s ease-out;
   transform-origin: center;
+}
+
+/* Panel slide animations */
+@keyframes slide-in {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slide-out {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+/* Shake animation for invalid input */
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-4px);
+  }
+  75% {
+    transform: translateX(4px);
+  }
+}
+
+/* Pulse animation for ready ships */
+@keyframes pulse-ready {
+  0%, 100% {
+    opacity: 0.85;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* Pulse animation for critical damage */
+@keyframes pulse-critical {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* Pulse animation for fire button */
+@keyframes pulse-fire {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(167, 74, 74, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 15px rgba(167, 74, 74, 0);
+  }
+}
+
+/* Glow animation for advance button when ready */
+@keyframes pulse-advance {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(44, 24, 16, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 20px rgba(44, 24, 16, 0);
+  }
+}
+
+/* Glow animation for general ready-to-advance state */
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(74, 123, 167, 0.6), 0 0 40px rgba(74, 123, 167, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(74, 123, 167, 0.8), 0 0 60px rgba(74, 123, 167, 0.6);
+  }
+}
+
+/* Phase transition animation for TopHUD badge */
+@keyframes phase-transition {
+  0% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2) rotate(10deg);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+.phase-badge-transitioning {
+  animation: phase-transition 0.6s ease-in-out;
+}
+
+/* Targeting arc pulse */
+@keyframes arc-pulse {
+  0%, 100% {
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+/* ============================================
+   UTILITY ANIMATION CLASSES
+   ============================================ */
+
+.ready-to-advance {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.fire-button-ready {
+  animation: pulse-fire 1.5s ease-in-out infinite;
 }
 
 /* Custom focus styles for better accessibility */
