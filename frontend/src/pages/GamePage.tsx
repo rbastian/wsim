@@ -118,19 +118,63 @@ export function GamePage() {
   const selectedShip = selectedShipId ? game.ships[selectedShipId] : null;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', backgroundColor: '#0a0a0a' }}>
-      {/* Header */}
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>
+      {/* Placeholder Top HUD - will be replaced by TopHUD component in next bead */}
       <div style={{
-        padding: '1rem',
-        borderBottom: '2px solid #333',
-        backgroundColor: '#1a1a1a'
+        height: '80px',
+        flexShrink: 0,
+        background: 'linear-gradient(180deg, rgba(242, 235, 220, 0.98) 0%, rgba(242, 235, 220, 0.95) 100%)',
+        borderBottom: '3px solid #8b7355',
+        boxShadow: '0 2px 12px rgba(0, 0, 0, 0.15)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '0 32px',
+        position: 'relative',
+        zIndex: 1000
       }}>
-        <h1 style={{ margin: 0, marginBottom: '0.5rem', color: '#fff' }}>
-          {game.scenario_id.replace(/_/g, ' ').toUpperCase()}
-        </h1>
-        <p style={{ margin: 0, color: '#888', fontSize: '14px' }}>
-          Turn {game.turn_number} | Phase: <span style={{ color: '#4a90e2', fontWeight: 'bold' }}>{game.phase.toUpperCase()}</span> | Wind: {game.wind_direction}
-        </p>
+        {/* Decorative top border */}
+        <div style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: '4px',
+          background: 'linear-gradient(90deg, #3a5ba7 0%, #8b7355 50%, #a73a3a 100%)'
+        }} />
+
+        {/* Left: Wind info placeholder */}
+        <div style={{ color: '#2c1810', fontSize: '14px', fontWeight: 600 }}>
+          Wind: {game.wind_direction}
+        </div>
+
+        {/* Center: Turn and Phase */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+          <span style={{ fontSize: '24px', fontWeight: 700, color: '#2c1810' }}>
+            Turn {game.turn_number}
+          </span>
+          <span style={{
+            padding: '8px 20px',
+            borderRadius: '24px',
+            fontSize: '14px',
+            fontWeight: 700,
+            textTransform: 'uppercase',
+            letterSpacing: '1.5px',
+            color: 'white',
+            border: '2px solid rgba(0, 0, 0, 0.2)',
+            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
+            background: game.phase === 'planning' ? '#4a7ba7' :
+                       game.phase === 'movement' ? '#5a8f5a' :
+                       game.phase === 'combat' ? '#a74a4a' : '#d4874f'
+          }}>
+            {game.phase}
+          </span>
+        </div>
+
+        {/* Right: Phase control placeholder */}
+        <div>
+          {/* Will be replaced with PhaseActionButton in next bead */}
+        </div>
       </div>
 
       {/* Victory Banner */}
@@ -140,7 +184,8 @@ export function GamePage() {
           backgroundColor: game.winner === 'P1' ? '#2d5016' : game.winner === 'P2' ? '#501616' : '#3d3d16',
           borderBottom: '3px solid',
           borderColor: game.winner === 'P1' ? '#4a8029' : game.winner === 'P2' ? '#802929' : '#808029',
-          textAlign: 'center'
+          textAlign: 'center',
+          zIndex: 1001
         }}>
           <h2 style={{
             margin: 0,
@@ -157,102 +202,74 @@ export function GamePage() {
         </div>
       )}
 
-      {/* Main content area */}
+      {/* Full-screen hex map ocean container */}
       <div style={{
         flex: 1,
-        display: 'flex',
-        flexDirection: 'column',
+        position: 'relative',
         overflow: 'hidden',
-        padding: '1rem',
-        gap: '1rem'
+        background: 'radial-gradient(ellipse at center, #1a4d5c 0%, #0d2d3a 100%)'
       }}>
-        {/* Top section - Board and side panels */}
+        {/* Wave texture overlay */}
         <div style={{
-          flex: 1,
-          display: 'flex',
-          overflow: 'visible',
-          gap: '1rem',
-          minHeight: 0
-        }}>
-          {/* Left panel - Ship Log */}
-          <div style={{
-            width: '320px',
-            flexShrink: 0,
-            display: 'flex',
-            flexDirection: 'column',
-            minHeight: 0
-          }}>
-            <ShipLogPanel ship={selectedShip} />
-          </div>
+          position: 'absolute',
+          inset: 0,
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 50 Q 25 40, 50 50 T 100 50' stroke='%23ffffff' stroke-width='0.5' fill='none' opacity='0.1'/%3E%3Cpath d='M0 60 Q 25 50, 50 60 T 100 60' stroke='%23ffffff' stroke-width='0.5' fill='none' opacity='0.1'/%3E%3C/svg%3E")`,
+          opacity: 0.1,
+          pointerEvents: 'none',
+          zIndex: 1
+        }} />
 
-          {/* Center - Hex Grid Board */}
-          <div style={{
-            flex: 1,
-            minHeight: 0,
-            overflow: 'auto',
-            backgroundColor: '#1a1a1a',
-            borderRadius: '8px',
-            padding: '1rem'
-          }}>
-            <HexGrid
-              width={game.map_width}
-              height={game.map_height}
-              hexSize={25}
-              ships={ships}
-              selectedShipId={selectedShipId}
-              onHexClick={handleHexClick}
-              onShipClick={handleShipClick}
-              arcHexes={arcData?.arc_hexes}
-              shipsInArc={arcData?.ships_in_arc}
-              validTargets={arcData?.valid_targets}
-              pathPreviewHexes={pathPreviewHexes}
-            />
-          </div>
-
-          {/* Right panel - Phase control and Orders/Combat panels */}
-          <div style={{
-            width: '320px',
-            flexShrink: 0,
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '1rem',
-            height: '100%',
-            overflow: 'auto'
-          }}>
-            {/* Phase control panel - always visible */}
-            <PhaseControlPanel game={game} onGameUpdate={handleGameUpdate} />
-
-            {/* Phase-specific panels */}
-            {game.phase === 'planning' && (
-              <OrdersPanel
-                game={game}
-                onGameUpdate={handleGameUpdate}
-                onPreviewPath={handlePreviewPath}
-              />
-            )}
-            {game.phase === 'combat' && (
-              <CombatPanel
-                game={game}
-                selectedShipId={selectedShipId}
-                onGameUpdate={handleGameUpdate}
-                onShipSelect={handleShipClick}
-                onBroadsideSelected={handleBroadsideSelected}
-                onClearArc={handleClearArc}
-                arcData={arcData}
-              />
-            )}
-          </div>
-        </div>
-
-        {/* Bottom section - Event Log */}
+        {/* Hex grid - fills remaining space */}
         <div style={{
-          height: '280px',
-          flexShrink: 0,
+          width: '100%',
+          height: '100%',
           display: 'flex',
-          minHeight: 0
+          alignItems: 'center',
+          justifyContent: 'center',
+          overflow: 'auto',
+          padding: '2rem',
+          position: 'relative',
+          zIndex: 2
         }}>
-          <EventLog events={game.event_log} currentTurn={game.turn_number} />
+          <HexGrid
+            width={game.map_width}
+            height={game.map_height}
+            hexSize={25}
+            ships={ships}
+            selectedShipId={selectedShipId}
+            onHexClick={handleHexClick}
+            onShipClick={handleShipClick}
+            arcHexes={arcData?.arc_hexes}
+            shipsInArc={arcData?.ships_in_arc}
+            validTargets={arcData?.valid_targets}
+            pathPreviewHexes={pathPreviewHexes}
+          />
         </div>
+      </div>
+
+      {/* Hidden panels - will be moved to ShipActionPanel in next bead */}
+      <div style={{ display: 'none' }}>
+        <ShipLogPanel ship={selectedShip} />
+        <PhaseControlPanel game={game} onGameUpdate={handleGameUpdate} />
+        {game.phase === 'planning' && (
+          <OrdersPanel
+            game={game}
+            onGameUpdate={handleGameUpdate}
+            onPreviewPath={handlePreviewPath}
+          />
+        )}
+        {game.phase === 'combat' && (
+          <CombatPanel
+            game={game}
+            selectedShipId={selectedShipId}
+            onGameUpdate={handleGameUpdate}
+            onShipSelect={handleShipClick}
+            onBroadsideSelected={handleBroadsideSelected}
+            onClearArc={handleClearArc}
+            arcData={arcData}
+          />
+        )}
+        <EventLog events={game.event_log} currentTurn={game.turn_number} />
       </div>
     </div>
   );
