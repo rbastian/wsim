@@ -320,14 +320,14 @@ export function GamePage() {
           alignItems: 'center',
           justifyContent: 'center',
           overflow: 'auto',
-          padding: '0.5rem',
+          padding: 0,
           zIndex: 2,
           boxSizing: 'border-box'
         }}>
           <HexGrid
             width={game.map_width}
             height={game.map_height}
-            hexSize={30}
+            hexSize={38}
             ships={ships}
             selectedShipId={selectedShipId}
             onHexClick={handleHexClick}
