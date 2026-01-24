@@ -3,6 +3,7 @@
 import json
 import tempfile
 from pathlib import Path
+from unittest.mock import patch
 
 import pytest
 
@@ -257,6 +258,24 @@ def test_load_scenario_from_invalid_json_file():
             load_scenario_from_file(temp_path)
     finally:
         Path(temp_path).unlink()
+
+
+def test_load_scenario_oserror_on_read():
+    """Test that OSError during file read is handled properly."""
+    # Create a temporary file that exists (so the file existence check passes)
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
+        f.write('{"test": "data"}')
+        temp_path = Path(f.name)
+
+    try:
+        # Mock the open function to raise OSError when reading
+        with (
+            patch("builtins.open", side_effect=OSError("Permission denied")),
+            pytest.raises(ScenarioLoadError, match="Failed to read scenario file"),
+        ):
+            load_scenario_from_file(temp_path)
+    finally:
+        temp_path.unlink()
 
 
 def test_initialize_game_from_scenario():
