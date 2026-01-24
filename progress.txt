@@ -1,5 +1,136 @@
 # WSIM UX Redesign Progress
 
+## 2026-01-24: Ship Visual State Indicators (wsim-cd6)
+
+Implemented comprehensive ship visual state system with state-based overlays, badges, and animations following the naval chart aesthetic from the UX redesign.
+
+**Visual States Implemented:**
+
+1. **Ready State** (ships with submitted orders in planning phase)
+   - Green pulsing border (#4a8f4a, 3px width)
+   - Checkmark badge at stern position
+     - Green circle background (#4a8f4a) with white stroke
+     - White checkmark SVG path
+     - Positioned above stern hex (0.8 * hexSize offset)
+   - 2-second pulse animation (opacity 0.85 → 1 → 0.85)
+   - Only visible when not struck
+
+2. **Struck State** (ships that have surrendered)
+   - Gray desaturated color (#6a6a6a for fill and stroke)
+   - Dashed border (4px dash, 4px gap)
+   - Reduced opacity (0.4 vs normal 0.85)
+   - X overlay spanning both bow and stern hexes
+     - Two diagonal lines crossing the entire ship
+     - Ink secondary color (#5a4a3a) at 60% opacity
+     - 3px stroke width
+   - No animations or pulsing
+
+3. **Fouled State** (ships entangled with another)
+   - Orange border (#d4874f, 3px width)
+   - Chain link badge icon at bow position
+     - Orange circle background (#d4874f) with white stroke
+     - Two interlocking circles forming chain link
+     - White stroke (2px) for link icon
+     - Positioned offset from bow (0.7 * hexSize)
+   - Only visible when not struck
+
+4. **Selection Highlight**
+   - Golden glow effect (#f4d03f, 4px width)
+   - Blurred outer glow circles (8px blur, 30% opacity)
+   - Applied to both bow and stern hexes
+   - Takes priority over all other states
+   - No animation (static highlight)
+
+**Component Architecture:**
+
+**Ship.tsx Updates:**
+- Added `isReady?: boolean` prop to ShipProps interface
+- Created `getShipColor()` function:
+  - Returns struck gray or player colors (#3a5ba7 for P1, #a73a3a for P2)
+  - Uses UX redesign color palette
+- Created `getStrokeStyle()` function with priority system:
+  1. Selection (golden glow)
+  2. Ready (green pulsing)
+  3. Struck (gray dashed)
+  4. Fouled (orange solid)
+  5. Valid target (green for combat)
+  6. In arc (yellow for combat)
+  7. Default (darker player color)
+- Returns object with color, width, and optional dashArray
+
+**SVG Rendering:**
+- Glow effect rendered first (below ship) for selected ships
+  - Two blurred circles matching bow/stern positions
+  - Uses blur filter for soft glow
+- Main ship circles use strokeStyle properties:
+  - `stroke={strokeStyle.color}`
+  - `strokeWidth={strokeStyle.width}`
+  - `strokeDasharray={strokeStyle.dashArray}`
+- SVG animate elements for pulsing (ready state only)
+- Connection line between hexes uses same stroke style
+
+**Badge Icons:**
+- Ready badge:
+  - Circle with checkmark path
+  - SVG path with rounded linecap/linejoin
+  - Positioned at stern with vertical offset
+- Struck overlay:
+  - Two diagonal lines forming X
+  - Spans entire ship length
+- Fouled badge:
+  - Circle with two interlocking circles
+  - Chain link visual metaphor
+  - Positioned at bow with diagonal offset
+
+**Color Palette Used:**
+- `--ready-green`: #4a8f4a
+- `--struck-gray`: #6a6a6a
+- `--fouled-orange`: #d4874f
+- `--selected-glow`: #f4d03f
+- `--player-1`: #3a5ba7 (navy blue)
+- `--player-2`: #a73a3a (burgundy red)
+- `--ink-secondary`: #5a4a3a
+
+**Technical Implementation:**
+- Pure SVG rendering (no CSS classes needed)
+- Inline SVG animations using `<animate>` elements
+- State priority system ensures correct visual precedence
+- Opacity changes based on ship state
+- All measurements relative to hexSize for scalability
+
+**Technical Results:**
+- TypeScript compilation: ✅ passes
+- ESLint: ✅ passes (no new warnings)
+- No test suite configured yet
+- Type-safe props with proper defaults
+- Backward compatible (isReady defaults to false)
+
+**What Works:**
+- Selection glow provides clear visual feedback
+- Ready state pulses smoothly every 2 seconds
+- Struck ships clearly distinguished with gray/dashed style
+- Fouled ships show clear entanglement indicator
+- State priority system prevents visual conflicts
+- All badges scale properly with hex size
+- Icons are clear and readable at all zoom levels
+
+**Integration Points:**
+This component is ready for integration with:
+- wsim-7pz: Planning panel will set isReady prop based on submitted orders
+- wsim-4l5: Ready state tracking system will provide isReady values
+- wsim-ocn: Enhanced hover interactions building on these visual states
+
+**Next Steps:**
+Phase 2 Bead 4 is complete. The following beads are now unblocked:
+- wsim-ocn: Enhance ship hover and selection interactions (P1)
+- wsim-7pz: Build Planning phase panel content (P1)
+- wsim-toj: Build Combat phase panel content (P1)
+- wsim-pkn: Add animations and micro-interactions (P2)
+
+Ships now provide rich visual feedback for all game states. The naval chart aesthetic is reinforced through the color palette and badge designs. The pulsing ready state creates dynamic engagement during planning. The struck and fouled states clearly communicate ship status at a glance.
+
+---
+
 ## 2026-01-24: Collapsible ShipActionPanel with Slide Animation (wsim-xr1)
 
 Implemented the ShipActionPanel component - a collapsible drawer that slides in from the right when a ship is selected, providing an immersive context-sensitive interface for ship interactions.
