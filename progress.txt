@@ -1,5 +1,97 @@
 # WSIM UX Redesign Progress
 
+## 2026-01-24: TopHUD Component with Phase Controls (wsim-37z)
+
+Implemented the complete TopHUD component system that replaces the placeholder from wsim-5q8.
+
+**Components Created:**
+
+1. **WindRose Component** (`WindRose.tsx`)
+   - SVG-based compass rose with 8-direction support (N, NE, E, SE, S, SW, W, NW)
+   - Animated directional pointer with 0.5s ease-out transition
+   - Decorative circles and cardinal/intercardinal direction lines
+   - Drop shadow for depth
+   - 60px default size (configurable)
+   - Period naval chart aesthetic with cream/tan colors
+
+2. **TurnPhaseIndicator Component** (`TurnPhaseIndicator.tsx`)
+   - Turn number display with IM Fell English font (period naval documents)
+   - Optional turn limit (e.g., "Turn 3 of 10")
+   - Color-coded phase badges with border and shadow:
+     - Planning: #4a7ba7 (blue)
+     - Movement: #5a8f5a (green)
+     - Combat: #a74a4a (red)
+     - Reload: #d4874f (orange)
+   - Cinzel font for badge text
+   - Uppercase phase names with 1.5px letter spacing
+
+3. **PhaseActionButton Component** (`PhaseActionButton.tsx`)
+   - Complete phase transition logic moved from PhaseControlPanel
+   - Context-aware button text:
+     - Planning: "Resolve Movement ➜" (enabled when both players ready)
+     - Combat: "Reload Broadsides ➜"
+     - Reload: "Advance to Turn X ➜"
+     - Movement: "Movement Complete" (display only)
+   - Loading states: "Resolving...", "Reloading...", "Advancing..."
+   - Hover effects: background color shift, translateY(-2px), shadow
+   - Error display for failed API calls (inline, right-aligned)
+   - Disabled state with reduced opacity and cursor feedback
+   - Parchment/ink color scheme
+
+4. **TopHUD Component** (`TopHUD.tsx`)
+   - Main container orchestrating all three sections
+   - 80px fixed height with parchment gradient background
+   - Decorative tri-color top border (player colors + parchment)
+   - Three-section layout:
+     - Left: WindRose (flex: 0 0 auto)
+     - Center: TurnPhaseIndicator (flex: 0 0 auto)
+     - Right: PhaseActionButton (flex: 0 0 auto)
+   - Space-between justification
+   - 32px horizontal padding
+   - Z-index 1000 for proper layering
+   - Box shadow for depth
+
+**GamePage Integration:**
+- Replaced placeholder HUD with `<TopHUD game={game} onGameUpdate={handleGameUpdate} />`
+- Single line integration, clean and maintainable
+- PhaseControlPanel remains in hidden section for backward compatibility
+
+**Visual Details:**
+- Parchment background: `rgba(242, 235, 220, 0.98)` to `rgba(242, 235, 220, 0.95)` gradient
+- Decorative border: Linear gradient `#3a5ba7` → `#8b7355` → `#a73a3a` (4px height)
+- Border bottom: `#8b7355` (3px solid)
+- All typography uses naval-themed fonts (IM Fell English, Cinzel)
+- Consistent color palette from UX_REDESIGN.md
+
+**Technical Results:**
+- TypeScript type checking: ✅ passes
+- ESLint: ✅ passes (2 pre-existing warnings in CombatPanel, unmodified)
+- Build: ✅ succeeds
+  - Bundle size: 277.60 KB gzipped (+4KB from new components)
+  - 58 modules transformed
+  - Build time: 546ms
+- All phase transitions functional and tested
+- No breaking changes to existing API contracts
+
+**What Works:**
+- Wind direction displays correctly and animates on change
+- Turn number and phase update in real-time
+- Phase action button enables/disables based on game state
+- Phase transitions execute correctly (planning → movement → combat → reload → planning)
+- Hover effects provide immediate visual feedback
+- Error messages display when transitions fail
+- Loading states prevent double-clicks
+
+**Next Steps:**
+This completes Phase 1 Bead 2 of the UX redesign. The following beads are now unblocked:
+- wsim-xr1: Implement collapsible ShipActionPanel with slide animation (P1)
+- wsim-cd6: Add ship visual state indicators (ready, struck, fouled) (P1)
+- wsim-pkn: Add animations and micro-interactions (P2)
+
+The TopHUD provides a polished, period-appropriate navigation system that sets the tone for the immersive naval combat experience. The naval chart aesthetic is now consistently applied across the top UI layer.
+
+---
+
 ## 2026-01-24: Full-Screen Hex Map Layout (wsim-5q8)
 
 Implemented the foundation for the immersive UX redesign by restructuring GamePage.tsx:

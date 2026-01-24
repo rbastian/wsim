@@ -3,6 +3,7 @@
 import { useParams } from "react-router-dom";
 import { useState, useEffect, useCallback } from "react";
 import { HexGrid } from "../components/HexGrid";
+import { TopHUD } from "../components/TopHUD";
 import { ShipLogPanel } from "../components/ShipLogPanel";
 import { OrdersPanel } from "../components/OrdersPanel";
 import { CombatPanel } from "../components/CombatPanel";
@@ -119,63 +120,8 @@ export function GamePage() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>
-      {/* Placeholder Top HUD - will be replaced by TopHUD component in next bead */}
-      <div style={{
-        height: '80px',
-        flexShrink: 0,
-        background: 'linear-gradient(180deg, rgba(242, 235, 220, 0.98) 0%, rgba(242, 235, 220, 0.95) 100%)',
-        borderBottom: '3px solid #8b7355',
-        boxShadow: '0 2px 12px rgba(0, 0, 0, 0.15)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: '0 32px',
-        position: 'relative',
-        zIndex: 1000
-      }}>
-        {/* Decorative top border */}
-        <div style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          height: '4px',
-          background: 'linear-gradient(90deg, #3a5ba7 0%, #8b7355 50%, #a73a3a 100%)'
-        }} />
-
-        {/* Left: Wind info placeholder */}
-        <div style={{ color: '#2c1810', fontSize: '14px', fontWeight: 600 }}>
-          Wind: {game.wind_direction}
-        </div>
-
-        {/* Center: Turn and Phase */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-          <span style={{ fontSize: '24px', fontWeight: 700, color: '#2c1810' }}>
-            Turn {game.turn_number}
-          </span>
-          <span style={{
-            padding: '8px 20px',
-            borderRadius: '24px',
-            fontSize: '14px',
-            fontWeight: 700,
-            textTransform: 'uppercase',
-            letterSpacing: '1.5px',
-            color: 'white',
-            border: '2px solid rgba(0, 0, 0, 0.2)',
-            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
-            background: game.phase === 'planning' ? '#4a7ba7' :
-                       game.phase === 'movement' ? '#5a8f5a' :
-                       game.phase === 'combat' ? '#a74a4a' : '#d4874f'
-          }}>
-            {game.phase}
-          </span>
-        </div>
-
-        {/* Right: Phase control placeholder */}
-        <div>
-          {/* Will be replaced with PhaseActionButton in next bead */}
-        </div>
-      </div>
+      {/* Top HUD with wind rose, turn/phase indicator, and phase action button */}
+      <TopHUD game={game} onGameUpdate={handleGameUpdate} />
 
       {/* Victory Banner */}
       {game.game_ended && (
