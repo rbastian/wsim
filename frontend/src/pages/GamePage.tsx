@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom";
 import { useState, useEffect, useCallback } from "react";
 import { HexGrid } from "../components/HexGrid";
 import { TopHUD } from "../components/TopHUD";
+import { ShipActionPanel } from "../components/ShipActionPanel";
 import { ShipLogPanel } from "../components/ShipLogPanel";
 import { OrdersPanel } from "../components/OrdersPanel";
 import { CombatPanel } from "../components/CombatPanel";
@@ -19,6 +20,7 @@ export function GamePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedShipId, setSelectedShipId] = useState<string | null>(null);
+  const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [arcData, setArcData] = useState<BroadsideArcResponse | null>(null);
   const [pathPreviewHexes, setPathPreviewHexes] = useState<[number, number][]>([]);
 
@@ -53,8 +55,18 @@ export function GamePage() {
 
   const handleShipClick = (shipId: string) => {
     setSelectedShipId(shipId);
+    setIsPanelOpen(true);
     // Clear arc data when selecting a new ship
     setArcData(null);
+  };
+
+  const handlePanelClose = () => {
+    setIsPanelOpen(false);
+    // Clear selection after a short delay to allow for animation
+    setTimeout(() => {
+      setSelectedShipId(null);
+      setArcData(null);
+    }, 300);
   };
 
   const handleGameUpdate = (updatedGame: Game) => {
@@ -193,30 +205,39 @@ export function GamePage() {
         </div>
       </div>
 
-      {/* Hidden panels - will be moved to ShipActionPanel in next bead */}
-      <div style={{ display: 'none' }}>
-        <ShipLogPanel ship={selectedShip} />
-        <PhaseControlPanel game={game} onGameUpdate={handleGameUpdate} />
-        {game.phase === 'planning' && (
-          <OrdersPanel
-            game={game}
-            onGameUpdate={handleGameUpdate}
-            onPreviewPath={handlePreviewPath}
-          />
-        )}
-        {game.phase === 'combat' && (
-          <CombatPanel
-            game={game}
-            selectedShipId={selectedShipId}
-            onGameUpdate={handleGameUpdate}
-            onShipSelect={handleShipClick}
-            onBroadsideSelected={handleBroadsideSelected}
-            onClearArc={handleClearArc}
-            arcData={arcData}
-          />
-        )}
-        <EventLog events={game.event_log} currentTurn={game.turn_number} />
-      </div>
+      {/* Ship Action Panel - slides in from right */}
+      <ShipActionPanel
+        isOpen={isPanelOpen}
+        selectedShip={selectedShip}
+        game={game}
+        onClose={handlePanelClose}
+      >
+        {/* Temporarily show old panels inside the new panel */}
+        {/* These will be refactored into proper panel content in future beads */}
+        <div style={{ display: 'none' }}>
+          <ShipLogPanel ship={selectedShip} />
+          <PhaseControlPanel game={game} onGameUpdate={handleGameUpdate} />
+          {game.phase === 'planning' && (
+            <OrdersPanel
+              game={game}
+              onGameUpdate={handleGameUpdate}
+              onPreviewPath={handlePreviewPath}
+            />
+          )}
+          {game.phase === 'combat' && (
+            <CombatPanel
+              game={game}
+              selectedShipId={selectedShipId}
+              onGameUpdate={handleGameUpdate}
+              onShipSelect={handleShipClick}
+              onBroadsideSelected={handleBroadsideSelected}
+              onClearArc={handleClearArc}
+              arcData={arcData}
+            />
+          )}
+          <EventLog events={game.event_log} currentTurn={game.turn_number} />
+        </div>
+      </ShipActionPanel>
     </div>
   );
 }
