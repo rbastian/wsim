@@ -1,5 +1,33 @@
 # WSIM UX Redesign Progress
 
+## 2026-01-24: Improve Ship Panel UI (wsim-139)
+
+Fixed multiple UI issues with the ship action panel to make it more compact and readable.
+
+**Issues Addressed:**
+1. Panel was too large vertically, requiring excessive scrolling
+2. Panel background was not opaque enough, making text hard to read against hex map
+3. Panel animation was functioning correctly (slide-in from right)
+4. Overall panel needed to be more compact
+
+**Changes Made:**
+1. Reduced panel width from 380px to 360px for more map visibility
+2. Changed background from gradient to solid color (#f2ebdc) for better opacity
+3. Reduced texture overlay opacity from 0.05 to 0.03 for improved text readability
+4. Made panel more compact throughout:
+   - Main padding: 24px → 18px
+   - Header marginBottom: 20px → 16px, paddingBottom: 16px → 12px
+   - Status badges marginBottom: 16px → 12px
+   - Ship status section marginBottom: 24px → 18px
+   - Armament section marginTop: 16px → 12px
+
+**Testing:**
+- All 483 backend tests pass
+- TypeScript type checking passes for frontend
+- Panel maintains proper slide-in animation from right side
+
+The panel now displays ship information more clearly with less scrolling required, improving the overall user experience during gameplay.
+
 ## 2026-01-24: Fix Squadron Ready Button Behavior (wsim-fqj)
 
 Fixed the confusing behavior where clicking "Mark Ready" on one ship would incorrectly mark all ships in the squadron as ready.
