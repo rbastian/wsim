@@ -228,3 +228,22 @@ def test_delete_game_handles_missing_file(store, sample_game):
 
     # Game should be gone from memory
     assert store.get_game(sample_game.id) is None
+
+
+def test_get_persistent_game_store_singleton(temp_save_dir):
+    """Test get_persistent_game_store creates singleton."""
+    from wsim_api.persistent_store import get_persistent_game_store
+
+    # Reset singleton first
+    reset_persistent_game_store()
+
+    # First call creates instance
+    store1 = get_persistent_game_store(save_directory=temp_save_dir, auto_load=False)
+    assert store1 is not None
+
+    # Second call returns same instance
+    store2 = get_persistent_game_store(save_directory=temp_save_dir, auto_load=False)
+    assert store1 is store2
+
+    # Cleanup
+    reset_persistent_game_store()

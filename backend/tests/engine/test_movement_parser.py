@@ -220,6 +220,16 @@ class TestMovementActionModel:
         with pytest.raises(ValueError):
             MovementAction(action_type=MovementActionType.MOVE_FORWARD, distance=-1)
 
+    def test_movement_action_repr_forward(self):
+        """Test __repr__ for forward movement."""
+        action = MovementAction(action_type=MovementActionType.MOVE_FORWARD, distance=5)
+        assert repr(action) == "MovementAction(MOVE_FORWARD, 5)"
+
+    def test_movement_action_repr_turn(self):
+        """Test __repr__ for turn actions."""
+        action = MovementAction(action_type=MovementActionType.TURN_LEFT)
+        assert repr(action) == "MovementAction(TURN_LEFT)"
+
 
 class TestParsedMovementModel:
     """Tests for ParsedMovement Pydantic model."""
@@ -239,3 +249,12 @@ class TestParsedMovementModel:
         """Test that negative total_forward_hexes raises validation error."""
         with pytest.raises(ValueError):
             ParsedMovement(original_notation="test", actions=[], total_forward_hexes=-1)
+
+    def test_parsed_movement_repr(self):
+        """Test __repr__ for ParsedMovement."""
+        actions = [
+            MovementAction(action_type=MovementActionType.TURN_LEFT),
+            MovementAction(action_type=MovementActionType.MOVE_FORWARD, distance=2),
+        ]
+        parsed = ParsedMovement(original_notation="L2", actions=actions, total_forward_hexes=2)
+        assert repr(parsed) == "ParsedMovement('L2' -> 2 actions, 2 hexes)"
