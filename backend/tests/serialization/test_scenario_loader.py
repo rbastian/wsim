@@ -463,3 +463,116 @@ def test_load_real_scenario_two_ship_line_battle():
         # Initialize game to ensure it works
         game = initialize_game_from_scenario(scenario, "test_game")
         assert len(game.ships) == 4
+
+
+def test_load_scenario_from_file_with_validation_error():
+    """Test that load_scenario_from_file handles ValidationError correctly."""
+    # Create a temporary JSON file with invalid scenario data (missing required field)
+    data = {
+        "id": "test_scenario",
+        "name": "Test Scenario",
+        # Missing "description" field which is required
+        "map": {"width": 10, "height": 10},
+        "wind": {"direction": "N"},
+        "victory": {"type": "first_struck"},
+        "ships": [],
+    }
+
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
+        json.dump(data, f)
+        temp_file = f.name
+
+    try:
+        with pytest.raises(ScenarioLoadError, match="validation failed"):
+            load_scenario_from_file(temp_file)
+    finally:
+        Path(temp_file).unlink()
+
+
+def test_load_scenario_from_file_with_value_error_duplicate_ids():
+    """Test that load_scenario_from_file handles ValueError from duplicate ship IDs."""
+    # Create a temporary JSON file with duplicate ship IDs
+    data = {
+        "id": "test_scenario",
+        "name": "Test Scenario",
+        "description": "A test scenario",
+        "map": {"width": 10, "height": 10},
+        "wind": {"direction": "N"},
+        "victory": {"type": "first_struck"},
+        "ships": [
+            {
+                "id": "ship1",
+                "side": "P1",
+                "name": "Test Ship 1",
+                "battle_sail_speed": 3,
+                "start": {"bow": [5, 5], "facing": "N"},
+                "guns": {"L": 10, "R": 10},
+                "hull": 12,
+                "rigging": 10,
+                "crew": 10,
+                "marines": 2,
+                "initial_load": {"L": "R", "R": "R"},
+            },
+            {
+                "id": "ship1",  # Duplicate ID
+                "side": "P2",
+                "name": "Test Ship 2",
+                "battle_sail_speed": 3,
+                "start": {"bow": [6, 6], "facing": "S"},
+                "guns": {"L": 10, "R": 10},
+                "hull": 12,
+                "rigging": 10,
+                "crew": 10,
+                "marines": 2,
+                "initial_load": {"L": "R", "R": "R"},
+            },
+        ],
+    }
+
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
+        json.dump(data, f)
+        temp_file = f.name
+
+    try:
+        with pytest.raises(ScenarioLoadError, match="Duplicate ship IDs"):
+            load_scenario_from_file(temp_file)
+    finally:
+        Path(temp_file).unlink()
+
+
+def test_load_scenario_from_file_with_value_error_out_of_bounds():
+    """Test that load_scenario_from_file handles ValueError from ship out of bounds."""
+    # Create a temporary JSON file with ship out of bounds
+    data = {
+        "id": "test_scenario",
+        "name": "Test Scenario",
+        "description": "A test scenario",
+        "map": {"width": 10, "height": 10},
+        "wind": {"direction": "N"},
+        "victory": {"type": "first_struck"},
+        "ships": [
+            {
+                "id": "ship1",
+                "side": "P1",
+                "name": "Test Ship",
+                "battle_sail_speed": 3,
+                "start": {"bow": [15, 15], "facing": "N"},  # Out of bounds
+                "guns": {"L": 10, "R": 10},
+                "hull": 12,
+                "rigging": 10,
+                "crew": 10,
+                "marines": 2,
+                "initial_load": {"L": "R", "R": "R"},
+            }
+        ],
+    }
+
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
+        json.dump(data, f)
+        temp_file = f.name
+
+    try:
+        with pytest.raises(ScenarioLoadError, match="outside map bounds"):
+            load_scenario_from_file(temp_file)
+    finally:
+        Path(temp_file).unlink()
