@@ -1,5 +1,129 @@
 # WSIM UX Redesign Progress
 
+## 2026-01-24: Collapsible ShipActionPanel with Slide Animation (wsim-xr1)
+
+Implemented the ShipActionPanel component - a collapsible drawer that slides in from the right when a ship is selected, providing an immersive context-sensitive interface for ship interactions.
+
+**Components Created:**
+
+1. **ShipActionPanel Component** (`ShipActionPanel.tsx`)
+   - Slide-in/out animation from right side with 300ms cubic-bezier easing
+   - Fixed position: right-aligned, 380px wide, below TopHUD (top: 80px)
+   - Full viewport height minus HUD (calc(100vh - 80px))
+   - Animated via CSS transform: translateX(100%) → translateX(0)
+   - Z-index 999 for proper layering
+
+**Visual Design:**
+   - Aged parchment aesthetic:
+     - Gradient background: #f2ebdc → #e8ddc8
+     - Paper texture overlay using SVG noise filter (5% opacity)
+     - Border-left: 3px solid #8b7355
+     - Box shadow: -4px 0 16px rgba(0, 0, 0, 0.3)
+   - Typography:
+     - Ship name: IM Fell English, 22px, 700 weight
+     - Section headers: Cinzel, 14px, 600 weight, uppercase
+     - Body text: #2c1810 (ink primary), #5a4a3a (ink secondary)
+   - Player side badges:
+     - P1: #3a5ba7 (navy blue)
+     - P2: #a73a3a (burgundy red)
+     - 12px font, 600 weight, white text
+
+**Panel Header:**
+   - Ship name with side badge (P1/P2)
+   - Close button (×) in top-right
+   - Status badges for struck/fouled ships
+   - Border-bottom: 2px solid #8b7355
+   - Hover effect on close button (color shift)
+
+**Ship Status Display:**
+   - Damage track bars (hull, rigging, crew):
+     - Visual progress bars with health-based coloring
+     - Hull: gradient red to orange
+     - Rigging: gradient brown to tan
+     - Crew: gradient blue
+     - Filters based on percentage:
+       - >66%: hue-rotate(60deg) saturate(0.8) [green tint]
+       - 33-66%: saturate(1) [normal]
+       - <33%: saturate(1.2) brightness(1.1) + pulse animation [critical]
+     - Pulse animation for critical damage (<33%)
+   - Load status for both broadsides:
+     - Port (L) and Starboard (R) sections
+     - Gun count display
+     - Load state: "Loaded" (green #4a8f4a) or "Empty" (gray #6a6a6a)
+
+**Interaction Features:**
+   - **Open triggers:**
+     - Ship click on hex map
+     - Sets isPanelOpen to true and selectedShipId
+   - **Close triggers:**
+     - X button click
+     - ESC key press (keyboard event listener)
+     - Click outside panel (mousedown event listener)
+     - All triggers call handlePanelClose()
+   - **Panel close behavior:**
+     - Immediate panel slide-out animation
+     - 300ms delay before clearing selectedShipId (allows animation to complete)
+     - Clears arc data visualization
+   - **Focus management:**
+     - Panel receives focus when opened (accessibility)
+     - Tabindex -1 for keyboard navigation
+     - ARIA attributes: role="complementary", aria-label, aria-hidden
+
+**GamePage Integration:**
+   - Added `isPanelOpen` state (boolean)
+   - Modified `handleShipClick` to open panel
+   - Added `handlePanelClose` with animation delay
+   - ShipActionPanel rendered below hex map container
+   - Old panels (ShipLogPanel, OrdersPanel, CombatPanel) temporarily hidden inside panel
+   - Will be refactored into proper panel content in future beads
+
+**Technical Implementation:**
+   - useRef hook for panel DOM reference (click outside detection)
+   - useEffect for ESC key listener (document-level)
+   - useEffect for click outside listener (document-level, 100ms delay to prevent immediate close)
+   - useEffect for focus management (panel focus on open)
+   - CSS-based animations (no JavaScript animation libraries)
+   - Transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)
+
+**Accessibility:**
+   - Keyboard navigation: ESC closes panel
+   - Focus management: panel receives focus on open
+   - ARIA role: "complementary"
+   - ARIA labels for close button and ship status elements
+   - ARIA hidden state reflects panel visibility
+   - Close button has aria-label and aria-keyshortcuts
+
+**Technical Results:**
+- TypeScript type checking: ✅ passes
+- ESLint: ✅ passes
+- Build: ✅ succeeds
+  - Bundle size: 285.01 KB gzipped (+8KB from new component)
+  - 59 modules transformed
+  - Build time: 930ms
+- Panel animation smooth and performant
+- All close triggers functional
+- No breaking changes to existing components
+
+**What Works:**
+- Ship click opens panel with smooth slide-in animation
+- Close button, ESC key, and click outside all close panel correctly
+- Panel displays ship name, side, and status correctly
+- Damage tracks show proper colors and values
+- Load status reflects actual broadside states
+- Panel animation timing matches UX spec (300ms)
+- Focus management improves keyboard accessibility
+
+**What's Next:**
+This completes Phase 1 Bead 3 of the UX redesign. The panel structure is now in place. Future beads will:
+- wsim-7pz: Build Planning phase panel content (move OrdersPanel functionality)
+- wsim-toj: Build Combat phase panel content (move CombatPanel functionality)
+- wsim-cd6: Add ship visual state indicators (ready, struck, fouled)
+- wsim-pkn: Add animations and micro-interactions
+
+The ShipActionPanel provides an elegant, context-sensitive interface for ship interactions. The aged parchment aesthetic creates an immersive naval command experience. The panel is ready to receive phase-specific content in the next implementation beads.
+
+---
+
 ## 2026-01-24: TopHUD Component with Phase Controls (wsim-37z)
 
 Implemented the complete TopHUD component system that replaces the placeholder from wsim-5q8.
