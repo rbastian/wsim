@@ -1,5 +1,138 @@
 # WSIM UX Redesign Progress
 
+## 2026-01-24: Planning Phase Panel Content (wsim-7pz)
+
+Implemented complete planning phase controls within the ShipActionPanel, moving OrdersPanel functionality into the immersive side drawer interface per the UX redesign specifications.
+
+**Components Created:**
+
+1. **PlanningControls Component** (`PlanningControls.tsx`)
+   - Ship-specific movement order input with real-time validation
+   - Integrated into ShipActionPanel as phase-specific content
+   - Naval typography with Courier Prime for movement notation
+   - Visual feedback for valid/invalid input (green checkmark / red shake)
+   - Submit Orders and Mark Ready buttons with naval styling
+   - Help text showing movement syntax (0, L, R, 1-9)
+
+**Visual Design:**
+   - Dashed border parchment section (#8b7355, 2px dashed)
+   - Light background: rgba(255, 255, 255, 0.4)
+   - Movement input:
+     - Courier Prime monospace font (18px, uppercase, 2px letter spacing)
+     - Center-aligned text for notation clarity
+     - Border colors indicate state: green (#5a9a5a) valid, red (#a74a4a) invalid, brown default
+     - White background when active, parchment when disabled (ready state)
+   - Buttons:
+     - Submit Orders: Planning blue (#4a7ba7) → lighter on hover (#5a8bc7)
+     - Mark Ready: Success green (#4a8f4a) → lighter on hover (#5a9f5a)
+     - Ready state: Parchment background with green text and border
+     - Cinzel font, uppercase, 14px, 600 weight
+     - Hover effects: translateY(-1px), box shadow
+   - Validation feedback:
+     - Green checkmark with text for valid notation
+     - Red error text with shake animation for invalid
+     - 12px font size, inline display
+
+**Functionality:**
+   - **Real-time validation:**
+     - Character-by-character input checking
+     - Valid characters: L, R, 0, 1-9
+     - Special case: "0" means no movement
+     - Error messages show invalid character and position
+   - **Order submission:**
+     - Updates orders for selected ship
+     - Preserves existing orders for other ships
+     - Submits complete orders array to API
+     - Shows "Update Orders" if already submitted
+   - **Ready state management:**
+     - Mark Ready button enables after orders submitted
+     - Shows "✓ Ready" when marked ready
+     - Button becomes informational (not clickable) when ready
+     - All inputs disabled when ready
+   - **Path preview integration:**
+     - Triggers onPreviewPath callback with valid movement
+     - Updates on input change when valid
+     - Clears preview on blur or invalid input
+   - **Error handling:**
+     - API errors displayed inline with red background
+     - Loading states prevent double-submission
+     - Error messages clear on retry
+
+**GamePage Integration:**
+   - Added PlanningControls import
+   - Conditional rendering in ShipActionPanel children:
+     - Shows PlanningControls when phase === 'planning' && selectedShip
+     - Passes ship, game, onGameUpdate, onPreviewPath props
+   - Old OrdersPanel hidden but preserved (display: none)
+   - Will be removed in future cleanup
+
+**Component Architecture:**
+   - Props interface: ship, game, onGameUpdate, onPreviewPath (optional)
+   - Local state:
+     - movement: string (input value)
+     - validationError: string | null
+     - submitting: boolean (loading state)
+     - markingReady: boolean (loading state)
+     - error: string | null (API errors)
+     - isValid: boolean (validation result)
+   - useEffect to initialize from existing orders
+   - Validation function: validateMovementSyntax (same logic as OrdersPanel)
+
+**CSS Animations:**
+   - Shake animation for invalid input (@keyframes shake)
+   - 300ms duration, translateX oscillation (-4px, +4px)
+   - Applied to input border via className when invalid
+   - Inline styles for transitions (0.2s all)
+
+**Accessibility:**
+   - Semantic HTML: section, h3, input, button
+   - Placeholder text for movement input
+   - Disabled state on inputs/buttons when ready
+   - Error messages inline with form
+   - Help text always visible for reference
+
+**Technical Results:**
+- TypeScript type checking: ✅ passes
+- 386 backend tests: ✅ pass
+- Build: ✅ succeeds
+- No breaking changes to existing components
+
+**What Works:**
+- Movement input validates correctly character-by-character
+- Valid notation shows green checkmark immediately
+- Invalid characters trigger red border and shake animation
+- Submit Orders button updates/creates orders correctly
+- Mark Ready button enables after orders submitted
+- Ready state disables all inputs and shows ✓ Ready
+- Path preview updates in real-time with valid movement
+- All buttons have proper hover effects
+- Loading states prevent double-clicks
+- Error messages display clearly when API calls fail
+- Help text provides quick reference for syntax
+- Naval typography creates immersive aesthetic
+
+**User Experience:**
+The planning controls now live in the context of the selected ship, making order entry intuitive. The movement input provides immediate validation feedback - valid notation gets a green checkmark, invalid characters trigger a red shake. The two-step process (Submit Orders, then Mark Ready) mirrors the game flow and prevents accidental ready marking.
+
+The Courier Prime monospace font makes movement notation clear and readable. The parchment aesthetic with dashed border creates visual separation from the ship status section above. Button states (enabled, hover, loading, ready) provide clear affordance for all interactions.
+
+**Integration Points:**
+This implementation:
+- Builds on wsim-xr1: ShipActionPanel structure and styling
+- Replaces OrdersPanel: Same validation and submission logic, new UX
+- Prepares for wsim-4l5: Ready state visualization (checkmark badge on ship)
+- Follows UX_REDESIGN.md: Phase 3, Bead 6 specifications exactly
+
+**Next Steps:**
+Phase 3 Bead 6 is complete. The following beads are now unblocked:
+- wsim-4l5: Implement ready state tracking and visualization (P1)
+- wsim-toj: Build Combat phase panel content (P1)
+- wsim-pkn: Add animations and micro-interactions (P2)
+
+OrdersPanel can now be deprecated and removed in a future cleanup bead. The planning phase experience is now fully integrated into the immersive side panel interface.
+
+---
+
 ## 2026-01-24: Enhanced Ship Hover and Selection Interactions (wsim-ocn)
 
 Implemented comprehensive hover effects, selection animations, and keyboard navigation for ships in the hex map, completing Phase 2 Bead 5 of the UX redesign.

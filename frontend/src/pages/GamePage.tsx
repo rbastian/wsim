@@ -5,6 +5,7 @@ import { useState, useEffect, useCallback } from "react";
 import { HexGrid } from "../components/HexGrid";
 import { TopHUD } from "../components/TopHUD";
 import { ShipActionPanel } from "../components/ShipActionPanel";
+import { PlanningControls } from "../components/PlanningControls";
 import { ShipLogPanel } from "../components/ShipLogPanel";
 import { OrdersPanel } from "../components/OrdersPanel";
 import { CombatPanel } from "../components/CombatPanel";
@@ -212,18 +213,25 @@ export function GamePage() {
         game={game}
         onClose={handlePanelClose}
       >
-        {/* Temporarily show old panels inside the new panel */}
-        {/* These will be refactored into proper panel content in future beads */}
+        {/* Phase-specific controls */}
+        {game.phase === 'planning' && selectedShip && (
+          <PlanningControls
+            ship={selectedShip}
+            game={game}
+            onGameUpdate={handleGameUpdate}
+            onPreviewPath={handlePreviewPath}
+          />
+        )}
+
+        {/* Temporarily hide old panels - will be migrated in future beads */}
         <div style={{ display: 'none' }}>
           <ShipLogPanel ship={selectedShip} />
           <PhaseControlPanel game={game} onGameUpdate={handleGameUpdate} />
-          {game.phase === 'planning' && (
-            <OrdersPanel
-              game={game}
-              onGameUpdate={handleGameUpdate}
-              onPreviewPath={handlePreviewPath}
-            />
-          )}
+          <OrdersPanel
+            game={game}
+            onGameUpdate={handleGameUpdate}
+            onPreviewPath={handlePreviewPath}
+          />
           {game.phase === 'combat' && (
             <CombatPanel
               game={game}
