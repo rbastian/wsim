@@ -54,6 +54,38 @@ button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
+/* Ship selection animation */
+@keyframes select-ship {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.ship-just-selected {
+  animation: select-ship 0.3s ease-out;
+  transform-origin: center;
+}
+
+/* Custom focus styles for better accessibility */
+*:focus-visible {
+  outline: 3px solid #f4d03f;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Focus styles for SVG elements */
+g[role="button"]:focus-visible {
+  outline: 3px solid #f4d03f;
+  outline-offset: 4px;
+  filter: drop-shadow(0 0 12px rgba(244, 208, 63, 0.8));
+}
+
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;
